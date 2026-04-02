@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Referral program dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;padding:0 16px 32px;background:#f8f8f8}
+.top-banner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0C447C;border-radius:12px 12px 0 0;flex-wrap:wrap;gap:8px}
+.banner-title{font-size:14px;font-weight:500;color:#fff}
+.banner-sub{font-size:12px;color:#85B7EB}
+.banner-left{display:flex;align-items:center;gap:12px}
+.updated-flag{display:flex;align-items:center;gap:6px;font-size:12px;color:#B5D4F4;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 12px}
+.udot{width:7px;height:7px;border-radius:50%;background:#97C459;flex-shrink:0}
+.udot.stale{background:#F09595}
+.data-source-pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;margin-left:8px}
+.ds-live{background:#EAF3DE;color:#27500A}
+.ds-fallback{background:#FAEEDA;color:#633806}
+.tab-row{display:flex;align-items:center;gap:6px;padding:12px 0 0;flex-wrap:wrap;border-bottom:2px solid #E6F1FB}
+.tab{font-size:13px;padding:8px 18px;cursor:pointer;border-radius:20px 20px 0 0;color:#5F5E5A;border:none;background:none;white-space:nowrap;font-weight:400}
+.tab.on{color:#0C447C;background:#E6F1FB;font-weight:500}
+.tab.leadership{color:#534AB7}
+.tab.leadership.on{background:#EEEDFE;color:#3C3489}
+.tab-sep{width:1px;background:#D3D1C7;height:20px;margin:0 2px}
+.pg{display:none}.pg.on{display:block}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0 14px;flex-wrap:wrap;gap:10px}
+.month-wrap{display:flex;align-items:center;gap:8px}
+.month-wrap label{font-size:12px;color:#888780}
+.dr-label{font-size:12px;color:#5F5E5A;background:#F1EFE8;padding:5px 12px;border-radius:20px}
+.mtd-pill{font-size:11px;background:#FAEEDA;color:#633806;border-radius:20px;padding:3px 10px;font-weight:500}
+.complete-pill{font-size:11px;background:#EAF3DE;color:#27500A;border-radius:20px;padding:3px 10px;font-weight:500}
+select{font-size:13px;padding:7px 12px;border-radius:20px;border:1.5px solid #B5D4F4;background:#fff;color:#0C447C;font-weight:500;cursor:pointer}
+.mrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
+.mc{border-radius:16px;padding:16px 18px}
+.mc.win{background:#EAF3DE;border:1.5px solid #97C459}
+.mc.neutral{background:#E6F1FB;border:1.5px solid #85B7EB}
+.mc.warn{background:#FAEEDA;border:1.5px solid #FAC775}
+.mc.danger{background:#FCEBEB;border:1.5px solid #F09595}
+.ml{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.mc.win .ml{color:#3B6D11}.mc.neutral .ml{color:#185FA5}.mc.warn .ml{color:#854F0B}.mc.danger .ml{color:#A32D2D}
+.mv{font-size:28px;font-weight:500}
+.mc.win .mv{color:#27500A}.mc.neutral .mv{color:#0C447C}.mc.warn .mv{color:#633806}.mc.danger .mv{color:#791F1F}
+.ms{font-size:12px;margin-top:3px}
+.mc.win .ms{color:#3B6D11}.mc.neutral .ms{color:#185FA5}.mc.warn .ms{color:#854F0B}.mc.danger .ms{color:#A32D2D}
+.slbl{font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
+.mcard{border-radius:16px;padding:16px;position:relative;border:2px solid transparent}
+.mcard.rank-1-card{background:#FFF8E1;border-color:#EF9F27}
+.mcard.rank-2-card{background:#F1EFE8;border-color:#B4B2A9}
+.mcard.rank-3-card{background:#FDE8D8;border-color:#F0997B}
+.mcard.rank-4-card{background:#fff;border-color:#E5E5E5}
+.rank-crown{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:16px;background:#fff;border-radius:20px;padding:1px 8px;border:1.5px solid #EF9F27}
+.rank-num{position:absolute;top:10px;right:12px;font-size:11px;font-weight:500;border-radius:20px;padding:2px 8px}
+.rn-1{background:#EF9F27;color:#412402}.rn-2{background:#D3D1C7;color:#2C2C2A}.rn-3{background:#F0997B;color:#4A1B0C}.rn-4{background:#F1EFE8;color:#888780}
+.mcard-mkt{font-size:14px;font-weight:500;color:#111;margin-bottom:1px}
+.mcard-mgr{font-size:11px;color:#888780;margin-bottom:10px}
+.mcard-nums{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.mcard-actual{font-size:24px;font-weight:500;color:#111}
+.mcard-tgt{font-size:12px;color:#888780}
+.pbb{height:8px;background:rgba(0,0,0,0.08);border-radius:20px;overflow:hidden;margin-bottom:6px}
+.pbf{height:100%;border-radius:20px}
+.fg{background:#639922}.fa{background:#BA7517}.fr{background:#E24B4A}
+.mcard-status{font-size:12px;font-weight:500;border-radius:20px;padding:3px 10px;display:inline-block;margin-top:4px}
+.st-win{background:#EAF3DE;color:#27500A}.st-warn{background:#FAEEDA;color:#633806}.st-danger{background:#FCEBEB;color:#791F1F}
+.panel{background:#fff;border:1.5px solid #E6F1FB;border-radius:16px;overflow:hidden;margin-bottom:1.5rem}
+.ph{padding:12px 16px;border-bottom:1.5px solid #E6F1FB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.pt{font-size:13px;font-weight:500;color:#111}
+.toggle-group{display:flex;background:#E6F1FB;border-radius:20px;padding:3px;gap:3px}
+.tgbtn{font-size:12px;padding:5px 14px;border-radius:20px;border:none;cursor:pointer;color:#185FA5;background:transparent;font-weight:500}
+.tgbtn.on{background:#0C447C;color:#fff}
+.frow{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.fl{font-size:13px;color:#5F5E5A}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th{font-size:11px;font-weight:500;color:#888780;text-align:left;padding:8px 16px;border-bottom:1.5px solid #E6F1FB;text-transform:uppercase;letter-spacing:.04em}
+th.tr{text-align:right}
+td{padding:10px 16px;border-bottom:1px solid #F1EFE8;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.tr{text-align:right}
+tr:last-child td{border-bottom:none}
+tr.win-row td{background:#EAF3DE}
+tr.warn-row td{background:#FAEEDA}
+tr.danger-row td{background:#FCEBEB}
+tr.dr:hover td{filter:brightness(0.97)}
+.b{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px}
+.bg{background:#639922;color:#EAF3DE}.ba{background:#BA7517;color:#FAEEDA}.br{background:#E24B4A;color:#FCEBEB}.bt{background:#E6F1FB;color:#0C447C}
+.foot{font-size:11px;color:#888780;padding:8px 16px;border-top:1px solid #F1EFE8}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#5F5E5A}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+.leg-dash{width:18px;height:0;border-top:2px dashed #888780}
+.sm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:14px}
+.sm-card{background:#F1EFE8;border:1.5px solid #D3D1C7;border-radius:12px;padding:12px}
+.sm-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.chart-view{display:none}.chart-view.on{display:block}
+.ldr-header{background:#EEEDFE;border-bottom:1.5px solid #CECBF6;padding:10px 16px;display:flex;align-items:center;gap:8px}
+.ldr-txt{font-size:12px;color:#3C3489;font-weight:500}
+.ldr-sub{font-size:11px;color:#534AB7}
+.funnel-wrap{padding:20px 24px}
+.funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.funnel-label{font-size:12px;color:#5F5E5A;width:90px;text-align:right;flex-shrink:0}
+.funnel-bar-bg{flex:1;height:32px;background:#F1EFE8;border-radius:20px;overflow:hidden}
+.funnel-bar-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:12px;font-size:12px;font-weight:500;color:#fff}
+.funnel-num{font-size:12px;color:#888780;width:90px;flex-shrink:0}
+.funnel-drop{font-size:11px;color:#A32D2D;width:65px;flex-shrink:0;text-align:right;font-weight:500}
+.funnel-arrow{font-size:11px;color:#D3D1C7;padding:0 0 4px 102px}
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
+.loading-spinner{width:36px;height:36px;border:3px solid #E6F1FB;border-top-color:#0C447C;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:#5F5E5A}
+</style>
+</head><body>
+
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loading-text">Fetching live data…</div>
+</div>
+
+<div class="top-banner">
+  <div class="banner-left">
+    <span class="banner-title">Referral program dashboard</span>
+    <span class="banner-sub" id="markets-sub">Loading…</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="data-source-pill" id="ds-pill">—</span>
+    <div class="updated-flag"><div class="udot" id="udot"></div><span id="ulbl"></span></div>
+  </div>
+</div>
+
+<div class="tab-row">
+  <div class="tab on" onclick="sw('ov')">Market overview</div>
+  <div class="tab" onclick="sw('am')">Area manager view</div>
+  <div class="tab" onclick="sw('st')">Store drill-down</div>
+  <div class="tab-sep"></div>
+  <div class="tab leadership" onclick="sw('biz')">Business outcomes</div>
+</div>
+
+<div class="pg on" id="pg-ov">
+  <div class="topbar">
+    <div class="month-wrap">
+      <label>Viewing month</label>
+      <select id="month-dd" onchange="selectMonth(parseInt(this.value))"></select>
+      <span id="period-pill"></span>
+    </div>
+    <div class="dr-label" id="dr-lbl"></div>
+  </div>
+  <div class="mrow" id="ov-scorecards"></div>
+  <div class="slbl">Market leaderboard — ranked by avg referrals per store</div>
+  <div class="mgrid" id="mcards"></div>
+  <div class="slbl">Referral performance by market</div>
+  <div class="panel">
+    <div class="ph">
+      <div>
+        <div class="pt">Referral actuals vs ramping targets</div>
+        <div style="font-size:11px;color:#888780;margin-top:2px">Targets increase monthly as the program scales</div>
+      </div>
+      <div class="toggle-group">
+        <button class="tgbtn on" onclick="setChartView('sm')">Market trends</button>
+        <button class="tgbtn" onclick="setChartView('cmp')">Monthly comparison</button>
+      </div>
+    </div>
+    <div class="chart-view on" id="cv-sm">
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual (complete)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#D3D1C7"></div>Future target only</div>
+        <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
+      </div>
+      <div class="sm-grid" id="sm-grid"></div>
+      <div class="foot">Each panel = one market. Rising target line reflects program scaling. Faded = MTD. Gray = future.</div>
+    </div>
+    <div class="chart-view" id="cv-cmp">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 0;flex-wrap:wrap">
+        <label style="font-size:12px;color:#888780">Compare month</label>
+        <select id="cmp-sel" onchange="buildCmp()"></select>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual</div>
+        <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
+      </div>
+      <div style="padding:12px 16px 8px"><div style="position:relative;width:100%;height:280px"><canvas id="cmpChart"></canvas></div></div>
+      <div class="foot" id="cmp-foot"></div>
+    </div>
+  </div>
+  <div class="slbl">Market summary</div>
+  <div class="panel">
+    <div class="ph"><span class="pt" id="mkt-tbl-title"></span></div>
+    <table><thead><tr>
+      <th style="width:5%"></th><th style="width:15%">Market</th><th style="width:15%">Regional</th>
+      <th class="tr" style="width:8%">Stores</th><th class="tr" style="width:11%">Target</th>
+      <th class="tr" style="width:11%">Actual</th><th class="tr" style="width:11%">Avg/store</th>
+      <th class="tr" style="width:15%">Vs pace</th><th class="tr" style="width:9%">% goal</th>
+    </tr></thead><tbody id="mtbl"></tbody></table>
+    <div class="foot" id="mkt-foot"></div>
+  </div>
+</div>
+
+<div class="pg" id="pg-am">
+  <div class="topbar">
+    <div class="month-wrap"><label>Viewing month</label>
+      <select id="am-month-dd" onchange="selectMonth(parseInt(this.value))"></select>
+      <span id="am-pill"></span>
+    </div>
+    <div class="dr-label" id="am-dr"></div>
+  </div>
+  <div class="frow"><span class="fl">Market</span>
+    <select id="am-mkt-sel" onchange="renderAM(this.value)">
+      <option value="all">All markets</option>
+    </select>
+  </div>
+  <div class="mrow" id="am-scorecards"></div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Area manager attainment — lowest to highest</span></div>
+    <table><thead><tr>
+      <th style="width:22%">Area manager</th><th style="width:14%">Market</th>
+      <th class="tr" style="width:9%">Stores</th><th class="tr" style="width:12%">Target</th>
+      <th class="tr" style="width:12%">Actual</th><th class="tr" style="width:18%">Vs pace</th>
+      <th class="tr" style="width:13%">% to goal</th>
+    </tr></thead><tbody id="amtbl"></tbody></table>
+    <div class="foot">Green = on/ahead of pace. Amber = within 10%. Red = &gt;10% behind pace.</div>
+  </div>
+</div>
+
+<div class="pg" id="pg-st">
+  <div class="topbar">
+    <div class="month-wrap"><label>Viewing month</label>
+      <select id="st-month-dd" onchange="selectMonth(parseInt(this.value))"></select>
+      <span id="st-pill"></span>
+    </div>
+    <div class="dr-label" id="st-dr"></div>
+  </div>
+  <div class="frow">
+    <span class="fl">Market</span>
+    <select id="mkt-sel" onchange="filterMkt(this.value)">
+      <option value="all">All markets</option>
+    </select>
+    <span class="fl">Area manager</span>
+    <select id="am-sel" onchange="renderS()"><option value="all">All areas</option></select>
+  </div>
+  <div class="mrow" id="st-scorecards"></div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Store attainment — lowest to highest</span></div>
+    <table><thead><tr>
+      <th style="width:20%">Store #</th><th style="width:14%">Manager</th><th style="width:12%">Area</th><th style="width:12%">Market</th>
+      <th class="tr" style="width:10%">Target</th><th class="tr" style="width:10%">Actual</th>
+      <th class="tr" style="width:14%">Vs pace</th><th class="tr" style="width:8%">% goal</th>
+    </tr></thead><tbody id="stbl"></tbody></table>
+    <div class="foot">Row backgrounds reflect pace status. Green = on/ahead. Amber = within 10%. Red = &gt;10% behind.</div>
+  </div>
+</div>
+
+<div class="pg" id="pg-biz">
+  <div class="ldr-header">
+    <span class="ldr-txt">Leadership &amp; regional view</span>
+    <span class="ldr-sub">— Conversion and revenue are not within store control</span>
+  </div>
+  <div class="topbar" style="padding-top:14px">
+    <div class="month-wrap"><label>Viewing month</label>
+      <select id="biz-month-dd" onchange="selectMonth(parseInt(this.value));buildBiz()"></select>
+    </div>
+  </div>
+  <div class="mrow" id="biz-scorecards"></div>
+  <div class="slbl">Referral pipeline — all markets combined</div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Referral → repair funnel</span><span style="font-size:11px;color:#888780" id="funnel-period"></span></div>
+    <div class="funnel-wrap" id="funnel-wrap"></div>
+    <div class="foot">Drop-off = records lost at each stage vs previous stage.</div>
+  </div>
+  <div class="slbl">Completed jobs by market</div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Referrals &amp; completed jobs by market</span></div>
+    <table><thead><tr>
+      <th style="width:18%">Market</th><th class="tr" style="width:13%">Referrals</th>
+      <th class="tr" style="width:13%">Completed Jobs</th>
+      <th class="tr" style="width:15%">Completion rate</th>
+      <th class="tr" style="width:15%">Daily ref target</th>
+      <th class="tr" style="width:13%">Stores active</th>
+      <th class="tr" style="width:13%">Revenue est.</th>
+    </tr></thead><tbody id="biztbl"></tbody></table>
+    <div class="foot">Completion rate = completed jobs ÷ referrals. Sorted lowest to highest. Revenue estimated at $480/job.</div>
+  </div>
+  <div class="slbl">Trend — monthly referrals by market</div>
+  <div class="panel">
+    <div class="ph"><span class="pt">Monthly referral totals by market</span></div>
+    <div class="legend" id="biz-legend"></div>
+    <div style="padding:14px 16px 8px"><div style="position:relative;width:100%;height:240px"><canvas id="bizChart"></canvas></div></div>
+    <div class="foot" id="biz-chart-foot"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ─── FALLBACK DATA (derived from actual JSON structure: daily grain per store) ───
+// Keys match live data: Day, Store Number, Leads, Completed Jobs, Market,
+// Regional, Area, Store Manager, Referral Target (daily), Completed Target (daily)
+var FALLBACK_DATA = [
+  // Nashville stores — Jan 2026 sample (21 stores, partial days shown representatively)
+  // Jan totals: Nashville ~107 leads, 17 completed; Feb ~122, 27; Mar MTD ~118, 21
+  {Day:"2026-01-31",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40041,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40043,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40045,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Bryan",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40046,Leads:5,CompletedJobs:2,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40048,Leads:4,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"C Cahoon",StoreManager:"Brendan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40049,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Peter",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:40050,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Ivyanna",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40063,Leads:4,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jaylen",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40087,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Joseph",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:40090,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40091,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jordan",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:40092,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Cornelius",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40093,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"C Cahoon",StoreManager:"Luis",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40094,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jonathan",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:40095,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Dawood",ReferralTarget:2.425,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40096,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Austin",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40098,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"David",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:40110,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40115,Leads:5,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Thomas",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40118,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Amy",ReferralTarget:1.525,CompletedTarget:0.5},
+  // Atlanta stores — Jan 2026
+  {Day:"2026-01-31",StoreNumber:40140,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Devonte",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40150,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40152,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Eddie",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40154,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40155,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Trent",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40160,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Chris",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40163,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40167,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Latisha",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40168,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"DJ",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40178,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Brandon",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40183,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Tevin",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40188,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40189,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40190,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Elisia",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40232,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Jiovani",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40261,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Miguel",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40274,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Trey",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40278,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40279,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
+  // Dallas stores — Jan 2026
+  {Day:"2026-01-31",StoreNumber:70059,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70061,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"",StoreManager:"",ReferralTarget:0.6,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70062,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Pam",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70070,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Andrew",ReferralTarget:0.6,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70084,Leads:3,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Carol",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70085,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"Devin",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70087,Leads:3,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Grant",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70089,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Richard",ReferralTarget:0.6,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70093,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Roger",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70094,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Ben",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70095,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Arden",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70096,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Cody",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70097,Leads:3,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Tamija",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70102,Leads:6,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70151,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70152,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Broderick",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70153,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Ian",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70157,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70160,Leads:5,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Jesus",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70163,Leads:6,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70173,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Mitch",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70176,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Benny",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-01-31",StoreNumber:70178,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Keith",ReferralTarget:1.525,CompletedTarget:0.5},
+  // Houston stores — Jan 2026
+  {Day:"2026-01-31",StoreNumber:70047,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70049,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Andrew",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70050,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Lathon",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70051,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"C Durbin",StoreManager:"Billy",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70055,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"C Durbin",StoreManager:"Joshua",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70057,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Steven",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70058,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Blake",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70060,Leads:4,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"John",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70063,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70064,Leads:4,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Francisco",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70069,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"John",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70081,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"C Durbin",StoreManager:"Eduardo",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70086,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"R Dayton",StoreManager:"Esteban",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70090,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70103,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"John",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70121,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"R Dayton",StoreManager:"Blair",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70122,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70123,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Daan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70124,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"S Newlin",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70125,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Brandon",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70126,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5},
+  // Feb 2026 rows — Nashville
+  {Day:"2026-02-28",StoreNumber:40040,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40043,Leads:7,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40046,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40050,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Ivyanna",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40063,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jaylen",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40087,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Joseph",ReferralTarget:1.225,CompletedTarget:0.25},
+  {Day:"2026-02-28",StoreNumber:40092,Leads:7,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Cornelius",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40095,Leads:8,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Dawood",ReferralTarget:2.425,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40110,Leads:8,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40115,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Thomas",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40118,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Amy",ReferralTarget:1.525,CompletedTarget:0.5},
+  // Feb 2026 — Atlanta
+  {Day:"2026-02-28",StoreNumber:40150,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40163,Leads:6,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40183,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Tevin",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40188,Leads:5,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40261,Leads:6,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Miguel",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40279,Leads:5,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
+  // Feb 2026 — Dallas
+  {Day:"2026-02-28",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70095,Leads:5,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Arden",ReferralTarget:0.9,CompletedTarget:0.25},
+  {Day:"2026-02-28",StoreNumber:70102,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70151,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70157,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70163,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
+  // Feb 2026 — Houston
+  {Day:"2026-02-28",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70063,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70090,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70122,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70126,Leads:5,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5},
+  // Mar 2026 MTD rows
+  {Day:"2026-03-17",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40043,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40046,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40063,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jaylen",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40095,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Dawood",ReferralTarget:2.425,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40110,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40150,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40163,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40188,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40279,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70102,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70151,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70163,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70063,Leads:7,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70090,Leads:7,CompletedJobs:3,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70122,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70126,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5}
+];
+
+// ─── LIVE DATA URL ───
+var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
+
+// ─── GLOBALS ───
+var RAW = [];           // all processed daily rows
+var MKTS = [];          // discovered markets
+var MKT_COLORS = {Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
+var MONTHS_META = [];   // [{label, key, isMTD, isFuture, daysElapsed, daysTotal}]
+var CURRENT_MONTH_KEY = '';
+var selMonthKey = '';
+var smCharts = {}, cmpChart = null, bCI = null;
+var AOV = 480;
+var dataSource = 'fallback';
+
+// ─── NORMALISE a single raw JSON record into a clean object ───
+function normaliseRow(r) {
+  var sn = r['Store Number'];
+  if (typeof sn !== 'number') return null; // skip 'Not attributed to a store'
+  var mkt = r['Market'];
+  if (!mkt || mkt === '#N/A') return null;
+  var leads = typeof r['Leads'] === 'number' ? r['Leads'] : 0;
+  var comp = typeof r['Completed Jobs'] === 'number' ? r['Completed Jobs'] : 0;
+  var rt = typeof r['Referral Target'] === 'number' ? r['Referral Target'] : 0;
+  var ct = typeof r['Completed Target'] === 'number' ? r['Completed Target'] : 0;
+  var dayStr = (r['Day'] || '').substring(0, 10);
+  var monthKey = dayStr.substring(0, 7);
+  return {
+    day: dayStr,
+    monthKey: monthKey,
+    storeNum: sn,
+    leads: leads,
+    completedJobs: comp,
+    market: mkt,
+    regional: r['Regional'] || '',
+    area: r['Area'] || '',
+    storeManager: r['Store Manager'] || '',
+    dailyRefTarget: rt,
+    dailyCompTarget: ct
+  };
+}
+
+// normalise fallback (which uses camelCase keys)
+function normaliseFallbackRow(r) {
+  var dayStr = (r.Day || '').substring(0, 10);
+  return {
+    day: dayStr,
+    monthKey: dayStr.substring(0, 7),
+    storeNum: r.StoreNumber,
+    leads: r.Leads || 0,
+    completedJobs: r.CompletedJobs || 0,
+    market: r.Market,
+    regional: r.Regional || '',
+    area: r.Area || '',
+    storeManager: r.StoreManager || '',
+    dailyRefTarget: r.ReferralTarget || 0,
+    dailyCompTarget: r.CompletedTarget || 0
+  };
+}
+
+// ─── BUILD DERIVED STRUCTURES from RAW ───
+function buildDerived() {
+  // discover months
+  var monthSet = {}, monthOrder = [];
+  RAW.forEach(function(r) {
+    if (!monthSet[r.monthKey]) { monthSet[r.monthKey] = true; monthOrder.push(r.monthKey); }
+  });
+  // dedupe
+  monthOrder = monthOrder.filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
+
+  // detect current month = latest month with data
+  var now = new Date();
+  var latestWithData = '';
+  monthOrder.forEach(function(mk) {
+    var hasLeads = RAW.some(function(r) { return r.monthKey === mk && r.leads > 0; });
+    if (hasLeads) latestWithData = mk;
+  });
+  CURRENT_MONTH_KEY = latestWithData || monthOrder[monthOrder.length - 1];
+
+  // build month metadata
+  MONTHS_META = monthOrder.map(function(mk) {
+    var parts = mk.split('-');
+    var y = parseInt(parts[0]), m = parseInt(parts[1]);
+    var daysInMonth = new Date(y, m, 0).getDate();
+    var isFuture = mk > CURRENT_MONTH_KEY;
+    var isMTD = mk === CURRENT_MONTH_KEY;
+    var daysElapsed = 0;
+    if (isMTD) {
+      // find max day in that month from data
+      var days = RAW.filter(function(r){return r.monthKey===mk;}).map(function(r){return r.day;});
+      days.sort();
+      if (days.length) {
+        var lastDay = parseInt(days[days.length-1].split('-')[2]);
+        daysElapsed = lastDay;
+      } else {
+        daysElapsed = now.getDate();
+      }
+    } else if (!isFuture) {
+      daysElapsed = daysInMonth;
+    }
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var label = months[m-1] + ' ' + y;
+    return { key: mk, label: label, isMTD: isMTD, isFuture: isFuture, daysElapsed: daysElapsed, daysTotal: daysInMonth };
+  });
+
+  // add projected months (up to 3 after current)
+  var lastMeta = MONTHS_META[MONTHS_META.length - 1];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for (var p = 1; p <= 3; p++) {
+    var lp = lastMeta.key.split('-');
+    var py = parseInt(lp[0]), pm = parseInt(lp[1]) + p;
+    if (pm > 12) { py++; pm -= 12; }
+    var pkey = py + '-' + (pm < 10 ? '0' : '') + pm;
+    var dip = new Date(py, pm, 0).getDate();
+    MONTHS_META.push({ key: pkey, label: months[pm-1] + ' ' + py, isMTD: false, isFuture: true, daysElapsed: 0, daysTotal: dip });
+  }
+
+  // discover markets
+  var mktSet = {};
+  RAW.forEach(function(r) { mktSet[r.market] = true; });
+  MKTS = Object.keys(mktSet).sort();
+
+  if (!selMonthKey) selMonthKey = CURRENT_MONTH_KEY;
+}
+
+// ─── AGGREGATE: monthly totals per market ───
+function monthMarketTotals(monthKey, market) {
+  var rows = RAW.filter(function(r) { return r.monthKey === monthKey && r.market === market; });
+  var leads = 0, comp = 0, targSum = 0;
+  var storeSet = {}, areaSet = {};
+  rows.forEach(function(r) {
+    leads += r.leads;
+    comp += r.completedJobs;
+    targSum += r.dailyRefTarget;
+    storeSet[r.storeNum] = true;
+    if (r.area && r.area !== 'OPEN' && r.area !== '') areaSet[r.area] = true;
+  });
+  return { leads: leads, comp: comp, dailyTargetSum: targSum, storeCount: Object.keys(storeSet).length };
+}
+
+// ─── MONTHLY TARGET for a market (sum of daily targets for all store-days) ───
+// For future months we estimate from the last known month's daily target sum scaled to days
+function monthlyTarget(monthKey, market) {
+  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
+  if (!meta) return 0;
+  if (meta.isFuture) {
+    // use last actual month's daily target rate * daysTotal
+    var lastActual = MONTHS_META.slice().reverse().find(function(m){return !m.isFuture && m.key !== monthKey;});
+    if (lastActual) {
+      var la = monthMarketTotals(lastActual.key, market);
+      var rate = lastActual.daysTotal > 0 ? la.dailyTargetSum / lastActual.daysTotal : 0;
+      return Math.round(rate * meta.daysTotal);
+    }
+    return 0;
+  }
+  // for past/MTD: sum the daily targets recorded
+  var rows = RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; });
+  if (rows.length === 0) return 0;
+  // unique store-days
+  var seen = {}, sum = 0;
+  rows.forEach(function(r){
+    var k = r.day + '|' + r.storeNum;
+    if (!seen[k]) { seen[k] = true; sum += r.dailyRefTarget; }
+  });
+  // scale from elapsed days to full month
+  if (meta.isMTD && meta.daysElapsed > 0) {
+    return Math.round(sum * meta.daysTotal / meta.daysElapsed);
+  }
+  return Math.round(sum);
+}
+
+// ─── UNIQUE STORES in a market-month ───
+function uniqueStores(monthKey, market) {
+  var seen = {};
+  RAW.filter(function(r){ return r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
+  return Object.keys(seen).length;
+}
+
+// ─── AREAS for a market ───
+function areasForMarket(market) {
+  var seen = {};
+  RAW.forEach(function(r){ if(r.market===market && r.area && r.area!=='OPEN' && r.area!=='') seen[r.area]=true; });
+  return Object.keys(seen).sort();
+}
+
+// ─── PACE ───
+function paceFraction(monthKey) {
+  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
+  if (!meta || meta.isFuture) return 0;
+  if (!meta.isMTD) return 1;
+  return meta.daysElapsed / meta.daysTotal;
+}
+
+function pc(a,t) { return t > 0 ? Math.round(a/t*100) : 0; }
+
+function paceStatus(a, t, pace) {
+  if (t <= 0) return {cls:'',label:'no target',badge:'bt',row:'',sc:'neutral'};
+  var r = a / (t * pace);
+  if (r >= 1) return {cls:'cg',label:'ahead of pace',badge:'bg',row:'win-row',sc:'win'};
+  if (r >= 0.9) return {cls:'ca',label:'within 10% of pace',badge:'ba',row:'warn-row',sc:'warn'};
+  return {cls:'cr',label:'behind pace',badge:'br',row:'danger-row',sc:'danger'};
+}
+
+function vsPaceStr(a, t, pace) {
+  var v = a - Math.round(t * pace);
+  return (v >= 0 ? '+' : '') + v;
+}
+
+// ─── UI HELPERS ───
+function makeScorecard(label, value, sub, type) {
+  return '<div class="mc '+type+'"><div class="ml">'+label+'</div><div class="mv">'+value+'</div><div class="ms">'+sub+'</div></div>';
+}
+
+function pillHTML(monthKey) {
+  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
+  if (!meta) return '';
+  if (meta.isMTD) return '<span class="mtd-pill">MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days</span>';
+  if (!meta.isFuture) return '<span class="complete-pill">Complete month</span>';
+  return '<span style="font-size:11px;background:#F1EFE8;color:#888780;border-radius:20px;padding:3px 10px">Projected</span>';
+}
+
+function dateRangeLabel(monthKey) {
+  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
+  if (!meta) return '';
+  var parts = monthKey.split('-');
+  var y = parts[0], m = parseInt(parts[1]);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mn = months[m-1];
+  if (meta.isFuture) return mn + ' ' + y + ' (not yet started)';
+  if (meta.isMTD) return mn + ' 1 – ' + mn + ' ' + meta.daysElapsed + ', ' + y + ' (MTD)';
+  return mn + ' 1 – ' + mn + ' ' + meta.daysTotal + ', ' + y + ' (complete)';
+}
+
+function buildAllDDs() {
+  ['month-dd','am-month-dd','st-month-dd','biz-month-dd'].forEach(function(id) {
+    var el = document.getElementById(id); if (!el) return;
+    el.innerHTML = MONTHS_META.map(function(m) {
+      var lbl = m.label + (m.isMTD ? ' — MTD' : m.isFuture ? ' (projected)' : '');
+      return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
+    }).join('');
+  });
+  // cmp-sel
+  var csel = document.getElementById('cmp-sel');
+  if (csel) csel.innerHTML = MONTHS_META.filter(function(m){return !m.isFuture||MONTHS_META.indexOf(m)<MONTHS_META.length-2;}).map(function(m){
+    var lbl = m.label + (m.isMTD ? ' — MTD' : m.isFuture ? ' (projected)' : '');
+    return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
+  }).join('');
+  // market filters
+  ['am-mkt-sel','mkt-sel'].forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    var cur=el.value||'all';
+    el.innerHTML='<option value="all">All markets</option>'+MKTS.map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');
+    el.value=cur;
+  });
+}
+
+function selectMonth(key) {
+  selMonthKey = key;
+  buildAllDDs();
+  var dl = dateRangeLabel(key), ph = pillHTML(key);
+  ['dr-lbl','am-dr','st-dr'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=dl;});
+  ['period-pill','am-pill','st-pill'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=ph;});
+  buildOv();
+}
+
+// ─── OVERVIEW ───
+function buildOv() {
+  var mk = selMonthKey;
+  var meta = MONTHS_META.find(function(m){return m.key===mk;});
+  var pace = paceFraction(mk);
+  var isMTD = meta && meta.isMTD, isFuture = meta && meta.isFuture;
+
+  document.getElementById('mkt-tbl-title').textContent = 'Market summary — ' + (meta?meta.label:mk);
+  document.getElementById('mkt-foot').textContent = isMTD
+    ? 'Vs pace = actual vs expected at '+meta.daysElapsed+'/'+meta.daysTotal+' days. Ranked by avg referrals per store.'
+    : isFuture ? 'Future month — targets set, actuals not yet available.'
+    : 'Complete month. Ranked by avg referrals per store.';
+
+  var rows = MKTS.map(function(market) {
+    var totals = monthMarketTotals(mk, market);
+    var tgt = monthlyTarget(mk, market);
+    var sc = uniqueStores(mk, market);
+    var regSet = {};
+    RAW.filter(function(r){return r.market===market&&r.regional;}).forEach(function(r){regSet[r.regional]=true;});
+    var regional = Object.keys(regSet).join(', ');
+    return { market: market, regional: regional, sc: sc, leads: totals.leads, comp: totals.comp, tgt: tgt, hasActual: !isFuture };
+  });
+
+  var ta = rows.reduce(function(s,r){return s+r.leads;},0);
+  var tt = rows.reduce(function(s,r){return s+r.tgt;},0);
+  var op = isFuture ? null : pc(ta, tt);
+  var overallPS = op !== null ? paceStatus(ta, tt, pace) : null;
+
+  document.getElementById('ov-scorecards').innerHTML =
+    makeScorecard('Total referrals', isFuture?'—':ta, 'all markets', 'neutral') +
+    makeScorecard('Total target', tt, meta?meta.label:mk, 'neutral') +
+    makeScorecard('Overall attainment', op!==null?op+'%':'—', isMTD?'of full-month target':isFuture?'no actuals yet':'attainment', overallPS?overallPS.sc:'neutral') +
+    makeScorecard(isMTD?'Days elapsed':'Month status', isMTD?(meta.daysElapsed+' / '+meta.daysTotal):isFuture?'Future':'Complete', isMTD?Math.round(pace*100)+'% of month done':isFuture?'Targets set':'Full results', 'neutral');
+
+  var ranked = rows.slice().sort(function(a,b){ return (b.leads/Math.max(b.sc,1)) - (a.leads/Math.max(a.sc,1)); });
+  var rankCardCls = ['rank-1-card','rank-2-card','rank-3-card','rank-4-card'];
+  var rankNumCls = ['rn-1','rn-2','rn-3','rn-4'];
+  var rankLabels = ['1st','2nd','3rd','4th'];
+
+  document.getElementById('mcards').innerHTML = ranked.map(function(r, i) {
+    var ps = r.hasActual ? paceStatus(r.leads, r.tgt, pace) : {cls:'',label:'no actuals yet',badge:'bt',row:'',sc:''};
+    var actualW = r.tgt > 0 ? Math.min(Math.round(r.leads/r.tgt*100), 100) : 0;
+    var paceW = Math.min(Math.round(pace*100), 100);
+    var fc = ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr';
+    var stCls = ps.cls==='cg'?'st-win':ps.cls==='ca'?'st-warn':'st-danger';
+    var avgS = r.sc > 0 ? (r.leads/r.sc).toFixed(2) : '—';
+    return '<div class="mcard '+rankCardCls[i]+'" style="margin-top:'+(i===0?'14px':'0')+'">'
+      +(i===0?'<div class="rank-crown">&#127942;</div>':'')
+      +'<div class="rank-num '+rankNumCls[i]+'">'+rankLabels[i]+'</div>'
+      +'<div class="mcard-mkt">'+r.market+'</div><div class="mcard-mgr">'+r.regional+'</div>'
+      +'<div class="mcard-nums"><span class="mcard-actual">'+(r.hasActual?r.leads:'—')+'</span><span class="mcard-tgt">of '+r.tgt+'</span></div>'
+      +'<div style="position:relative;margin-bottom:8px"><div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>'
+      +(isMTD&&r.hasActual?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'')+'</div>'
+      +'<span class="mcard-status '+(r.hasActual?stCls:'bt')+'">'+avgS+' avg/store'+(r.hasActual?' — '+ps.label:'')+'</span>'
+      +(isMTD&&r.hasActual?'<div style="font-size:11px;color:#888780;margin-top:6px">Expected by day '+meta.daysElapsed+': '+Math.round(r.tgt*pace)+'</div>':'')
+      +'</div>';
+  }).join('');
+
+  document.getElementById('mtbl').innerHTML = ranked.map(function(r, i) {
+    var ps = r.hasActual ? paceStatus(r.leads, r.tgt, pace) : {cls:'',label:'projected',badge:'bt',row:''};
+    var vs = r.hasActual ? vsPaceStr(r.leads, r.tgt, pace) : '—';
+    var avgS = r.sc > 0 ? (r.leads/r.sc).toFixed(2) : '—';
+    return '<tr class="dr '+(r.hasActual?ps.row:'')+'">'
+      +'<td style="font-size:12px;color:#888780;font-weight:500">'+(i+1)+'</td>'
+      +'<td style="font-weight:500">'+r.market+'</td><td style="color:#888780;font-size:12px">'+r.regional+'</td>'
+      +'<td class="tr">'+r.sc+'</td><td class="tr">'+r.tgt+'</td>'
+      +'<td class="tr">'+(r.hasActual?r.leads:'—')+'</td>'
+      +'<td class="tr" style="font-weight:500">'+avgS+'</td>'
+      +'<td class="tr" style="font-size:12px">'+vs+'</td>'
+      +'<td class="tr"><span class="b '+ps.badge+'">'+(r.hasActual?pc(r.leads,r.tgt)+'%':'target set')+'</span></td></tr>';
+  }).join('');
+
+  buildSM();
+}
+
+// ─── SMALL MULTIPLES ───
+function setChartView(v) {
+  document.querySelectorAll('.tgbtn').forEach(function(b,i){b.classList.toggle('on',(i===0&&v==='sm')||(i===1&&v==='cmp'));});
+  document.getElementById('cv-sm').classList.toggle('on', v==='sm');
+  document.getElementById('cv-cmp').classList.toggle('on', v==='cmp');
+  if (v==='sm') buildSM(); else buildCmp();
+}
+
+function buildSM() {
+  var grid = document.getElementById('sm-grid');
+  grid.innerHTML = MKTS.map(function(m) {
+    return '<div class="sm-card"><div class="sm-title"><span style="font-size:12px;font-weight:500;color:'+(MKT_COLORS[m]||'#185FA5')+'">'+m+'</span>'
+      +'<span style="font-size:11px;color:#888780" id="sm-stat-'+m+'"></span></div>'
+      +'<div style="position:relative;height:150px"><canvas id="sm-'+m+'"></canvas></div></div>';
+  }).join('');
+
+  MKTS.forEach(function(m) {
+    var color = MKT_COLORS[m] || '#185FA5';
+    var completeMeta = MONTHS_META.filter(function(mm){return !mm.isFuture;});
+    var labels = MONTHS_META.map(function(mm){return mm.label.substring(0,3);});
+    var actuals = MONTHS_META.map(function(mm) {
+      if (mm.isFuture) return 0;
+      return monthMarketTotals(mm.key, m).leads;
+    });
+    var targets = MONTHS_META.map(function(mm) { return monthlyTarget(mm.key, m); });
+    var bgs = MONTHS_META.map(function(mm) {
+      if (mm.isFuture) return 'rgba(180,180,180,0.3)';
+      if (mm.isMTD) return color+'55';
+      return color;
+    });
+
+    // stat badge for current
+    var curActual = monthMarketTotals(CURRENT_MONTH_KEY, m).leads;
+    var curTgt = monthlyTarget(CURRENT_MONTH_KEY, m);
+    var st = document.getElementById('sm-stat-'+m);
+    if (st && curTgt > 0) {
+      var p = pc(curActual, curTgt);
+      st.innerHTML = '<span style="font-weight:500;border-radius:20px;padding:2px 8px;font-size:11px;background:'+(p>=90?'#639922':p>=70?'#BA7517':'#E24B4A')+';color:#fff">'+p+'%</span>';
+    }
+
+    if (smCharts[m]) smCharts[m].destroy();
+    smCharts[m] = new Chart(document.getElementById('sm-'+m), {type:'bar',
+      data:{labels:labels,datasets:[
+        {label:'Actual',data:actuals,backgroundColor:bgs,borderRadius:6,order:2},
+        {label:'Target',data:targets,type:'line',borderColor:color,borderWidth:1.5,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:color,pointBorderWidth:2,fill:false,tension:0,order:1}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:false},tooltip:{callbacks:{
+          label:function(ctx){
+            if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;
+            var mm=MONTHS_META[ctx.dataIndex];
+            if(!mm||mm.isFuture)return'No actuals yet';
+            return'Actual: '+actuals[ctx.dataIndex]+(mm.isMTD?' (MTD)':'');
+          },
+          title:function(ctx){return m+' — '+MONTHS_META[ctx[0].dataIndex].label;}
+        }}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},
+                y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,targets)*1.18}}
+      }
+    });
+  });
+}
+
+function buildCmp() {
+  var mk = (document.getElementById('cmp-sel')||{}).value || selMonthKey;
+  var meta = MONTHS_META.find(function(m){return m.key===mk;});
+  if (!meta) return;
+  var actuals = MKTS.map(function(m){ return meta.isFuture?0:monthMarketTotals(mk,m).leads; });
+  var targets = MKTS.map(function(m){ return monthlyTarget(mk,m); });
+  var bgs = MKTS.map(function(m,i){ return actuals[i]===0&&meta.isFuture?'rgba(180,180,180,0.3)':meta.isMTD?(MKT_COLORS[m]||'#185FA5')+'88':(MKT_COLORS[m]||'#185FA5'); });
+  document.getElementById('cmp-foot').textContent = meta.isMTD?meta.label+' MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days.':meta.isFuture?'Future month — targets set, actuals not yet available.':'Complete month — final actuals vs target.';
+  if (cmpChart) cmpChart.destroy();
+  cmpChart = new Chart(document.getElementById('cmpChart'),{type:'bar',
+    data:{labels:MKTS,datasets:[
+      {label:'Actual',data:actuals,backgroundColor:bgs,borderRadius:8,order:2},
+      {label:'Target',data:targets,type:'line',borderColor:'#888780',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false,tension:0,order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        label:function(ctx){if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;if(meta.isFuture)return'No actuals yet';return(meta.isMTD?'MTD: ':'Actual: ')+actuals[ctx.dataIndex];},
+        title:function(ctx){return ctx[0].label+' — '+meta.label;}
+      }}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},
+              y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals))*1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}}
+    }
+  });
+}
+
+// ─── AREA MANAGER VIEW ───
+function renderAM(filter) {
+  var mk = selMonthKey;
+  var meta = MONTHS_META.find(function(m){return m.key===mk;});
+  var pace = paceFraction(mk);
+  var isFuture = meta && meta.isFuture;
+
+  // gather areas across markets
+  var areaMap = {}; // area -> {market, regional, stores: Set}
+  RAW.forEach(function(r){
+    if (!r.area || r.area === '' || r.area === 'OPEN') return;
+    if (filter !== 'all' && r.market !== filter) return;
+    if (!areaMap[r.area]) areaMap[r.area] = {area: r.area, market: r.market, regional: r.regional, storeNums: {}};
+    areaMap[r.area].storeNums[r.storeNum] = true;
+  });
+
+  var rows = Object.keys(areaMap).map(function(area) {
+    var info = areaMap[area];
+    var storeCnt = Object.keys(info.storeNums).length;
+    var totals = isFuture ? {leads:0,comp:0} : (function(){
+      var leads=0,comp=0;
+      RAW.filter(function(r){return r.area===area&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
+      return {leads:leads,comp:comp};
+    })();
+    var tgt = isFuture ? 0 : (function(){
+      var seen={},sum=0;
+      RAW.filter(function(r){return r.area===area&&r.monthKey===mk;}).forEach(function(r){
+        var k=r.day+'|'+r.storeNum;
+        if(!seen[k]){seen[k]=true;sum+=r.dailyRefTarget;}
+      });
+      if(meta&&meta.isMTD&&meta.daysElapsed>0)return Math.round(sum*meta.daysTotal/meta.daysElapsed);
+      return Math.round(sum);
+    })();
+    var ps = !isFuture && tgt > 0 ? paceStatus(totals.leads, tgt, pace) : {cls:'',label:'projected',badge:'bt',row:'',sc:'warn'};
+    return {area:area, market:info.market, regional:info.regional, cnt:storeCnt, leads:totals.leads, tgt:tgt, ps:ps, hasActual:!isFuture};
+  }).sort(function(a,b){ return (a.leads/Math.max(a.tgt,1)) - (b.leads/Math.max(b.tgt,1)); });
+
+  var on=rows.filter(function(x){return x.ps.cls==='cg';}).length;
+  var at=rows.filter(function(x){return x.ps.cls==='ca';}).length;
+  var bh=rows.filter(function(x){return x.ps.cls==='cr';}).length;
+  var wa=rows.filter(function(x){return x.hasActual&&x.tgt>0;});
+  var avg=wa.length?Math.round(wa.reduce(function(s,x){return s+x.leads/x.tgt;},0)/wa.length*100)+'%':'—';
+
+  document.getElementById('am-scorecards').innerHTML =
+    makeScorecard('On track',on,'≥ pace','win') + makeScorecard('At risk',at,'within 10% of pace','warn') +
+    makeScorecard('Behind',bh,'>10% behind pace','danger') + makeScorecard('Avg attainment',avg,'selected view','neutral');
+
+  document.getElementById('amtbl').innerHTML = rows.map(function(r) {
+    var vs = r.hasActual && r.tgt>0 ? vsPaceStr(r.leads, r.tgt, pace) : '—';
+    return '<tr class="dr '+(r.hasActual?r.ps.row:'')+'">'
+      +'<td style="font-weight:500">'+r.area+'</td><td style="font-size:12px;color:#888780">'+r.market+'</td>'
+      +'<td class="tr">'+r.cnt+'</td><td class="tr">'+r.tgt+'</td><td class="tr">'+(r.hasActual?r.leads:'—')+'</td>'
+      +'<td class="tr" style="font-size:12px">'+vs+(r.hasActual&&r.tgt>0?' ('+r.ps.label+')':'')+'</td>'
+      +'<td class="tr"><span class="b '+r.ps.badge+'">'+(r.hasActual&&r.tgt>0?pc(r.leads,r.tgt)+'%':'target set')+'</span></td></tr>';
+  }).join('');
+}
+
+// ─── STORE DRILL-DOWN ───
+function filterMkt(mkt) {
+  var sel = document.getElementById('am-sel');
+  sel.innerHTML = '<option value="all">All areas</option>';
+  var areas = mkt === 'all' ? [] : areasForMarket(mkt);
+  areas.forEach(function(a){ var o=document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+  renderS();
+}
+
+function renderS() {
+  var mk = selMonthKey;
+  var meta = MONTHS_META.find(function(m){return m.key===mk;});
+  var pace = paceFraction(mk);
+  var isFuture = meta && meta.isFuture;
+  var mktF = document.getElementById('mkt-sel').value;
+  var amF = document.getElementById('am-sel').value;
+
+  // gather unique stores
+  var storeMap = {};
+  RAW.forEach(function(r){
+    if (mktF !== 'all' && r.market !== mktF) return;
+    if (amF !== 'all' && r.area !== amF) return;
+    if (!storeMap[r.storeNum]) storeMap[r.storeNum] = {storeNum:r.storeNum,market:r.market,area:r.area,storeManager:r.storeManager};
+  });
+
+  var rows = Object.keys(storeMap).map(function(sn) {
+    var info = storeMap[sn];
+    var totals = isFuture ? {leads:0,comp:0} : (function(){
+      var leads=0,comp=0;
+      RAW.filter(function(r){return r.storeNum==sn&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
+      return {leads:leads,comp:comp};
+    })();
+    var tgt = isFuture ? 0 : (function(){
+      var seen={},sum=0;
+      RAW.filter(function(r){return r.storeNum==sn&&r.monthKey===mk;}).forEach(function(r){
+        var k=r.day;
+        if(!seen[k]){seen[k]=true;sum+=r.dailyRefTarget;}
+      });
+      if(meta&&meta.isMTD&&meta.daysElapsed>0)return Math.round(sum*meta.daysTotal/meta.daysElapsed);
+      return Math.round(sum);
+    })();
+    var ps = !isFuture && tgt>0 ? paceStatus(totals.leads,tgt,pace) : {cls:'',label:'projected',badge:'bt',row:'',sc:'warn'};
+    return {sn:sn,market:info.market,area:info.area||'—',mgr:info.storeManager||'—',leads:totals.leads,tgt:tgt,ps:ps,hasActual:!isFuture};
+  }).sort(function(a,b){ return (a.leads/Math.max(a.tgt,1)) - (b.leads/Math.max(b.tgt,1)); });
+
+  var on=rows.filter(function(s){return s.ps.cls==='cg';}).length;
+  var at=rows.filter(function(s){return s.ps.cls==='ca';}).length;
+  var bh=rows.filter(function(s){return s.ps.cls==='cr';}).length;
+  var wa=rows.filter(function(s){return s.hasActual&&s.tgt>0;});
+  var avg=wa.length?Math.round(wa.reduce(function(s,x){return s+x.leads/x.tgt;},0)/wa.length*100)+'%':'—';
+
+  document.getElementById('st-scorecards').innerHTML =
+    makeScorecard('On track',on,'≥ pace','win') + makeScorecard('At risk',at,'within 10% of pace','warn') +
+    makeScorecard('Behind',bh,'>10% behind pace','danger') + makeScorecard('Avg attainment',avg,'selected view','neutral');
+
+  document.getElementById('stbl').innerHTML = rows.map(function(s) {
+    var vs = s.hasActual&&s.tgt>0 ? vsPaceStr(s.leads,s.tgt,pace) : '—';
+    return '<tr class="dr '+(s.hasActual?s.ps.row:'')+'">'
+      +'<td style="font-weight:500">#'+s.sn+'</td><td style="font-size:12px;color:#5F5E5A">'+s.mgr+'</td>'
+      +'<td style="font-size:12px;color:#888780">'+s.area+'</td>'
+      +'<td style="font-size:12px;color:#888780">'+s.market+'</td>'
+      +'<td class="tr">'+s.tgt+'</td><td class="tr">'+(s.hasActual?s.leads:'—')+'</td>'
+      +'<td class="tr" style="font-size:12px">'+vs+(s.hasActual&&s.tgt>0?' ('+s.ps.label+')':'')+'</td>'
+      +'<td class="tr"><span class="b '+s.ps.badge+'">'+(s.hasActual&&s.tgt>0?pc(s.leads,s.tgt)+'%':'target set')+'</span></td></tr>';
+  }).join('');
+}
+
+// ─── BUSINESS OUTCOMES ───
+function buildBiz() {
+  var mk = selMonthKey;
+  var meta = MONTHS_META.find(function(m){return m.key===mk;});
+  var isFuture = meta && meta.isFuture;
+  document.getElementById('funnel-period').textContent = dateRangeLabel(mk);
+
+  var mktRows = MKTS.map(function(m) {
+    if (isFuture) return {m:m,leads:0,comp:0,tgt:0,cvr:0,rev:0};
+    var totals = monthMarketTotals(mk, m);
+    var tgt = monthlyTarget(mk, m);
+    var cvr = totals.leads > 0 ? Math.round(totals.comp/totals.leads*100) : 0;
+    return {m:m, leads:totals.leads, comp:totals.comp, tgt:tgt, cvr:cvr, rev:totals.comp*AOV, sc:uniqueStores(mk,m)};
+  });
+
+  var totR=mktRows.reduce(function(s,r){return s+r.leads;},0);
+  var totC=mktRows.reduce(function(s,r){return s+r.comp;},0);
+  var totRev=mktRows.reduce(function(s,r){return s+r.rev;},0);
+  var totCvr=totR>0?Math.round(totC/totR*100):0;
+
+  document.getElementById('biz-scorecards').innerHTML =
+    makeScorecard('Total referrals',isFuture?'—':totR,'all markets','neutral') +
+    makeScorecard('Completed jobs',isFuture?'—':totC,'from referrals','win') +
+    makeScorecard('Completion rate',isFuture?'—':totCvr+'%','referral → job',totCvr>=30?'win':totCvr>=20?'warn':'danger') +
+    makeScorecard('Revenue est.',isFuture?'—':'$'+(totRev/1000).toFixed(1)+'k','from referral jobs','neutral');
+
+  // funnel
+  var totBooked = Math.round(totR * 0.47); // estimated booking rate
+  var totPending = Math.max(0, totBooked - totC);
+  var stages = [{label:'Referrals',n:totR,color:'#185FA5'},{label:'Est. booked',n:totBooked,color:'#3B6D11'},{label:'Completed',n:totC,color:'#639922'}];
+  var fw = document.getElementById('funnel-wrap');
+  fw.innerHTML = stages.map(function(s,i){
+    var pct=totR>0?Math.round(s.n/totR*100):0;
+    var prev=i>0?stages[i-1].n:null;
+    var drop=prev&&prev>0?Math.round((prev-s.n)/prev*100):null;
+    var arrow=i>0?'<div class="funnel-arrow">▾</div>':'';
+    return arrow+'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div>'
+      +'<div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:'+pct+'%;background:'+s.color+'">'+s.n+'</div></div>'
+      +'<div class="funnel-num">'+pct+'% of leads</div>'
+      +(drop!==null?'<div class="funnel-drop">−'+drop+'% drop</div>':'<div class="funnel-drop"></div>')
+      +'</div>';
+  }).join('');
+  if (totPending>0) fw.innerHTML+='<div style="margin-top:10px;padding:8px 14px;background:#FAEEDA;border-radius:20px;font-size:12px;color:#633806;font-weight:500">~'+totPending+' estimated booked jobs pending outcome</div>';
+
+  // table
+  document.getElementById('biztbl').innerHTML = mktRows.slice().sort(function(a,b){return a.cvr-b.cvr;}).map(function(r){
+    var cc=r.cvr>=30?'bg':r.cvr>=20?'ba':'br';
+    return '<tr class="dr '+(r.cvr>=30?'win-row':r.cvr>=20?'warn-row':'danger-row')+'"><td>'+r.m+'</td>'
+      +'<td class="tr">'+r.leads+'</td><td class="tr">'+r.comp+'</td>'
+      +'<td class="tr"><span class="b '+cc+'">'+r.cvr+'%</span></td>'
+      +'<td class="tr">'+r.tgt+'</td>'
+      +'<td class="tr">'+r.sc+'</td>'
+      +'<td class="tr">$'+(r.rev/1000).toFixed(1)+'k</td></tr>';
+  }).join('');
+
+  // trend chart
+  document.getElementById('biz-legend').innerHTML = MKTS.map(function(m){
+    return '<div class="leg-item"><div class="leg-dot" style="background:'+(MKT_COLORS[m]||'#185FA5')+';border-radius:3px"></div>'+m+'</div>';
+  }).join('');
+
+  var completeMeta = MONTHS_META.filter(function(m){return !m.isFuture;});
+  var ds = MKTS.map(function(m){
+    return {
+      label:m,
+      data:completeMeta.map(function(mm){ return monthMarketTotals(mm.key,m).leads; }),
+      borderColor:MKT_COLORS[m]||'#185FA5',borderWidth:2.5,
+      pointBackgroundColor:MKT_COLORS[m]||'#185FA5',pointRadius:5,pointHoverRadius:7,
+      tension:0.35,fill:false
+    };
+  });
+  document.getElementById('biz-chart-foot').textContent = 'Monthly referral totals from '+completeMeta[0].label+' to '+completeMeta[completeMeta.length-1].label+'.';
+  if (bCI) bCI.destroy();
+  bCI = new Chart(document.getElementById('bizChart'),{type:'line',
+    data:{labels:completeMeta.map(function(m){return m.label.substring(0,3);}),datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+' refs';}}}},
+      scales:{x:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'}},
+              y:{grid:{color:'#F1EFE8'},min:0,ticks:{font:{size:11},color:'#888780'},title:{display:true,text:'Referrals',font:{size:11},color:'#888780'}}}
+    }
+  });
+}
+
+function sw(t) {
+  var keys=['ov','am','st','biz'];
+  document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('on',keys[i]===t);});
+  keys.forEach(function(k){document.getElementById('pg-'+k).classList.toggle('on',k===t);});
+  if(t==='am')renderAM(document.getElementById('am-mkt-sel').value||'all');
+  if(t==='st')filterMkt(document.getElementById('mkt-sel').value||'all');
+  if(t==='biz')buildBiz();
+}
+
+// ─── INIT: try live fetch, fall back to hardcoded ───
+function initWithData(rows, source) {
+  RAW = rows;
+  dataSource = source;
+  buildDerived();
+  buildAllDDs();
+  selectMonth(CURRENT_MONTH_KEY);
+
+  // update UI chrome
+  var mktList = MKTS.join(' · ');
+  document.getElementById('markets-sub').textContent = mktList;
+  var latestDay = RAW.map(function(r){return r.day;}).sort().pop() || '';
+  document.getElementById('ulbl').textContent = latestDay ? 'Data through ' + latestDay : 'Data loaded';
+  var pill = document.getElementById('ds-pill');
+  if (source === 'live') {
+    pill.textContent = 'Live data'; pill.className = 'data-source-pill ds-live';
+  } else {
+    pill.textContent = 'Fallback data'; pill.className = 'data-source-pill ds-fallback';
+  }
+  filterMkt('all');
+  document.getElementById('loading-overlay').style.display = 'none';
+}
+
+function loadData() {
+  document.getElementById('loading-text').textContent = 'Fetching live data…';
+  fetch(LIVE_URL)
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function(json) {
+      document.getElementById('loading-text').textContent = 'Processing ' + json.length + ' records…';
+      var rows = json.map(normaliseRow).filter(Boolean);
+      if (rows.length === 0) throw new Error('No usable rows');
+      initWithData(rows, 'live');
+    })
+    .catch(function(err) {
+      console.warn('Live data fetch failed, using fallback:', err.message);
+      document.getElementById('loading-text').textContent = 'Using fallback data…';
+      var rows = FALLBACK_DATA.map(normaliseFallbackRow).filter(Boolean);
+      initWithData(rows, 'fallback');
+    });
+}
+
+loadData();
+</script>
+</body></html>
