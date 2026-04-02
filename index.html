@@ -434,8 +434,8 @@ var AOV = 480;
 var dataSource = 'fallback';
 
 function normaliseRow(r) {
-  var sn = r['Store Number'];
-  if (typeof sn !== 'number') return null;
+  var sn = Number(r['Store Number']);
+if (!Number.isFinite(sn)) return null;
   var mkt = r['Market'];
   if (!mkt || mkt === '#N/A') return null;
 
