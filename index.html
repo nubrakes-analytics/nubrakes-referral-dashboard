@@ -136,7 +136,7 @@ tr.dr:hover td{filter:brightness(0.97)}
   <div class="topbar">
     <div class="month-wrap">
       <label>Viewing month</label>
-      <select id="month-dd" onchange="selectMonth(parseInt(this.value))"></select>
+      <select id="month-dd" onchange="selectMonth(this.value)"></select>
       <span id="period-pill"></span>
     </div>
     <div class="dr-label" id="dr-lbl"></div>
@@ -195,7 +195,7 @@ tr.dr:hover td{filter:brightness(0.97)}
 <div class="pg" id="pg-am">
   <div class="topbar">
     <div class="month-wrap"><label>Viewing month</label>
-      <select id="am-month-dd" onchange="selectMonth(parseInt(this.value))"></select>
+      <select id="am-month-dd" onchange="selectMonth(this.value)"></select>
       <span id="am-pill"></span>
     </div>
     <div class="dr-label" id="am-dr"></div>
@@ -221,7 +221,7 @@ tr.dr:hover td{filter:brightness(0.97)}
 <div class="pg" id="pg-st">
   <div class="topbar">
     <div class="month-wrap"><label>Viewing month</label>
-      <select id="st-month-dd" onchange="selectMonth(parseInt(this.value))"></select>
+      <select id="st-month-dd" onchange="selectMonth(this.value)"></select>
       <span id="st-pill"></span>
     </div>
     <div class="dr-label" id="st-dr"></div>
@@ -253,7 +253,7 @@ tr.dr:hover td{filter:brightness(0.97)}
   </div>
   <div class="topbar" style="padding-top:14px">
     <div class="month-wrap"><label>Viewing month</label>
-      <select id="biz-month-dd" onchange="selectMonth(parseInt(this.value));buildBiz()"></select>
+      <select id="biz-month-dd" onchange="selectMonth(this.value);buildBiz()"></select>
     </div>
   </div>
   <div class="mrow" id="biz-scorecards"></div>
@@ -287,12 +287,8 @@ tr.dr:hover td{filter:brightness(0.97)}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ─── FALLBACK DATA (derived from actual JSON structure: daily grain per store) ───
-// Keys match live data: Day, Store Number, Leads, Completed Jobs, Market,
-// Regional, Area, Store Manager, Referral Target (daily), Completed Target (daily)
+// ─── FALLBACK DATA ───
 var FALLBACK_DATA = [
-  // Nashville stores — Jan 2026 sample (21 stores, partial days shown representatively)
-  // Jan totals: Nashville ~107 leads, 17 completed; Feb ~122, 27; Mar MTD ~118, 21
   {Day:"2026-01-31",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40041,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40043,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
@@ -314,7 +310,6 @@ var FALLBACK_DATA = [
   {Day:"2026-01-31",StoreNumber:40110,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40115,Leads:5,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Thomas",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40118,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Amy",ReferralTarget:1.525,CompletedTarget:0.5},
-  // Atlanta stores — Jan 2026
   {Day:"2026-01-31",StoreNumber:40140,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Devonte",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40150,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40152,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Eddie",ReferralTarget:1.525,CompletedTarget:0.5},
@@ -334,7 +329,6 @@ var FALLBACK_DATA = [
   {Day:"2026-01-31",StoreNumber:40274,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Trey",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40278,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40279,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
-  // Dallas stores — Jan 2026
   {Day:"2026-01-31",StoreNumber:70059,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:70061,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"",StoreManager:"",ReferralTarget:0.6,CompletedTarget:0.25},
   {Day:"2026-01-31",StoreNumber:70062,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Pam",ReferralTarget:1.225,CompletedTarget:0.25},
@@ -358,7 +352,6 @@ var FALLBACK_DATA = [
   {Day:"2026-01-31",StoreNumber:70173,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Mitch",ReferralTarget:1.825,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:70176,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Benny",ReferralTarget:1.225,CompletedTarget:0.25},
   {Day:"2026-01-31",StoreNumber:70178,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Keith",ReferralTarget:1.525,CompletedTarget:0.5},
-  // Houston stores — Jan 2026
   {Day:"2026-01-31",StoreNumber:70047,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:70049,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Andrew",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:70050,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Lathon",ReferralTarget:1.525,CompletedTarget:0.5},
@@ -380,7 +373,6 @@ var FALLBACK_DATA = [
   {Day:"2026-01-31",StoreNumber:70124,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"S Newlin",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:70125,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Brandon",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:70126,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5},
-  // Feb 2026 rows — Nashville
   {Day:"2026-02-28",StoreNumber:40040,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40043,Leads:7,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40046,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
@@ -392,27 +384,23 @@ var FALLBACK_DATA = [
   {Day:"2026-02-28",StoreNumber:40110,Leads:8,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40115,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Thomas",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40118,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Amy",ReferralTarget:1.525,CompletedTarget:0.5},
-  // Feb 2026 — Atlanta
   {Day:"2026-02-28",StoreNumber:40150,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40163,Leads:6,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40183,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Tevin",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40188,Leads:5,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40261,Leads:6,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Miguel",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:40279,Leads:5,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
-  // Feb 2026 — Dallas
   {Day:"2026-02-28",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70095,Leads:5,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Arden",ReferralTarget:0.9,CompletedTarget:0.25},
   {Day:"2026-02-28",StoreNumber:70102,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70151,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70157,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70163,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
-  // Feb 2026 — Houston
   {Day:"2026-02-28",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70063,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70090,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70122,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-02-28",StoreNumber:70126,Leads:5,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5},
-  // Mar 2026 MTD rows
   {Day:"2026-03-17",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-03-17",StoreNumber:40043,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
   {Day:"2026-03-17",StoreNumber:40046,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
@@ -438,28 +426,35 @@ var FALLBACK_DATA = [
 var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
 
 // ─── GLOBALS ───
-var RAW = [];           // all processed daily rows
-var MKTS = [];          // discovered markets
+var RAW = [];
+var MKTS = [];
 var MKT_COLORS = {Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
-var MONTHS_META = [];   // [{label, key, isMTD, isFuture, daysElapsed, daysTotal}]
+var MONTHS_META = [];
 var CURRENT_MONTH_KEY = '';
 var selMonthKey = '';
 var smCharts = {}, cmpChart = null, bCI = null;
 var AOV = 480;
 var dataSource = 'fallback';
 
-// ─── NORMALISE a single raw JSON record into a clean object ───
+// ─── NORMALISE ───
 function normaliseRow(r) {
   var sn = r['Store Number'];
-  if (typeof sn !== 'number') return null; // skip 'Not attributed to a store'
+  if (typeof sn !== 'number') return null;
   var mkt = r['Market'];
   if (!mkt || mkt === '#N/A') return null;
+
   var leads = typeof r['Leads'] === 'number' ? r['Leads'] : 0;
   var comp = typeof r['Completed Jobs'] === 'number' ? r['Completed Jobs'] : 0;
   var rt = typeof r['Referral Target'] === 'number' ? r['Referral Target'] : 0;
   var ct = typeof r['Completed Target'] === 'number' ? r['Completed Target'] : 0;
+  var mrt =
+    typeof r['Monthly Referral Target'] === 'number' ? r['Monthly Referral Target'] :
+    typeof r['MonthlyReferralTarget'] === 'number' ? r['MonthlyReferralTarget'] :
+    null;
+
   var dayStr = (r['Day'] || '').substring(0, 10);
   var monthKey = dayStr.substring(0, 7);
+
   return {
     day: dayStr,
     monthKey: monthKey,
@@ -471,11 +466,11 @@ function normaliseRow(r) {
     area: r['Area'] || '',
     storeManager: r['Store Manager'] || '',
     dailyRefTarget: rt,
-    dailyCompTarget: ct
+    dailyCompTarget: ct,
+    monthlyRefTarget: mrt
   };
 }
 
-// normalise fallback (which uses camelCase keys)
 function normaliseFallbackRow(r) {
   var dayStr = (r.Day || '').substring(0, 10);
   return {
@@ -489,22 +484,23 @@ function normaliseFallbackRow(r) {
     area: r.Area || '',
     storeManager: r.StoreManager || '',
     dailyRefTarget: r.ReferralTarget || 0,
-    dailyCompTarget: r.CompletedTarget || 0
+    dailyCompTarget: r.CompletedTarget || 0,
+    monthlyRefTarget:
+      typeof r.MonthlyReferralTarget === 'number' ? r.MonthlyReferralTarget :
+      typeof r['Monthly Referral Target'] === 'number' ? r['Monthly Referral Target'] :
+      null
   };
 }
 
-// ─── BUILD DERIVED STRUCTURES from RAW ───
+// ─── DERIVED STRUCTURES ───
 function buildDerived() {
-  // discover months
   var monthSet = {}, monthOrder = [];
   RAW.forEach(function(r) {
     if (!monthSet[r.monthKey]) { monthSet[r.monthKey] = true; monthOrder.push(r.monthKey); }
   });
-  // dedupe
+
   monthOrder = monthOrder.filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
 
-  // detect current month = latest month with data
-  var now = new Date();
   var latestWithData = '';
   monthOrder.forEach(function(mk) {
     var hasLeads = RAW.some(function(r) { return r.monthKey === mk && r.leads > 0; });
@@ -512,7 +508,6 @@ function buildDerived() {
   });
   CURRENT_MONTH_KEY = latestWithData || monthOrder[monthOrder.length - 1];
 
-  // build month metadata
   MONTHS_META = monthOrder.map(function(mk) {
     var parts = mk.split('-');
     var y = parseInt(parts[0]), m = parseInt(parts[1]);
@@ -520,37 +515,38 @@ function buildDerived() {
     var isFuture = mk > CURRENT_MONTH_KEY;
     var isMTD = mk === CURRENT_MONTH_KEY;
     var daysElapsed = 0;
+
     if (isMTD) {
-      // find max day in that month from data
       var days = RAW.filter(function(r){return r.monthKey===mk;}).map(function(r){return r.day;});
       days.sort();
       if (days.length) {
         var lastDay = parseInt(days[days.length-1].split('-')[2]);
         daysElapsed = lastDay;
       } else {
-        daysElapsed = now.getDate();
+        daysElapsed = new Date().getDate();
       }
     } else if (!isFuture) {
       daysElapsed = daysInMonth;
     }
+
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var label = months[m-1] + ' ' + y;
     return { key: mk, label: label, isMTD: isMTD, isFuture: isFuture, daysElapsed: daysElapsed, daysTotal: daysInMonth };
   });
 
-  // add projected months (up to 3 after current)
   var lastMeta = MONTHS_META[MONTHS_META.length - 1];
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  for (var p = 1; p <= 3; p++) {
-    var lp = lastMeta.key.split('-');
-    var py = parseInt(lp[0]), pm = parseInt(lp[1]) + p;
-    if (pm > 12) { py++; pm -= 12; }
-    var pkey = py + '-' + (pm < 10 ? '0' : '') + pm;
-    var dip = new Date(py, pm, 0).getDate();
-    MONTHS_META.push({ key: pkey, label: months[pm-1] + ' ' + py, isMTD: false, isFuture: true, daysElapsed: 0, daysTotal: dip });
+  if (lastMeta) {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    for (var p = 1; p <= 3; p++) {
+      var lp = lastMeta.key.split('-');
+      var py = parseInt(lp[0]), pm = parseInt(lp[1]) + p;
+      if (pm > 12) { py++; pm -= 12; }
+      var pkey = py + '-' + (pm < 10 ? '0' : '') + pm;
+      var dip = new Date(py, pm, 0).getDate();
+      MONTHS_META.push({ key: pkey, label: months[pm-1] + ' ' + py, isMTD: false, isFuture: true, daysElapsed: 0, daysTotal: dip });
+    }
   }
 
-  // discover markets
   var mktSet = {};
   RAW.forEach(function(r) { mktSet[r.market] = true; });
   MKTS = Object.keys(mktSet).sort();
@@ -558,31 +554,70 @@ function buildDerived() {
   if (!selMonthKey) selMonthKey = CURRENT_MONTH_KEY;
 }
 
-// ─── AGGREGATE: monthly totals per market ───
+// ─── AGGREGATES ───
 function monthMarketTotals(monthKey, market) {
   var rows = RAW.filter(function(r) { return r.monthKey === monthKey && r.market === market; });
   var leads = 0, comp = 0, targSum = 0;
-  var storeSet = {}, areaSet = {};
+  var storeSet = {};
   rows.forEach(function(r) {
     leads += r.leads;
     comp += r.completedJobs;
     targSum += r.dailyRefTarget;
     storeSet[r.storeNum] = true;
-    if (r.area && r.area !== 'OPEN' && r.area !== '') areaSet[r.area] = true;
   });
   return { leads: leads, comp: comp, dailyTargetSum: targSum, storeCount: Object.keys(storeSet).length };
 }
 
-// ─── MONTHLY TARGET for a market (avg daily target per store × stores × days in month) ───
-// Uses the average daily Referral Target across all store-day records to avoid
-// inflating the number by summing every row. For future months, carries forward
-// the avg rate from the most recent actual month.
 function monthlyTarget(monthKey, market) {
-  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
+  var meta = MONTHS_META.find(function(m){ return m.key === monthKey; });
   if (!meta) return 0;
 
+  if (!meta.isFuture) {
+    var storeMap = {};
+
+    RAW.filter(function(r){
+      return r.monthKey === monthKey &&
+             r.market === market &&
+             typeof r.monthlyRefTarget === 'number' &&
+             !isNaN(r.monthlyRefTarget);
+    }).forEach(function(r){
+      if (!storeMap[r.storeNum]) storeMap[r.storeNum] = { sum: 0, count: 0 };
+      storeMap[r.storeNum].sum += r.monthlyRefTarget;
+      storeMap[r.storeNum].count += 1;
+    });
+
+    var stores = Object.keys(storeMap);
+    if (stores.length > 0) {
+      var total = 0;
+      stores.forEach(function(sn){
+        var s = storeMap[sn];
+        total += (s.count > 0 ? s.sum / s.count : 0);
+      });
+      return Math.round(total);
+    }
+
+    var seenStoreDays = {};
+    var fallbackSum = 0;
+    RAW.filter(function(r){
+      return r.monthKey === monthKey && r.market === market;
+    }).forEach(function(r){
+      var k = r.day + '|' + r.storeNum;
+      if (!seenStoreDays[k]) {
+        seenStoreDays[k] = true;
+        fallbackSum += (r.dailyRefTarget || 0);
+      }
+    });
+
+    if (meta.isMTD && meta.daysElapsed > 0) {
+      return Math.round(fallbackSum * meta.daysTotal / meta.daysElapsed);
+    }
+    return Math.round(fallbackSum);
+  }
+
   function avgDailyRate(mk) {
-    var rows = RAW.filter(function(r){ return r.monthKey === mk && r.market === market && r.dailyRefTarget > 0; });
+    var rows = RAW.filter(function(r){
+      return r.monthKey === mk && r.market === market && r.dailyRefTarget > 0;
+    });
     if (rows.length === 0) return 0;
     var sum = 0;
     rows.forEach(function(r){ sum += r.dailyRefTarget; });
@@ -591,31 +626,28 @@ function monthlyTarget(monthKey, market) {
 
   function storeCount(mk) {
     var seen = {};
-    RAW.filter(function(r){ return r.monthKey === mk && r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
+    RAW.filter(function(r){
+      return r.monthKey === mk && r.market === market;
+    }).forEach(function(r){
+      seen[r.storeNum] = true;
+    });
     return Object.keys(seen).length;
   }
 
-  if (meta.isFuture) {
-    var lastActual = MONTHS_META.slice().reverse().find(function(m){ return !m.isFuture; });
-    if (!lastActual) return 0;
-    var rate = avgDailyRate(lastActual.key);
-    var sc = storeCount(lastActual.key);
-    return Math.round(rate * sc * meta.daysTotal);
-  }
+  var lastActual = MONTHS_META.slice().reverse().find(function(m){ return !m.isFuture; });
+  if (!lastActual) return 0;
 
-  var rate = avgDailyRate(monthKey);
-  var sc = storeCount(monthKey);
+  var rate = avgDailyRate(lastActual.key);
+  var sc = storeCount(lastActual.key);
   return Math.round(rate * sc * meta.daysTotal);
 }
 
-// ─── UNIQUE STORES in a market-month ───
 function uniqueStores(monthKey, market) {
   var seen = {};
-  RAW.filter(function(r){ return r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
+  RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
   return Object.keys(seen).length;
 }
 
-// ─── AREAS for a market ───
 function areasForMarket(market) {
   var seen = {};
   RAW.forEach(function(r){ if(r.market===market && r.area && r.area!=='OPEN' && r.area!=='') seen[r.area]=true; });
@@ -678,13 +710,13 @@ function buildAllDDs() {
       return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
     }).join('');
   });
-  // cmp-sel
+
   var csel = document.getElementById('cmp-sel');
-  if (csel) csel.innerHTML = MONTHS_META.filter(function(m){return !m.isFuture||MONTHS_META.indexOf(m)<MONTHS_META.length-2;}).map(function(m){
+  if (csel) csel.innerHTML = MONTHS_META.map(function(m){
     var lbl = m.label + (m.isMTD ? ' — MTD' : m.isFuture ? ' (projected)' : '');
     return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
   }).join('');
-  // market filters
+
   ['am-mkt-sel','mkt-sel'].forEach(function(id){
     var el=document.getElementById(id); if(!el) return;
     var cur=el.value||'all';
@@ -795,7 +827,6 @@ function buildSM() {
 
   MKTS.forEach(function(m) {
     var color = MKT_COLORS[m] || '#185FA5';
-    var completeMeta = MONTHS_META.filter(function(mm){return !mm.isFuture;});
     var labels = MONTHS_META.map(function(mm){return mm.label.substring(0,3);});
     var actuals = MONTHS_META.map(function(mm) {
       if (mm.isFuture) return 0;
@@ -808,7 +839,6 @@ function buildSM() {
       return color;
     });
 
-    // stat badge for current
     var curActual = monthMarketTotals(CURRENT_MONTH_KEY, m).leads;
     var curTgt = monthlyTarget(CURRENT_MONTH_KEY, m);
     var st = document.getElementById('sm-stat-'+m);
@@ -834,7 +864,7 @@ function buildSM() {
           title:function(ctx){return m+' — '+MONTHS_META[ctx[0].dataIndex].label;}
         }}},
         scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},
-                y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,targets)*1.18}}
+                y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat([1]))*1.18}}
       }
     });
   });
@@ -860,7 +890,7 @@ function buildCmp() {
         title:function(ctx){return ctx[0].label+' — '+meta.label;}
       }}},
       scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},
-              y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals))*1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}}
+              y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals).concat([1]))*1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}}
     }
   });
 }
@@ -872,8 +902,7 @@ function renderAM(filter) {
   var pace = paceFraction(mk);
   var isFuture = meta && meta.isFuture;
 
-  // gather areas across markets
-  var areaMap = {}; // area -> {market, regional, stores: Set}
+  var areaMap = {};
   RAW.forEach(function(r){
     if (!r.area || r.area === '' || r.area === 'OPEN') return;
     if (filter !== 'all' && r.market !== filter) return;
@@ -889,15 +918,42 @@ function renderAM(filter) {
       RAW.filter(function(r){return r.area===area&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
       return {leads:leads,comp:comp};
     })();
+
     var tgt = isFuture ? 0 : (function(){
-      var seen={},sum=0;
-      RAW.filter(function(r){return r.area===area&&r.monthKey===mk;}).forEach(function(r){
-        var k=r.day+'|'+r.storeNum;
-        if(!seen[k]){seen[k]=true;sum+=r.dailyRefTarget;}
+      var storeMap = {};
+      RAW.filter(function(r){
+        return r.area === area &&
+               r.monthKey === mk &&
+               typeof r.monthlyRefTarget === 'number' &&
+               !isNaN(r.monthlyRefTarget);
+      }).forEach(function(r){
+        if (!storeMap[r.storeNum]) storeMap[r.storeNum] = { sum: 0, count: 0 };
+        storeMap[r.storeNum].sum += r.monthlyRefTarget;
+        storeMap[r.storeNum].count += 1;
       });
-      if(meta&&meta.isMTD&&meta.daysElapsed>0)return Math.round(sum*meta.daysTotal/meta.daysElapsed);
+
+      var stores = Object.keys(storeMap);
+      if (stores.length > 0) {
+        var total = 0;
+        stores.forEach(function(sn){
+          var s = storeMap[sn];
+          total += (s.count > 0 ? s.sum / s.count : 0);
+        });
+        return Math.round(total);
+      }
+
+      var seen = {}, sum = 0;
+      RAW.filter(function(r){ return r.area === area && r.monthKey === mk; }).forEach(function(r){
+        var k = r.day + '|' + r.storeNum;
+        if (!seen[k]) {
+          seen[k] = true;
+          sum += r.dailyRefTarget;
+        }
+      });
+      if (meta && meta.isMTD && meta.daysElapsed > 0) return Math.round(sum * meta.daysTotal / meta.daysElapsed);
       return Math.round(sum);
     })();
+
     var ps = !isFuture && tgt > 0 ? paceStatus(totals.leads, tgt, pace) : {cls:'',label:'projected',badge:'bt',row:'',sc:'warn'};
     return {area:area, market:info.market, regional:info.regional, cnt:storeCnt, leads:totals.leads, tgt:tgt, ps:ps, hasActual:!isFuture};
   }).sort(function(a,b){ return (a.leads/Math.max(a.tgt,1)) - (b.leads/Math.max(b.tgt,1)); });
@@ -939,7 +995,6 @@ function renderS() {
   var mktF = document.getElementById('mkt-sel').value;
   var amF = document.getElementById('am-sel').value;
 
-  // gather unique stores
   var storeMap = {};
   RAW.forEach(function(r){
     if (mktF !== 'all' && r.market !== mktF) return;
@@ -954,15 +1009,33 @@ function renderS() {
       RAW.filter(function(r){return r.storeNum==sn&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
       return {leads:leads,comp:comp};
     })();
+
     var tgt = isFuture ? 0 : (function(){
-      var seen={},sum=0;
-      RAW.filter(function(r){return r.storeNum==sn&&r.monthKey===mk;}).forEach(function(r){
-        var k=r.day;
-        if(!seen[k]){seen[k]=true;sum+=r.dailyRefTarget;}
+      var rows = RAW.filter(function(r){
+        return r.storeNum == sn &&
+               r.monthKey === mk &&
+               typeof r.monthlyRefTarget === 'number' &&
+               !isNaN(r.monthlyRefTarget);
       });
-      if(meta&&meta.isMTD&&meta.daysElapsed>0)return Math.round(sum*meta.daysTotal/meta.daysElapsed);
-      return Math.round(sum);
+
+      if (rows.length > 0) {
+        var sum = 0;
+        rows.forEach(function(r){ sum += r.monthlyRefTarget; });
+        return Math.round(sum / rows.length);
+      }
+
+      var seen = {}, sumDaily = 0;
+      RAW.filter(function(r){ return r.storeNum == sn && r.monthKey === mk; }).forEach(function(r){
+        var k = r.day;
+        if (!seen[k]) {
+          seen[k] = true;
+          sumDaily += r.dailyRefTarget;
+        }
+      });
+      if (meta && meta.isMTD && meta.daysElapsed > 0) return Math.round(sumDaily * meta.daysTotal / meta.daysElapsed);
+      return Math.round(sumDaily);
     })();
+
     var ps = !isFuture && tgt>0 ? paceStatus(totals.leads,tgt,pace) : {cls:'',label:'projected',badge:'bt',row:'',sc:'warn'};
     return {sn:sn,market:info.market,area:info.area||'—',mgr:info.storeManager||'—',leads:totals.leads,tgt:tgt,ps:ps,hasActual:!isFuture};
   }).sort(function(a,b){ return (a.leads/Math.max(a.tgt,1)) - (b.leads/Math.max(b.tgt,1)); });
@@ -997,7 +1070,7 @@ function buildBiz() {
   document.getElementById('funnel-period').textContent = dateRangeLabel(mk);
 
   var mktRows = MKTS.map(function(m) {
-    if (isFuture) return {m:m,leads:0,comp:0,tgt:0,cvr:0,rev:0};
+    if (isFuture) return {m:m,leads:0,comp:0,tgt:monthlyTarget(mk,m),cvr:0,rev:0,sc:uniqueStores(CURRENT_MONTH_KEY,m)};
     var totals = monthMarketTotals(mk, m);
     var tgt = monthlyTarget(mk, m);
     var cvr = totals.leads > 0 ? Math.round(totals.comp/totals.leads*100) : 0;
@@ -1015,8 +1088,7 @@ function buildBiz() {
     makeScorecard('Completion rate',isFuture?'—':totCvr+'%','referral → job',totCvr>=30?'win':totCvr>=20?'warn':'danger') +
     makeScorecard('Revenue est.',isFuture?'—':'$'+(totRev/1000).toFixed(1)+'k','from referral jobs','neutral');
 
-  // funnel
-  var totBooked = Math.round(totR * 0.47); // estimated booking rate
+  var totBooked = Math.round(totR * 0.47);
   var totPending = Math.max(0, totBooked - totC);
   var stages = [{label:'Referrals',n:totR,color:'#185FA5'},{label:'Est. booked',n:totBooked,color:'#3B6D11'},{label:'Completed',n:totC,color:'#639922'}];
   var fw = document.getElementById('funnel-wrap');
@@ -1033,7 +1105,6 @@ function buildBiz() {
   }).join('');
   if (totPending>0) fw.innerHTML+='<div style="margin-top:10px;padding:8px 14px;background:#FAEEDA;border-radius:20px;font-size:12px;color:#633806;font-weight:500">~'+totPending+' estimated booked jobs pending outcome</div>';
 
-  // table
   document.getElementById('biztbl').innerHTML = mktRows.slice().sort(function(a,b){return a.cvr-b.cvr;}).map(function(r){
     var cc=r.cvr>=30?'bg':r.cvr>=20?'ba':'br';
     return '<tr class="dr '+(r.cvr>=30?'win-row':r.cvr>=20?'warn-row':'danger-row')+'"><td>'+r.m+'</td>'
@@ -1044,7 +1115,6 @@ function buildBiz() {
       +'<td class="tr">$'+(r.rev/1000).toFixed(1)+'k</td></tr>';
   }).join('');
 
-  // trend chart
   document.getElementById('biz-legend').innerHTML = MKTS.map(function(m){
     return '<div class="leg-item"><div class="leg-dot" style="background:'+(MKT_COLORS[m]||'#185FA5')+';border-radius:3px"></div>'+m+'</div>';
   }).join('');
@@ -1059,7 +1129,11 @@ function buildBiz() {
       tension:0.35,fill:false
     };
   });
-  document.getElementById('biz-chart-foot').textContent = 'Monthly referral totals from '+completeMeta[0].label+' to '+completeMeta[completeMeta.length-1].label+'.';
+  if (completeMeta.length) {
+    document.getElementById('biz-chart-foot').textContent = 'Monthly referral totals from '+completeMeta[0].label+' to '+completeMeta[completeMeta.length-1].label+'.';
+  } else {
+    document.getElementById('biz-chart-foot').textContent = '';
+  }
   if (bCI) bCI.destroy();
   bCI = new Chart(document.getElementById('bizChart'),{type:'line',
     data:{labels:completeMeta.map(function(m){return m.label.substring(0,3);}),datasets:ds},
@@ -1080,7 +1154,7 @@ function sw(t) {
   if(t==='biz')buildBiz();
 }
 
-// ─── INIT: try live fetch, fall back to hardcoded ───
+// ─── INIT ───
 function initWithData(rows, source) {
   RAW = rows;
   dataSource = source;
@@ -1088,17 +1162,18 @@ function initWithData(rows, source) {
   buildAllDDs();
   selectMonth(CURRENT_MONTH_KEY);
 
-  // update UI chrome
   var mktList = MKTS.join(' · ');
   document.getElementById('markets-sub').textContent = mktList;
   var latestDay = RAW.map(function(r){return r.day;}).sort().pop() || '';
   document.getElementById('ulbl').textContent = latestDay ? 'Data through ' + latestDay : 'Data loaded';
+
   var pill = document.getElementById('ds-pill');
   if (source === 'live') {
     pill.textContent = 'Live data'; pill.className = 'data-source-pill ds-live';
   } else {
     pill.textContent = 'Fallback data'; pill.className = 'data-source-pill ds-fallback';
   }
+
   filterMkt('all');
   document.getElementById('loading-overlay').style.display = 'none';
 }
