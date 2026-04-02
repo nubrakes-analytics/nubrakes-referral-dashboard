@@ -573,35 +573,39 @@ function monthMarketTotals(monthKey, market) {
   return { leads: leads, comp: comp, dailyTargetSum: targSum, storeCount: Object.keys(storeSet).length };
 }
 
-// ─── MONTHLY TARGET for a market (sum of daily targets for all store-days) ───
-// For future months we estimate from the last known month's daily target sum scaled to days
+// ─── MONTHLY TARGET for a market (avg daily target per store × stores × days in month) ───
+// Uses the average daily Referral Target across all store-day records to avoid
+// inflating the number by summing every row. For future months, carries forward
+// the avg rate from the most recent actual month.
 function monthlyTarget(monthKey, market) {
   var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
   if (!meta) return 0;
+
+  function avgDailyRate(mk) {
+    var rows = RAW.filter(function(r){ return r.monthKey === mk && r.market === market && r.dailyRefTarget > 0; });
+    if (rows.length === 0) return 0;
+    var sum = 0;
+    rows.forEach(function(r){ sum += r.dailyRefTarget; });
+    return sum / rows.length;
+  }
+
+  function storeCount(mk) {
+    var seen = {};
+    RAW.filter(function(r){ return r.monthKey === mk && r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
+    return Object.keys(seen).length;
+  }
+
   if (meta.isFuture) {
-    // use last actual month's daily target rate * daysTotal
-    var lastActual = MONTHS_META.slice().reverse().find(function(m){return !m.isFuture && m.key !== monthKey;});
-    if (lastActual) {
-      var la = monthMarketTotals(lastActual.key, market);
-      var rate = lastActual.daysTotal > 0 ? la.dailyTargetSum / lastActual.daysTotal : 0;
-      return Math.round(rate * meta.daysTotal);
-    }
-    return 0;
+    var lastActual = MONTHS_META.slice().reverse().find(function(m){ return !m.isFuture; });
+    if (!lastActual) return 0;
+    var rate = avgDailyRate(lastActual.key);
+    var sc = storeCount(lastActual.key);
+    return Math.round(rate * sc * meta.daysTotal);
   }
-  // for past/MTD: sum the daily targets recorded
-  var rows = RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; });
-  if (rows.length === 0) return 0;
-  // unique store-days
-  var seen = {}, sum = 0;
-  rows.forEach(function(r){
-    var k = r.day + '|' + r.storeNum;
-    if (!seen[k]) { seen[k] = true; sum += r.dailyRefTarget; }
-  });
-  // scale from elapsed days to full month
-  if (meta.isMTD && meta.daysElapsed > 0) {
-    return Math.round(sum * meta.daysTotal / meta.daysElapsed);
-  }
-  return Math.round(sum);
+
+  var rate = avgDailyRate(monthKey);
+  var sc = storeCount(monthKey);
+  return Math.round(rate * sc * meta.daysTotal);
 }
 
 // ─── UNIQUE STORES in a market-month ───
