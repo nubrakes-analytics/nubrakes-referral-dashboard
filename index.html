@@ -160,11 +160,10 @@ tr.dr:hover td{filter:brightness(0.97)}
       <div class="legend">
         <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual (complete)</div>
         <div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#D3D1C7"></div>Future target only</div>
         <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
       </div>
       <div class="sm-grid" id="sm-grid"></div>
-      <div class="foot">Each panel = one market. Rising target line reflects program scaling. Faded = MTD. Gray = future.</div>
+      <div class="foot">Each panel = one market. Faded bars indicate the current MTD month. Dashed line = monthly target.</div>
     </div>
     <div class="chart-view" id="cv-cmp">
       <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 0;flex-wrap:wrap">
@@ -207,7 +206,7 @@ tr.dr:hover td{filter:brightness(0.97)}
   </div>
   <div class="mrow" id="am-scorecards"></div>
   <div class="panel">
-    <div class="ph"><span class="pt">Area manager attainment — lowest to highest</span></div>
+    <div class="ph"><span class="pt">Area manager attainment — highest to lowest</span></div>
     <table><thead><tr>
       <th style="width:22%">Area manager</th><th style="width:14%">Market</th>
       <th class="tr" style="width:9%">Stores</th><th class="tr" style="width:12%">Target</th>
@@ -236,7 +235,7 @@ tr.dr:hover td{filter:brightness(0.97)}
   </div>
   <div class="mrow" id="st-scorecards"></div>
   <div class="panel">
-    <div class="ph"><span class="pt">Store attainment — lowest to highest</span></div>
+    <div class="ph"><span class="pt">Store attainment — highest to lowest</span></div>
     <table><thead><tr>
       <th style="width:20%">Store #</th><th style="width:14%">Manager</th><th style="width:12%">Area</th><th style="width:12%">Market</th>
       <th class="tr" style="width:10%">Target</th><th class="tr" style="width:10%">Actual</th>
@@ -422,10 +421,8 @@ var FALLBACK_DATA = [
   {Day:"2026-03-17",StoreNumber:70126,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5}
 ];
 
-// ─── LIVE DATA URL ───
 var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
 
-// ─── GLOBALS ───
 var RAW = [];
 var MKTS = [];
 var MKT_COLORS = {Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
@@ -436,7 +433,6 @@ var smCharts = {}, cmpChart = null, bCI = null;
 var AOV = 480;
 var dataSource = 'fallback';
 
-// ─── NORMALISE ───
 function normaliseRow(r) {
   var sn = r['Store Number'];
   if (typeof sn !== 'number') return null;
@@ -492,7 +488,6 @@ function normaliseFallbackRow(r) {
   };
 }
 
-// ─── DERIVED STRUCTURES ───
 function buildDerived() {
   var monthSet = {}, monthOrder = [];
   RAW.forEach(function(r) {
@@ -512,7 +507,7 @@ function buildDerived() {
     var parts = mk.split('-');
     var y = parseInt(parts[0]), m = parseInt(parts[1]);
     var daysInMonth = new Date(y, m, 0).getDate();
-    var isFuture = mk > CURRENT_MONTH_KEY;
+    var isFuture = false;
     var isMTD = mk === CURRENT_MONTH_KEY;
     var daysElapsed = 0;
 
@@ -525,7 +520,7 @@ function buildDerived() {
       } else {
         daysElapsed = new Date().getDate();
       }
-    } else if (!isFuture) {
+    } else {
       daysElapsed = daysInMonth;
     }
 
@@ -534,19 +529,6 @@ function buildDerived() {
     return { key: mk, label: label, isMTD: isMTD, isFuture: isFuture, daysElapsed: daysElapsed, daysTotal: daysInMonth };
   });
 
-  var lastMeta = MONTHS_META[MONTHS_META.length - 1];
-  if (lastMeta) {
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    for (var p = 1; p <= 3; p++) {
-      var lp = lastMeta.key.split('-');
-      var py = parseInt(lp[0]), pm = parseInt(lp[1]) + p;
-      if (pm > 12) { py++; pm -= 12; }
-      var pkey = py + '-' + (pm < 10 ? '0' : '') + pm;
-      var dip = new Date(py, pm, 0).getDate();
-      MONTHS_META.push({ key: pkey, label: months[pm-1] + ' ' + py, isMTD: false, isFuture: true, daysElapsed: 0, daysTotal: dip });
-    }
-  }
-
   var mktSet = {};
   RAW.forEach(function(r) { mktSet[r.market] = true; });
   MKTS = Object.keys(mktSet).sort();
@@ -554,7 +536,6 @@ function buildDerived() {
   if (!selMonthKey) selMonthKey = CURRENT_MONTH_KEY;
 }
 
-// ─── AGGREGATES ───
 function monthMarketTotals(monthKey, market) {
   var rows = RAW.filter(function(r) { return r.monthKey === monthKey && r.market === market; });
   var leads = 0, comp = 0, targSum = 0;
@@ -572,74 +553,45 @@ function monthlyTarget(monthKey, market) {
   var meta = MONTHS_META.find(function(m){ return m.key === monthKey; });
   if (!meta) return 0;
 
-  if (!meta.isFuture) {
-    var storeMap = {};
+  var storeMap = {};
 
-    RAW.filter(function(r){
-      return r.monthKey === monthKey &&
-             r.market === market &&
-             typeof r.monthlyRefTarget === 'number' &&
-             !isNaN(r.monthlyRefTarget);
-    }).forEach(function(r){
-      if (!storeMap[r.storeNum]) storeMap[r.storeNum] = { sum: 0, count: 0 };
-      storeMap[r.storeNum].sum += r.monthlyRefTarget;
-      storeMap[r.storeNum].count += 1;
+  RAW.filter(function(r){
+    return r.monthKey === monthKey &&
+           r.market === market &&
+           typeof r.monthlyRefTarget === 'number' &&
+           !isNaN(r.monthlyRefTarget);
+  }).forEach(function(r){
+    if (!storeMap[r.storeNum]) storeMap[r.storeNum] = { sum: 0, count: 0 };
+    storeMap[r.storeNum].sum += r.monthlyRefTarget;
+    storeMap[r.storeNum].count += 1;
+  });
+
+  var stores = Object.keys(storeMap);
+  if (stores.length > 0) {
+    var total = 0;
+    stores.forEach(function(sn){
+      var s = storeMap[sn];
+      total += (s.count > 0 ? s.sum / s.count : 0);
     });
+    return Math.round(total);
+  }
 
-    var stores = Object.keys(storeMap);
-    if (stores.length > 0) {
-      var total = 0;
-      stores.forEach(function(sn){
-        var s = storeMap[sn];
-        total += (s.count > 0 ? s.sum / s.count : 0);
-      });
-      return Math.round(total);
+  var seenStoreDays = {};
+  var fallbackSum = 0;
+  RAW.filter(function(r){
+    return r.monthKey === monthKey && r.market === market;
+  }).forEach(function(r){
+    var k = r.day + '|' + r.storeNum;
+    if (!seenStoreDays[k]) {
+      seenStoreDays[k] = true;
+      fallbackSum += (r.dailyRefTarget || 0);
     }
+  });
 
-    var seenStoreDays = {};
-    var fallbackSum = 0;
-    RAW.filter(function(r){
-      return r.monthKey === monthKey && r.market === market;
-    }).forEach(function(r){
-      var k = r.day + '|' + r.storeNum;
-      if (!seenStoreDays[k]) {
-        seenStoreDays[k] = true;
-        fallbackSum += (r.dailyRefTarget || 0);
-      }
-    });
-
-    if (meta.isMTD && meta.daysElapsed > 0) {
-      return Math.round(fallbackSum * meta.daysTotal / meta.daysElapsed);
-    }
-    return Math.round(fallbackSum);
+  if (meta.isMTD && meta.daysElapsed > 0) {
+    return Math.round(fallbackSum * meta.daysTotal / meta.daysElapsed);
   }
-
-  function avgDailyRate(mk) {
-    var rows = RAW.filter(function(r){
-      return r.monthKey === mk && r.market === market && r.dailyRefTarget > 0;
-    });
-    if (rows.length === 0) return 0;
-    var sum = 0;
-    rows.forEach(function(r){ sum += r.dailyRefTarget; });
-    return sum / rows.length;
-  }
-
-  function storeCount(mk) {
-    var seen = {};
-    RAW.filter(function(r){
-      return r.monthKey === mk && r.market === market;
-    }).forEach(function(r){
-      seen[r.storeNum] = true;
-    });
-    return Object.keys(seen).length;
-  }
-
-  var lastActual = MONTHS_META.slice().reverse().find(function(m){ return !m.isFuture; });
-  if (!lastActual) return 0;
-
-  var rate = avgDailyRate(lastActual.key);
-  var sc = storeCount(lastActual.key);
-  return Math.round(rate * sc * meta.daysTotal);
+  return Math.round(fallbackSum);
 }
 
 function uniqueStores(monthKey, market) {
@@ -654,7 +606,6 @@ function areasForMarket(market) {
   return Object.keys(seen).sort();
 }
 
-// ─── PACE ───
 function paceFraction(monthKey) {
   var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
   if (!meta || meta.isFuture) return 0;
@@ -677,7 +628,6 @@ function vsPaceStr(a, t, pace) {
   return (v >= 0 ? '+' : '') + v;
 }
 
-// ─── UI HELPERS ───
 function makeScorecard(label, value, sub, type) {
   return '<div class="mc '+type+'"><div class="ml">'+label+'</div><div class="mv">'+value+'</div><div class="ms">'+sub+'</div></div>';
 }
@@ -686,8 +636,7 @@ function pillHTML(monthKey) {
   var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
   if (!meta) return '';
   if (meta.isMTD) return '<span class="mtd-pill">MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days</span>';
-  if (!meta.isFuture) return '<span class="complete-pill">Complete month</span>';
-  return '<span style="font-size:11px;background:#F1EFE8;color:#888780;border-radius:20px;padding:3px 10px">Projected</span>';
+  return '<span class="complete-pill">Complete month</span>';
 }
 
 function dateRangeLabel(monthKey) {
@@ -697,7 +646,6 @@ function dateRangeLabel(monthKey) {
   var y = parts[0], m = parseInt(parts[1]);
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var mn = months[m-1];
-  if (meta.isFuture) return mn + ' ' + y + ' (not yet started)';
   if (meta.isMTD) return mn + ' 1 – ' + mn + ' ' + meta.daysElapsed + ', ' + y + ' (MTD)';
   return mn + ' 1 – ' + mn + ' ' + meta.daysTotal + ', ' + y + ' (complete)';
 }
@@ -706,14 +654,14 @@ function buildAllDDs() {
   ['month-dd','am-month-dd','st-month-dd','biz-month-dd'].forEach(function(id) {
     var el = document.getElementById(id); if (!el) return;
     el.innerHTML = MONTHS_META.map(function(m) {
-      var lbl = m.label + (m.isMTD ? ' — MTD' : m.isFuture ? ' (projected)' : '');
+      var lbl = m.label + (m.isMTD ? ' — MTD' : '');
       return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
     }).join('');
   });
 
   var csel = document.getElementById('cmp-sel');
-  if (csel) csel.innerHTML = MONTHS_META.map(function(m){
-    var lbl = m.label + (m.isMTD ? ' — MTD' : m.isFuture ? ' (projected)' : '');
+  if (csel) csel.innerHTML = MONTHS_META.filter(function(m){ return !m.isFuture; }).map(function(m){
+    var lbl = m.label + (m.isMTD ? ' — MTD' : '');
     return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
   }).join('');
 
@@ -734,17 +682,16 @@ function selectMonth(key) {
   buildOv();
 }
 
-// ─── OVERVIEW ───
 function buildOv() {
   var mk = selMonthKey;
   var meta = MONTHS_META.find(function(m){return m.key===mk;});
   var pace = paceFraction(mk);
-  var isMTD = meta && meta.isMTD, isFuture = meta && meta.isFuture;
+  var isMTD = meta && meta.isMTD;
+  var isFuture = false;
 
   document.getElementById('mkt-tbl-title').textContent = 'Market summary — ' + (meta?meta.label:mk);
   document.getElementById('mkt-foot').textContent = isMTD
     ? 'Vs pace = actual vs expected at '+meta.daysElapsed+'/'+meta.daysTotal+' days. Ranked by avg referrals per store.'
-    : isFuture ? 'Future month — targets set, actuals not yet available.'
     : 'Complete month. Ranked by avg referrals per store.';
 
   var rows = MKTS.map(function(market) {
@@ -754,19 +701,19 @@ function buildOv() {
     var regSet = {};
     RAW.filter(function(r){return r.market===market&&r.regional;}).forEach(function(r){regSet[r.regional]=true;});
     var regional = Object.keys(regSet).join(', ');
-    return { market: market, regional: regional, sc: sc, leads: totals.leads, comp: totals.comp, tgt: tgt, hasActual: !isFuture };
+    return { market: market, regional: regional, sc: sc, leads: totals.leads, comp: totals.comp, tgt: tgt, hasActual: true };
   });
 
   var ta = rows.reduce(function(s,r){return s+r.leads;},0);
   var tt = rows.reduce(function(s,r){return s+r.tgt;},0);
-  var op = isFuture ? null : pc(ta, tt);
-  var overallPS = op !== null ? paceStatus(ta, tt, pace) : null;
+  var op = pc(ta, tt);
+  var overallPS = paceStatus(ta, tt, pace);
 
   document.getElementById('ov-scorecards').innerHTML =
-    makeScorecard('Total referrals', isFuture?'—':ta, 'all markets', 'neutral') +
+    makeScorecard('Total referrals', ta, 'all markets', 'neutral') +
     makeScorecard('Total target', tt, meta?meta.label:mk, 'neutral') +
-    makeScorecard('Overall attainment', op!==null?op+'%':'—', isMTD?'of full-month target':isFuture?'no actuals yet':'attainment', overallPS?overallPS.sc:'neutral') +
-    makeScorecard(isMTD?'Days elapsed':'Month status', isMTD?(meta.daysElapsed+' / '+meta.daysTotal):isFuture?'Future':'Complete', isMTD?Math.round(pace*100)+'% of month done':isFuture?'Targets set':'Full results', 'neutral');
+    makeScorecard('Overall attainment', op+'%', isMTD?'of full-month target':'attainment', overallPS.sc) +
+    makeScorecard(isMTD?'Days elapsed':'Month status', isMTD?(meta.daysElapsed+' / '+meta.daysTotal):'Complete', isMTD?Math.round(pace*100)+'% of month done':'Full results', 'neutral');
 
   var ranked = rows.slice().sort(function(a,b){ return (b.leads/Math.max(b.sc,1)) - (a.leads/Math.max(a.sc,1)); });
   var rankCardCls = ['rank-1-card','rank-2-card','rank-3-card','rank-4-card'];
@@ -774,7 +721,7 @@ function buildOv() {
   var rankLabels = ['1st','2nd','3rd','4th'];
 
   document.getElementById('mcards').innerHTML = ranked.map(function(r, i) {
-    var ps = r.hasActual ? paceStatus(r.leads, r.tgt, pace) : {cls:'',label:'no actuals yet',badge:'bt',row:'',sc:''};
+    var ps = paceStatus(r.leads, r.tgt, pace);
     var actualW = r.tgt > 0 ? Math.min(Math.round(r.leads/r.tgt*100), 100) : 0;
     var paceW = Math.min(Math.round(pace*100), 100);
     var fc = ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr';
@@ -784,32 +731,31 @@ function buildOv() {
       +(i===0?'<div class="rank-crown">&#127942;</div>':'')
       +'<div class="rank-num '+rankNumCls[i]+'">'+rankLabels[i]+'</div>'
       +'<div class="mcard-mkt">'+r.market+'</div><div class="mcard-mgr">'+r.regional+'</div>'
-      +'<div class="mcard-nums"><span class="mcard-actual">'+(r.hasActual?r.leads:'—')+'</span><span class="mcard-tgt">of '+r.tgt+'</span></div>'
+      +'<div class="mcard-nums"><span class="mcard-actual">'+r.leads+'</span><span class="mcard-tgt">of '+r.tgt+'</span></div>'
       +'<div style="position:relative;margin-bottom:8px"><div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>'
-      +(isMTD&&r.hasActual?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'')+'</div>'
-      +'<span class="mcard-status '+(r.hasActual?stCls:'bt')+'">'+avgS+' avg/store'+(r.hasActual?' — '+ps.label:'')+'</span>'
-      +(isMTD&&r.hasActual?'<div style="font-size:11px;color:#888780;margin-top:6px">Expected by day '+meta.daysElapsed+': '+Math.round(r.tgt*pace)+'</div>':'')
+      +(isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'')+'</div>'
+      +'<span class="mcard-status '+stCls+'">'+avgS+' avg/store — '+ps.label+'</span>'
+      +(isMTD?'<div style="font-size:11px;color:#888780;margin-top:6px">Expected by day '+meta.daysElapsed+': '+Math.round(r.tgt*pace)+'</div>':'')
       +'</div>';
   }).join('');
 
   document.getElementById('mtbl').innerHTML = ranked.map(function(r, i) {
-    var ps = r.hasActual ? paceStatus(r.leads, r.tgt, pace) : {cls:'',label:'projected',badge:'bt',row:''};
-    var vs = r.hasActual ? vsPaceStr(r.leads, r.tgt, pace) : '—';
+    var ps = paceStatus(r.leads, r.tgt, pace);
+    var vs = vsPaceStr(r.leads, r.tgt, pace);
     var avgS = r.sc > 0 ? (r.leads/r.sc).toFixed(2) : '—';
-    return '<tr class="dr '+(r.hasActual?ps.row:'')+'">'
+    return '<tr class="dr '+ps.row+'">'
       +'<td style="font-size:12px;color:#888780;font-weight:500">'+(i+1)+'</td>'
       +'<td style="font-weight:500">'+r.market+'</td><td style="color:#888780;font-size:12px">'+r.regional+'</td>'
       +'<td class="tr">'+r.sc+'</td><td class="tr">'+r.tgt+'</td>'
-      +'<td class="tr">'+(r.hasActual?r.leads:'—')+'</td>'
+      +'<td class="tr">'+r.leads+'</td>'
       +'<td class="tr" style="font-weight:500">'+avgS+'</td>'
       +'<td class="tr" style="font-size:12px">'+vs+'</td>'
-      +'<td class="tr"><span class="b '+ps.badge+'">'+(r.hasActual?pc(r.leads,r.tgt)+'%':'target set')+'</span></td></tr>';
+      +'<td class="tr"><span class="b '+ps.badge+'">'+pc(r.leads,r.tgt)+'%</span></td></tr>';
   }).join('');
 
   buildSM();
 }
 
-// ─── SMALL MULTIPLES ───
 function setChartView(v) {
   document.querySelectorAll('.tgbtn').forEach(function(b,i){b.classList.toggle('on',(i===0&&v==='sm')||(i===1&&v==='cmp'));});
   document.getElementById('cv-sm').classList.toggle('on', v==='sm');
@@ -827,15 +773,17 @@ function buildSM() {
 
   MKTS.forEach(function(m) {
     var color = MKT_COLORS[m] || '#185FA5';
-    var labels = MONTHS_META.map(function(mm){return mm.label.substring(0,3);});
-    var actuals = MONTHS_META.map(function(mm) {
-      if (mm.isFuture) return 0;
+    var actualMonths = MONTHS_META.filter(function(mm){ return !mm.isFuture; });
+
+    var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
+    var actuals = actualMonths.map(function(mm) {
       return monthMarketTotals(mm.key, m).leads;
     });
-    var targets = MONTHS_META.map(function(mm) { return monthlyTarget(mm.key, m); });
-    var bgs = MONTHS_META.map(function(mm) {
-      if (mm.isFuture) return 'rgba(180,180,180,0.3)';
-      if (mm.isMTD) return color+'55';
+    var targets = actualMonths.map(function(mm) {
+      return monthlyTarget(mm.key, m);
+    });
+    var bgs = actualMonths.map(function(mm) {
+      if (mm.isMTD) return color + '55';
       return color;
     });
 
@@ -857,11 +805,9 @@ function buildSM() {
         plugins:{legend:{display:false},tooltip:{callbacks:{
           label:function(ctx){
             if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;
-            var mm=MONTHS_META[ctx.dataIndex];
-            if(!mm||mm.isFuture)return'No actuals yet';
-            return'Actual: '+actuals[ctx.dataIndex]+(mm.isMTD?' (MTD)':'');
+            return'Actual: '+actuals[ctx.dataIndex]+(actualMonths[ctx.dataIndex].isMTD?' (MTD)':'');
           },
-          title:function(ctx){return m+' — '+MONTHS_META[ctx[0].dataIndex].label;}
+          title:function(ctx){return m+' — '+actualMonths[ctx[0].dataIndex].label;}
         }}},
         scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},
                 y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat([1]))*1.18}}
@@ -874,10 +820,10 @@ function buildCmp() {
   var mk = (document.getElementById('cmp-sel')||{}).value || selMonthKey;
   var meta = MONTHS_META.find(function(m){return m.key===mk;});
   if (!meta) return;
-  var actuals = MKTS.map(function(m){ return meta.isFuture?0:monthMarketTotals(mk,m).leads; });
+  var actuals = MKTS.map(function(m){ return monthMarketTotals(mk,m).leads; });
   var targets = MKTS.map(function(m){ return monthlyTarget(mk,m); });
-  var bgs = MKTS.map(function(m,i){ return actuals[i]===0&&meta.isFuture?'rgba(180,180,180,0.3)':meta.isMTD?(MKT_COLORS[m]||'#185FA5')+'88':(MKT_COLORS[m]||'#185FA5'); });
-  document.getElementById('cmp-foot').textContent = meta.isMTD?meta.label+' MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days.':meta.isFuture?'Future month — targets set, actuals not yet available.':'Complete month — final actuals vs target.';
+  var bgs = MKTS.map(function(m){ return meta.isMTD?(MKT_COLORS[m]||'#185FA5')+'88':(MKT_COLORS[m]||'#185FA5'); });
+  document.getElementById('cmp-foot').textContent = meta.isMTD?meta.label+' MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days.':'Complete month — final actuals vs target.';
   if (cmpChart) cmpChart.destroy();
   cmpChart = new Chart(document.getElementById('cmpChart'),{type:'bar',
     data:{labels:MKTS,datasets:[
@@ -886,7 +832,7 @@ function buildCmp() {
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{callbacks:{
-        label:function(ctx){if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;if(meta.isFuture)return'No actuals yet';return(meta.isMTD?'MTD: ':'Actual: ')+actuals[ctx.dataIndex];},
+        label:function(ctx){if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;return(meta.isMTD?'MTD: ':'Actual: ')+actuals[ctx.dataIndex];},
         title:function(ctx){return ctx[0].label+' — '+meta.label;}
       }}},
       scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},
@@ -895,12 +841,10 @@ function buildCmp() {
   });
 }
 
-// ─── AREA MANAGER VIEW ───
 function renderAM(filter) {
   var mk = selMonthKey;
   var meta = MONTHS_META.find(function(m){return m.key===mk;});
   var pace = paceFraction(mk);
-  var isFuture = meta && meta.isFuture;
 
   var areaMap = {};
   RAW.forEach(function(r){
@@ -913,13 +857,13 @@ function renderAM(filter) {
   var rows = Object.keys(areaMap).map(function(area) {
     var info = areaMap[area];
     var storeCnt = Object.keys(info.storeNums).length;
-    var totals = isFuture ? {leads:0,comp:0} : (function(){
+    var totals = (function(){
       var leads=0,comp=0;
       RAW.filter(function(r){return r.area===area&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
       return {leads:leads,comp:comp};
     })();
 
-    var tgt = isFuture ? 0 : (function(){
+    var tgt = (function(){
       var storeMap = {};
       RAW.filter(function(r){
         return r.area === area &&
@@ -954,10 +898,10 @@ function renderAM(filter) {
       return Math.round(sum);
     })();
 
-    var ps = !isFuture && tgt > 0 ? paceStatus(totals.leads, tgt, pace) : {cls:'',label:'projected',badge:'bt',row:'',sc:'warn'};
-    return {area:area, market:info.market, regional:info.regional, cnt:storeCnt, leads:totals.leads, tgt:tgt, ps:ps, hasActual:!isFuture};
-  }).sort(function(a,b){ return (a.leads/Math.max(a.tgt,1)) - (b.leads/Math.max(b.tgt,1)); });
-
+    var ps = tgt > 0 ? paceStatus(totals.leads, tgt, pace) : {cls:'',label:'no target',badge:'bt',row:'',sc:'warn'};
+    return {area:area, market:info.market, regional:info.regional, cnt:storeCnt, leads:totals.leads, tgt:tgt, ps:ps, hasActual:true};
+}).sort(function(a,b){ return (b.leads/Math.max(b.tgt,1)) - (a.leads/Math.max(a.tgt,1)); });
+  
   var on=rows.filter(function(x){return x.ps.cls==='cg';}).length;
   var at=rows.filter(function(x){return x.ps.cls==='ca';}).length;
   var bh=rows.filter(function(x){return x.ps.cls==='cr';}).length;
@@ -969,16 +913,15 @@ function renderAM(filter) {
     makeScorecard('Behind',bh,'>10% behind pace','danger') + makeScorecard('Avg attainment',avg,'selected view','neutral');
 
   document.getElementById('amtbl').innerHTML = rows.map(function(r) {
-    var vs = r.hasActual && r.tgt>0 ? vsPaceStr(r.leads, r.tgt, pace) : '—';
-    return '<tr class="dr '+(r.hasActual?r.ps.row:'')+'">'
+    var vs = r.tgt>0 ? vsPaceStr(r.leads, r.tgt, pace) : '—';
+    return '<tr class="dr '+r.ps.row+'">'
       +'<td style="font-weight:500">'+r.area+'</td><td style="font-size:12px;color:#888780">'+r.market+'</td>'
-      +'<td class="tr">'+r.cnt+'</td><td class="tr">'+r.tgt+'</td><td class="tr">'+(r.hasActual?r.leads:'—')+'</td>'
-      +'<td class="tr" style="font-size:12px">'+vs+(r.hasActual&&r.tgt>0?' ('+r.ps.label+')':'')+'</td>'
-      +'<td class="tr"><span class="b '+r.ps.badge+'">'+(r.hasActual&&r.tgt>0?pc(r.leads,r.tgt)+'%':'target set')+'</span></td></tr>';
+      +'<td class="tr">'+r.cnt+'</td><td class="tr">'+r.tgt+'</td><td class="tr">'+r.leads+'</td>'
+      +'<td class="tr" style="font-size:12px">'+vs+(r.tgt>0?' ('+r.ps.label+')':'')+'</td>'
+      +'<td class="tr"><span class="b '+r.ps.badge+'">'+(r.tgt>0?pc(r.leads,r.tgt)+'%':'no target')+'</span></td></tr>';
   }).join('');
 }
 
-// ─── STORE DRILL-DOWN ───
 function filterMkt(mkt) {
   var sel = document.getElementById('am-sel');
   sel.innerHTML = '<option value="all">All areas</option>';
@@ -991,7 +934,6 @@ function renderS() {
   var mk = selMonthKey;
   var meta = MONTHS_META.find(function(m){return m.key===mk;});
   var pace = paceFraction(mk);
-  var isFuture = meta && meta.isFuture;
   var mktF = document.getElementById('mkt-sel').value;
   var amF = document.getElementById('am-sel').value;
 
@@ -1004,13 +946,13 @@ function renderS() {
 
   var rows = Object.keys(storeMap).map(function(sn) {
     var info = storeMap[sn];
-    var totals = isFuture ? {leads:0,comp:0} : (function(){
+    var totals = (function(){
       var leads=0,comp=0;
       RAW.filter(function(r){return r.storeNum==sn&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
       return {leads:leads,comp:comp};
     })();
 
-    var tgt = isFuture ? 0 : (function(){
+    var tgt = (function(){
       var rows = RAW.filter(function(r){
         return r.storeNum == sn &&
                r.monthKey === mk &&
@@ -1036,10 +978,10 @@ function renderS() {
       return Math.round(sumDaily);
     })();
 
-    var ps = !isFuture && tgt>0 ? paceStatus(totals.leads,tgt,pace) : {cls:'',label:'projected',badge:'bt',row:'',sc:'warn'};
-    return {sn:sn,market:info.market,area:info.area||'—',mgr:info.storeManager||'—',leads:totals.leads,tgt:tgt,ps:ps,hasActual:!isFuture};
-  }).sort(function(a,b){ return (a.leads/Math.max(a.tgt,1)) - (b.leads/Math.max(b.tgt,1)); });
-
+    var ps = tgt>0 ? paceStatus(totals.leads,tgt,pace) : {cls:'',label:'no target',badge:'bt',row:'',sc:'warn'};
+    return {sn:sn,market:info.market,area:info.area||'—',mgr:info.storeManager||'—',leads:totals.leads,tgt:tgt,ps:ps,hasActual:true};
+}).sort(function(a,b){ return (b.leads/Math.max(b.tgt,1)) - (a.leads/Math.max(a.tgt,1)); });
+  
   var on=rows.filter(function(s){return s.ps.cls==='cg';}).length;
   var at=rows.filter(function(s){return s.ps.cls==='ca';}).length;
   var bh=rows.filter(function(s){return s.ps.cls==='cr';}).length;
@@ -1051,26 +993,23 @@ function renderS() {
     makeScorecard('Behind',bh,'>10% behind pace','danger') + makeScorecard('Avg attainment',avg,'selected view','neutral');
 
   document.getElementById('stbl').innerHTML = rows.map(function(s) {
-    var vs = s.hasActual&&s.tgt>0 ? vsPaceStr(s.leads,s.tgt,pace) : '—';
-    return '<tr class="dr '+(s.hasActual?s.ps.row:'')+'">'
+    var vs = s.tgt>0 ? vsPaceStr(s.leads,s.tgt,pace) : '—';
+    return '<tr class="dr '+s.ps.row+'">'
       +'<td style="font-weight:500">#'+s.sn+'</td><td style="font-size:12px;color:#5F5E5A">'+s.mgr+'</td>'
       +'<td style="font-size:12px;color:#888780">'+s.area+'</td>'
       +'<td style="font-size:12px;color:#888780">'+s.market+'</td>'
-      +'<td class="tr">'+s.tgt+'</td><td class="tr">'+(s.hasActual?s.leads:'—')+'</td>'
-      +'<td class="tr" style="font-size:12px">'+vs+(s.hasActual&&s.tgt>0?' ('+s.ps.label+')':'')+'</td>'
-      +'<td class="tr"><span class="b '+s.ps.badge+'">'+(s.hasActual&&s.tgt>0?pc(s.leads,s.tgt)+'%':'target set')+'</span></td></tr>';
+      +'<td class="tr">'+s.tgt+'</td><td class="tr">'+s.leads+'</td>'
+      +'<td class="tr" style="font-size:12px">'+vs+(s.tgt>0?' ('+s.ps.label+')':'')+'</td>'
+      +'<td class="tr"><span class="b '+s.ps.badge+'">'+(s.tgt>0?pc(s.leads,s.tgt)+'%':'no target')+'</span></td></tr>';
   }).join('');
 }
 
-// ─── BUSINESS OUTCOMES ───
 function buildBiz() {
   var mk = selMonthKey;
   var meta = MONTHS_META.find(function(m){return m.key===mk;});
-  var isFuture = meta && meta.isFuture;
   document.getElementById('funnel-period').textContent = dateRangeLabel(mk);
 
   var mktRows = MKTS.map(function(m) {
-    if (isFuture) return {m:m,leads:0,comp:0,tgt:monthlyTarget(mk,m),cvr:0,rev:0,sc:uniqueStores(CURRENT_MONTH_KEY,m)};
     var totals = monthMarketTotals(mk, m);
     var tgt = monthlyTarget(mk, m);
     var cvr = totals.leads > 0 ? Math.round(totals.comp/totals.leads*100) : 0;
@@ -1083,10 +1022,10 @@ function buildBiz() {
   var totCvr=totR>0?Math.round(totC/totR*100):0;
 
   document.getElementById('biz-scorecards').innerHTML =
-    makeScorecard('Total referrals',isFuture?'—':totR,'all markets','neutral') +
-    makeScorecard('Completed jobs',isFuture?'—':totC,'from referrals','win') +
-    makeScorecard('Completion rate',isFuture?'—':totCvr+'%','referral → job',totCvr>=30?'win':totCvr>=20?'warn':'danger') +
-    makeScorecard('Revenue est.',isFuture?'—':'$'+(totRev/1000).toFixed(1)+'k','from referral jobs','neutral');
+    makeScorecard('Total referrals',totR,'all markets','neutral') +
+    makeScorecard('Completed jobs',totC,'from referrals','win') +
+    makeScorecard('Completion rate',totCvr+'%','referral → job',totCvr>=30?'win':totCvr>=20?'warn':'danger') +
+    makeScorecard('Revenue est.','$'+(totRev/1000).toFixed(1)+'k','from referral jobs','neutral');
 
   var totBooked = Math.round(totR * 0.47);
   var totPending = Math.max(0, totBooked - totC);
@@ -1154,7 +1093,6 @@ function sw(t) {
   if(t==='biz')buildBiz();
 }
 
-// ─── INIT ───
 function initWithData(rows, source) {
   RAW = rows;
   dataSource = source;
