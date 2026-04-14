@@ -720,7 +720,7 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
   if (monthlyRows.length > 0) {
     var sum = 0;
     monthlyRows.forEach(function(r){ sum += r.monthlyRefTarget; });
-    return Math.round(sum / monthlyRows.length);
+    return sum / monthlyRows.length;
   }
 
   var seenDay = {};
@@ -733,10 +733,10 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
   });
 
   if (meta.isMTD && meta.daysElapsed > 0) {
-    return Math.round(sumDaily * meta.daysTotal / meta.daysElapsed);
+    return sumDaily * meta.daysTotal / meta.daysElapsed;
   }
 
-  return Math.round(sumDaily);
+  return sumDaily;
 }
 
 function monthlyTarget(monthKey, market) {
@@ -747,9 +747,11 @@ function monthlyTarget(monthKey, market) {
     if (!storeMap[r.storeNum]) storeMap[r.storeNum] = true;
   });
 
-  return Object.keys(storeMap).reduce(function(sum, storeNum){
+  var total = Object.keys(storeMap).reduce(function(sum, storeNum){
     return sum + monthlyTargetForStoreMonth(storeNum, monthKey);
   }, 0);
+
+  return Math.round(total);
 }
 
 function uniqueStores(monthKey, market) {
