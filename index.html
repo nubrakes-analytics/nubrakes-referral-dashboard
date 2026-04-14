@@ -1201,9 +1201,18 @@ function buildOv() {
     var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
     var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : 0;
 
-    return '<div class="mcard '+['rank-1-card','rank-2-card','rank-3-card','rank-4-card'][i]+'" style="margin-top:'+(i===0?'14px':'0')+'">' +
-      (i===0?'<div class="rank-crown">&#127942;</div>':'') +
-      '<div class="rank-num '+['rn-1','rn-2','rn-3','rn-4'][i]+'">'+['1st','2nd','3rd','4th'][i]+'</div>' +
+    function ordinal(n){
+  var s = ["th","st","nd","rd"];
+  var v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+    var cardCls = i === 0 ? 'rank-1-card' : i === 1 ? 'rank-2-card' : i === 2 ? 'rank-3-card' : 'rank-4-card';
+var numCls = i === 0 ? 'rn-1' : i === 1 ? 'rn-2' : i === 2 ? 'rn-3' : 'rn-4';
+
+return '<div class="mcard '+cardCls+'" style="margin-top:'+(i===0?'14px':'0')+'">' +
+  (i===0?'<div class="rank-crown">&#127942;</div>':'') +
+  '<div class="rank-num '+numCls+'">'+ordinal(i + 1)+'</div>' +
       '<div class="mcard-mkt">'+r.m+'</div>' +
       '<div class="mcard-mgr">'+marketManagerLabel(r.m)+'</div>' +
       '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.t+' target</span></div>' +
