@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html><head>
-<meta charset="UTF-8">
-<title>Referral program dashboard</title>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>NuBrakes referral program dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;padding:0 16px 32px;background:#f8f8f8}
+body{font-family:sans-serif;padding:0 0 32px;background:transparent}
 .top-banner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0C447C;border-radius:12px 12px 0 0;flex-wrap:wrap;gap:8px}
 .banner-title{font-size:14px;font-weight:500;color:#fff}
 .banner-sub{font-size:12px;color:#85B7EB}
-.banner-left{display:flex;align-items:center;gap:12px}
+.banner-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .updated-flag{display:flex;align-items:center;gap:6px;font-size:12px;color:#B5D4F4;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 12px}
 .udot{width:7px;height:7px;border-radius:50%;background:#97C459;flex-shrink:0}
 .udot.stale{background:#F09595}
-.data-source-pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;margin-left:8px}
+.data-source-pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
 .ds-live{background:#EAF3DE;color:#27500A}
 .ds-fallback{background:#FAEEDA;color:#633806}
 .tab-row{display:flex;align-items:center;gap:6px;padding:12px 0 0;flex-wrap:wrap;border-bottom:2px solid #E6F1FB}
@@ -23,7 +24,7 @@ body{font-family:sans-serif;padding:0 16px 32px;background:#f8f8f8}
 .tab-sep{width:1px;background:#D3D1C7;height:20px;margin:0 2px}
 .pg{display:none}.pg.on{display:block}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0 14px;flex-wrap:wrap;gap:10px}
-.month-wrap{display:flex;align-items:center;gap:8px}
+.month-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .month-wrap label{font-size:12px;color:#888780}
 .dr-label{font-size:12px;color:#5F5E5A;background:#F1EFE8;padding:5px 12px;border-radius:20px}
 .mtd-pill{font-size:11px;background:#FAEEDA;color:#633806;border-radius:20px;padding:3px 10px;font-weight:500}
@@ -31,10 +32,7 @@ body{font-family:sans-serif;padding:0 16px 32px;background:#f8f8f8}
 select{font-size:13px;padding:7px 12px;border-radius:20px;border:1.5px solid #B5D4F4;background:#fff;color:#0C447C;font-weight:500;cursor:pointer}
 .mrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
 .mc{border-radius:16px;padding:16px 18px}
-.mc.win{background:#EAF3DE;border:1.5px solid #97C459}
-.mc.neutral{background:#E6F1FB;border:1.5px solid #85B7EB}
-.mc.warn{background:#FAEEDA;border:1.5px solid #FAC775}
-.mc.danger{background:#FCEBEB;border:1.5px solid #F09595}
+.mc.win{background:#EAF3DE;border:1.5px solid #97C459}.mc.neutral{background:#E6F1FB;border:1.5px solid #85B7EB}.mc.warn{background:#FAEEDA;border:1.5px solid #FAC775}.mc.danger{background:#FCEBEB;border:1.5px solid #F09595}
 .ml{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .mc.win .ml{color:#3B6D11}.mc.neutral .ml{color:#185FA5}.mc.warn .ml{color:#854F0B}.mc.danger .ml{color:#A32D2D}
 .mv{font-size:28px;font-weight:500}
@@ -44,70 +42,37 @@ select{font-size:13px;padding:7px 12px;border-radius:20px;border:1.5px solid #B5
 .slbl{font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
 .mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
 .mcard{border-radius:16px;padding:16px;position:relative;border:2px solid transparent}
-.mcard.rank-1-card{background:#FFF8E1;border-color:#EF9F27}
-.mcard.rank-2-card{background:#F1EFE8;border-color:#B4B2A9}
-.mcard.rank-3-card{background:#FDE8D8;border-color:#F0997B}
-.mcard.rank-4-card{background:#fff;border-color:#E5E5E5}
+.mcard.rank-1-card{background:#FFF8E1;border-color:#EF9F27}.mcard.rank-2-card{background:#F1EFE8;border-color:#B4B2A9}.mcard.rank-3-card{background:#FDE8D8;border-color:#F0997B}.mcard.rank-4-card{background:#fff;border-color:#E5E5E5}
 .rank-crown{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:16px;background:#fff;border-radius:20px;padding:1px 8px;border:1.5px solid #EF9F27}
 .rank-num{position:absolute;top:10px;right:12px;font-size:11px;font-weight:500;border-radius:20px;padding:2px 8px}
 .rn-1{background:#EF9F27;color:#412402}.rn-2{background:#D3D1C7;color:#2C2C2A}.rn-3{background:#F0997B;color:#4A1B0C}.rn-4{background:#F1EFE8;color:#888780}
-.mcard-mkt{font-size:14px;font-weight:500;color:#111;margin-bottom:1px}
-.mcard-mgr{font-size:11px;color:#888780;margin-bottom:10px}
-.mcard-nums{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.mcard-actual{font-size:24px;font-weight:500;color:#111}
-.mcard-tgt{font-size:12px;color:#888780}
-.pbb{height:8px;background:rgba(0,0,0,0.08);border-radius:20px;overflow:hidden;margin-bottom:6px}
-.pbf{height:100%;border-radius:20px}
-.fg{background:#639922}.fa{background:#BA7517}.fr{background:#E24B4A}
+.mcard-mkt{font-size:14px;font-weight:500;color:#111;margin-bottom:1px}.mcard-mgr{font-size:11px;color:#888780;margin-bottom:10px}.mcard-nums{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}.mcard-actual{font-size:24px;font-weight:500;color:#111}.mcard-tgt{font-size:12px;color:#888780}
+.pbb{height:8px;background:rgba(0,0,0,0.08);border-radius:20px;overflow:hidden;margin-bottom:6px}.pbf{height:100%;border-radius:20px}.fg{background:#639922}.fa{background:#BA7517}.fr{background:#E24B4A}
 .mcard-status{font-size:12px;font-weight:500;border-radius:20px;padding:3px 10px;display:inline-block;margin-top:4px}
 .st-win{background:#EAF3DE;color:#27500A}.st-warn{background:#FAEEDA;color:#633806}.st-danger{background:#FCEBEB;color:#791F1F}
 .panel{background:#fff;border:1.5px solid #E6F1FB;border-radius:16px;overflow:hidden;margin-bottom:1.5rem}
 .ph{padding:12px 16px;border-bottom:1.5px solid #E6F1FB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .pt{font-size:13px;font-weight:500;color:#111}
-.toggle-group{display:flex;background:#E6F1FB;border-radius:20px;padding:3px;gap:3px}
-.tgbtn{font-size:12px;padding:5px 14px;border-radius:20px;border:none;cursor:pointer;color:#185FA5;background:transparent;font-weight:500}
-.tgbtn.on{background:#0C447C;color:#fff}
-.frow{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
-.fl{font-size:13px;color:#5F5E5A}
-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
-th{font-size:11px;font-weight:500;color:#888780;text-align:left;padding:8px 16px;border-bottom:1.5px solid #E6F1FB;text-transform:uppercase;letter-spacing:.04em}
-th.tr{text-align:right}
-td{padding:10px 16px;border-bottom:1px solid #F1EFE8;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-td.tr{text-align:right}
-tr:last-child td{border-bottom:none}
-tr.win-row td{background:#EAF3DE}
-tr.warn-row td{background:#FAEEDA}
-tr.danger-row td{background:#FCEBEB}
-tr.dr:hover td{filter:brightness(0.97)}
-.b{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px}
-.bg{background:#639922;color:#EAF3DE}.ba{background:#BA7517;color:#FAEEDA}.br{background:#E24B4A;color:#FCEBEB}.bt{background:#E6F1FB;color:#0C447C}
-.foot{font-size:11px;color:#888780;padding:8px 16px;border-top:1px solid #F1EFE8}
-.legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px}
-.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#5F5E5A}
-.leg-dot{width:10px;height:10px;border-radius:3px}
-.leg-dash{width:18px;height:0;border-top:2px dashed #888780}
-.sm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:14px}
-.sm-card{background:#F1EFE8;border:1.5px solid #D3D1C7;border-radius:12px;padding:12px}
-.sm-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.chart-view{display:none}.chart-view.on{display:block}
-.ldr-header{background:#EEEDFE;border-bottom:1.5px solid #CECBF6;padding:10px 16px;display:flex;align-items:center;gap:8px}
-.ldr-txt{font-size:12px;color:#3C3489;font-weight:500}
-.ldr-sub{font-size:11px;color:#534AB7}
-.funnel-wrap{padding:20px 24px}
-.funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.funnel-label{font-size:12px;color:#5F5E5A;width:90px;text-align:right;flex-shrink:0}
-.funnel-bar-bg{flex:1;height:32px;background:#F1EFE8;border-radius:20px;overflow:hidden}
-.funnel-bar-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:12px;font-size:12px;font-weight:500;color:#fff}
-.funnel-num{font-size:12px;color:#888780;width:90px;flex-shrink:0}
-.funnel-drop{font-size:11px;color:#A32D2D;width:65px;flex-shrink:0;text-align:right;font-weight:500}
-.funnel-arrow{font-size:11px;color:#D3D1C7;padding:0 0 4px 102px}
-.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
-.loading-spinner{width:36px;height:36px;border:3px solid #E6F1FB;border-top-color:#0C447C;border-radius:50%;animation:spin 0.8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:13px;color:#5F5E5A}
+.toggle-group{display:flex;background:#E6F1FB;border-radius:20px;padding:3px;gap:3px}.tgbtn{font-size:12px;padding:5px 14px;border-radius:20px;border:none;cursor:pointer;color:#185FA5;background:transparent;font-weight:500}.tgbtn.on{background:#0C447C;color:#fff}
+.frow{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}.fl{font-size:13px;color:#5F5E5A}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}th{font-size:11px;font-weight:500;color:#888780;text-align:left;padding:8px 16px;border-bottom:1.5px solid #E6F1FB;text-transform:uppercase;letter-spacing:.04em}th.tr{text-align:right}td{padding:10px 16px;border-bottom:1px solid #F1EFE8;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}td.tr{text-align:right}tr:last-child td{border-bottom:none}tr.win-row td{background:#EAF3DE}tr.warn-row td{background:#FAEEDA}tr.danger-row td{background:#FCEBEB}tr.top-q td{background:#FFF8E1}tr.dr:hover td{filter:brightness(0.97)}
+.b{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px}.bg{background:#639922;color:#EAF3DE}.ba{background:#BA7517;color:#FAEEDA}.br{background:#E24B4A;color:#FCEBEB}.bt{background:#E6F1FB;color:#0C447C}.gold-b{background:#EF9F27;color:#412402}
+.foot{font-size:11px;color:#888780;padding:8px 16px;border-top:1px solid #F1EFE8}.legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px}.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#5F5E5A}.leg-dot{width:10px;height:10px;border-radius:3px}.leg-dash{width:18px;height:0;border-top:2px dashed #888780}
+.sm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:14px}.sm-card{background:#F1EFE8;border:1.5px solid #D3D1C7;border-radius:12px;padding:12px}.chart-view{display:none}.chart-view.on{display:block}
+.ldr-header{background:#EEEDFE;border-bottom:1.5px solid #CECBF6;padding:10px 16px;display:flex;align-items:center;gap:8px}.ldr-txt{font-size:12px;color:#3C3489;font-weight:500}.ldr-sub{font-size:11px;color:#534AB7}
+.funnel-wrap{padding:20px 24px}.funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}.funnel-label{font-size:12px;color:#5F5E5A;width:90px;text-align:right;flex-shrink:0}.funnel-bar-bg{flex:1;height:32px;background:#F1EFE8;border-radius:20px;overflow:hidden}.funnel-bar-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:12px;font-size:12px;font-weight:500;color:#fff}.funnel-num{font-size:12px;color:#888780;width:90px;flex-shrink:0}.funnel-drop{font-size:11px;color:#A32D2D;width:65px;flex-shrink:0;text-align:right;font-weight:500}.funnel-arrow{font-size:11px;color:#D3D1C7;padding:0 0 4px 102px}
+.metric-key{display:flex;gap:16px;flex-wrap:wrap;padding:10px 16px;background:#F9F9FB;border-bottom:1px solid #E6F1FB}.mk-item{display:flex;align-items:flex-start;gap:6px}.mk-label{font-size:11px;font-weight:500;color:#0C447C;min-width:90px}.mk-desc{font-size:11px;color:#5F5E5A;line-height:1.4}
+.pace-note{font-size:11px;background:#E6F1FB;color:#0C447C;border-radius:8px;padding:6px 12px;margin:8px 16px 0;display:inline-block}
+.tq-callout{background:#FFF8E1;border:1.5px solid #EF9F27;border-radius:16px;padding:16px 20px;margin-bottom:1.5rem}.tq-title{font-size:13px;font-weight:500;color:#633806;margin-bottom:8px;display:flex;align-items:center;gap:8px}.tq-body{font-size:12px;color:#854F0B;margin-top:4px;line-height:1.5}.tq-stat{font-size:22px;font-weight:500;color:#412402}.tq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.tq-item{background:#fff;border-radius:12px;padding:10px 14px;border:1px solid #FAC775}.tq-item-name{font-size:12px;font-weight:500;color:#111}.tq-item-mkt{font-size:11px;color:#888780}.tq-item-refs{font-size:18px;font-weight:500;color:#412402}.tq-item-pct{font-size:11px;color:#92600A}
+.dist-wrap{padding:14px 16px 8px}.dist-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}.dist-store-label{font-size:10px;color:#888780;width:50px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dist-bar-bg{flex:1;height:14px;background:#F1EFE8;border-radius:20px;overflow:hidden}.dist-bar-fill{height:100%;border-radius:20px}.dist-val{font-size:10px;color:#5F5E5A;width:28px;flex-shrink:0;text-align:right}.dist-section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;padding:4px 0 2px;color:#888780}
+.coaching-wrap{padding:14px 16px}.coaching-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F1EFE8}.coaching-item:last-child{border-bottom:none}.coaching-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:500}.ci-red{background:#FCEBEB;color:#A32D2D}.ci-amber{background:#FAEEDA;color:#854F0B}.ci-blue{background:#E6F1FB;color:#185FA5}.coaching-text{flex:1}.coaching-headline{font-size:13px;font-weight:500;color:#111;margin-bottom:2px}.coaching-sub{font-size:12px;color:#888780;line-height:1.4}.coaching-action{font-size:11px;color:#185FA5;font-weight:500;margin-top:4px}
+.pin-overlay{padding:48px 24px;text-align:center}.pin-icon{font-size:32px;margin-bottom:12px}.pin-title{font-size:16px;font-weight:500;color:#111;margin-bottom:6px}.pin-sub{font-size:13px;color:#888780;margin-bottom:24px}.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:20px}.pin-dot{width:14px;height:14px;border-radius:50%;background:#E6F1FB;border:2px solid #B5D4F4}.pin-dot.filled{background:#0C447C;border-color:#0C447C}.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin:0 auto}.pin-btn{font-size:18px;font-weight:500;padding:14px;border-radius:16px;border:1.5px solid #B5D4F4;background:#fff;cursor:pointer;color:#0C447C}.pin-btn:hover{background:#E6F1FB}.pin-btn.clear{font-size:13px;color:#854F0B;border-color:#FAC775;background:#FAEEDA}.pin-err{font-size:12px;color:#A32D2D;margin-top:8px;min-height:18px}.biz-content{display:none}
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}.loading-spinner{width:36px;height:36px;border:3px solid #E6F1FB;border-top-color:#0C447C;border-radius:50%;animation:spin .8s linear infinite}.loading-text{font-size:13px;color:#5F5E5A}@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:1100px){.mrow,.mgrid,.tq-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:720px){.mrow,.mgrid,.sm-grid,.tq-grid{grid-template-columns:1fr}table{display:block;overflow:auto}.funnel-label,.funnel-num,.funnel-drop{width:auto}.funnel-arrow{padding-left:0}}
 </style>
-</head><body>
-
+</head>
+<body>
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-spinner"></div>
   <div class="loading-text" id="loading-text">Fetching live data…</div>
@@ -115,1028 +80,397 @@ tr.dr:hover td{filter:brightness(0.97)}
 
 <div class="top-banner">
   <div class="banner-left">
-    <span class="banner-title">Referral program dashboard</span>
+    <span class="banner-title">NuBrakes referral program dashboard</span>
     <span class="banner-sub" id="markets-sub">Loading…</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <span class="data-source-pill" id="ds-pill">—</span>
-    <div class="updated-flag"><div class="udot" id="udot"></div><span id="ulbl"></span></div>
+    <div class="updated-flag"><div class="udot" id="udot"></div><span id="ulbl">Loading…</span></div>
   </div>
 </div>
 
 <div class="tab-row">
-  <div class="tab on" onclick="sw('ov')">Market overview</div>
+  <div class="tab on" onclick="sw('st')">Store drill-down</div>
   <div class="tab" onclick="sw('am')">Area manager view</div>
-  <div class="tab" onclick="sw('st')">Store drill-down</div>
+  <div class="tab" onclick="sw('ov')">Market overview</div>
   <div class="tab-sep"></div>
   <div class="tab leadership" onclick="sw('biz')">Business outcomes</div>
 </div>
 
-<div class="pg on" id="pg-ov">
+<div class="pg on" id="pg-st">
   <div class="topbar">
-    <div class="month-wrap">
-      <label>Viewing month</label>
-      <select id="month-dd" onchange="selectMonth(this.value)"></select>
-      <span id="period-pill"></span>
-    </div>
-    <div class="dr-label" id="dr-lbl"></div>
+    <div class="month-wrap"><label>Viewing month</label><select id="st-month-dd" onchange="selectMonth(this.value)"></select><span id="st-pill"></span></div>
+    <div class="dr-label" id="st-dr"></div>
   </div>
-  <div class="mrow" id="ov-scorecards"></div>
-  <div class="slbl">Market leaderboard — ranked by avg referrals per store</div>
-  <div class="mgrid" id="mcards"></div>
-  <div class="slbl">Referral performance by market</div>
-  <div class="panel">
-    <div class="ph">
-      <div>
-        <div class="pt">Referral actuals vs ramping targets</div>
-        <div style="font-size:11px;color:#888780;margin-top:2px">Targets increase monthly as the program scales</div>
-      </div>
-      <div class="toggle-group">
-        <button class="tgbtn on" onclick="setChartView('sm')">Market trends</button>
-        <button class="tgbtn" onclick="setChartView('cmp')">Monthly comparison</button>
-      </div>
-    </div>
-    <div class="chart-view on" id="cv-sm">
-      <div class="legend">
-        <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual (complete)</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div>
-        <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
-      </div>
-      <div class="sm-grid" id="sm-grid"></div>
-      <div class="foot">Each panel = one market. Faded bars indicate the current MTD month. Dashed line = monthly target.</div>
-    </div>
-    <div class="chart-view" id="cv-cmp">
-      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 0;flex-wrap:wrap">
-        <label style="font-size:12px;color:#888780">Compare month</label>
-        <select id="cmp-sel" onchange="buildCmp()"></select>
-      </div>
-      <div class="legend">
-        <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual</div>
-        <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
-      </div>
-      <div style="padding:12px 16px 8px"><div style="position:relative;width:100%;height:280px"><canvas id="cmpChart"></canvas></div></div>
-      <div class="foot" id="cmp-foot"></div>
-    </div>
+  <div class="frow">
+    <span class="fl">Market</span>
+    <select id="mkt-sel" onchange="filterMkt(this.value)"><option value="all">All markets</option></select>
+    <span class="fl">Area manager</span>
+    <select id="am-sel" onchange="renderS()"><option value="all">All areas</option></select>
   </div>
-  <div class="slbl">Market summary</div>
+  <div class="mrow" id="st-scorecards"></div>
+  <div id="tq-callout-wrap"></div>
+  <div class="panel" id="dist-panel">
+    <div class="ph"><span class="pt">Referral distribution by store</span><span style="font-size:11px;color:#888780" id="dist-subtitle"></span></div>
+    <div class="dist-wrap" id="dist-wrap"></div>
+    <div class="foot" id="dist-foot"></div>
+  </div>
+  <div class="slbl">Coaching spotlight</div>
   <div class="panel">
-    <div class="ph"><span class="pt" id="mkt-tbl-title"></span></div>
-    <table><thead><tr>
-      <th style="width:5%"></th><th style="width:15%">Market</th><th style="width:15%">Regional</th>
-      <th class="tr" style="width:8%">Stores</th><th class="tr" style="width:11%">Target</th>
-      <th class="tr" style="width:11%">Actual</th><th class="tr" style="width:11%">Avg/store</th>
-      <th class="tr" style="width:15%">Vs pace</th><th class="tr" style="width:9%">% goal</th>
-    </tr></thead><tbody id="mtbl"></tbody></table>
-    <div class="foot" id="mkt-foot"></div>
+    <div class="ph"><span class="pt">Action items for area managers</span><span style="font-size:11px;color:#888780" id="coaching-period"></span></div>
+    <div class="coaching-wrap" id="coaching-wrap"></div>
   </div>
 </div>
 
 <div class="pg" id="pg-am">
   <div class="topbar">
-    <div class="month-wrap"><label>Viewing month</label>
-      <select id="am-month-dd" onchange="selectMonth(this.value)"></select>
-      <span id="am-pill"></span>
-    </div>
+    <div class="month-wrap"><label>Viewing month</label><select id="am-month-dd" onchange="selectMonth(this.value)"></select><span id="am-pill"></span></div>
     <div class="dr-label" id="am-dr"></div>
   </div>
-  <div class="frow"><span class="fl">Market</span>
-    <select id="am-mkt-sel" onchange="renderAM(this.value)">
-      <option value="all">All markets</option>
-    </select>
-  </div>
+  <div class="frow"><span class="fl">Market</span><select id="am-mkt-sel" onchange="renderAM(this.value)"><option value="all">All markets</option></select></div>
   <div class="mrow" id="am-scorecards"></div>
   <div class="panel">
-    <div class="ph"><span class="pt">Area manager attainment — highest to lowest</span></div>
-    <table><thead><tr>
-      <th style="width:22%">Area manager</th><th style="width:14%">Market</th>
-      <th class="tr" style="width:9%">Stores</th><th class="tr" style="width:12%">Target</th>
-      <th class="tr" style="width:12%">Actual</th><th class="tr" style="width:18%">Vs pace</th>
-      <th class="tr" style="width:13%">% to goal</th>
-    </tr></thead><tbody id="amtbl"></tbody></table>
-    <div class="foot">Green = on/ahead of pace. Amber = within 10%. Red = &gt;10% behind pace.</div>
+    <div class="ph"><span class="pt">Area manager attainment — lowest to highest</span></div>
+    <table><thead><tr><th style="width:20%">Area manager</th><th style="width:14%">Market</th><th style="width:14%">Regional</th><th class="tr" style="width:9%">Stores</th><th class="tr" style="width:11%">Target</th><th class="tr" style="width:11%">Actual</th><th class="tr" style="width:14%">Daily pace</th><th class="tr" style="width:13%">% to goal</th></tr></thead><tbody id="amtbl"></tbody></table>
+    <div class="foot" id="am-foot"></div>
   </div>
 </div>
 
-<div class="pg" id="pg-st">
+<div class="pg" id="pg-ov">
   <div class="topbar">
-    <div class="month-wrap"><label>Viewing month</label>
-      <select id="st-month-dd" onchange="selectMonth(this.value)"></select>
-      <span id="st-pill"></span>
-    </div>
-    <div class="dr-label" id="st-dr"></div>
+    <div class="month-wrap"><label>Viewing month</label><select id="month-dd" onchange="selectMonth(this.value)"></select><span id="period-pill"></span></div>
+    <div class="dr-label" id="dr-lbl"></div>
   </div>
-  <div class="frow">
-    <span class="fl">Market</span>
-    <select id="mkt-sel" onchange="filterMkt(this.value)">
-      <option value="all">All markets</option>
-    </select>
-    <span class="fl">Area manager</span>
-    <select id="am-sel" onchange="renderS()"><option value="all">All areas</option></select>
-  </div>
-  <div class="mrow" id="st-scorecards"></div>
+  <div class="slbl">Month summary</div>
+  <div class="mrow" id="ov-scorecards"></div>
+  <div class="slbl">Market leaderboard — ranked by avg referrals per store</div>
+  <div class="mgrid" id="mcards"></div>
+  <div class="slbl">Market summary</div>
   <div class="panel">
-    <div class="ph"><span class="pt">Store attainment — highest to lowest</span></div>
-    <table><thead><tr>
-      <th style="width:20%">Store #</th><th style="width:14%">Manager</th><th style="width:12%">Area</th><th style="width:12%">Market</th>
-      <th class="tr" style="width:10%">Target</th><th class="tr" style="width:10%">Actual</th>
-      <th class="tr" style="width:14%">Vs pace</th><th class="tr" style="width:8%">% goal</th>
-    </tr></thead><tbody id="stbl"></tbody></table>
-    <div class="foot">Row backgrounds reflect pace status. Green = on/ahead. Amber = within 10%. Red = &gt;10% behind.</div>
+    <div class="ph"><span class="pt" id="mkt-tbl-title"></span></div>
+    <div class="metric-key" id="metric-key"></div>
+    <table><thead><tr><th style="width:4%"></th><th style="width:13%">Market</th><th style="width:14%">Regional</th><th class="tr" style="width:7%">Areas</th><th class="tr" style="width:7%">Stores</th><th class="tr" style="width:10%">Target</th><th class="tr" style="width:10%">Actual</th><th class="tr" style="width:9%">Avg/store</th><th class="tr" style="width:14%">Daily pace</th><th class="tr" style="width:12%">% to goal</th></tr></thead><tbody id="mtbl"></tbody></table>
+    <div class="foot" id="mkt-foot"></div>
+  </div>
+  <div class="slbl">Referral performance by market</div>
+  <div class="panel">
+    <div class="ph">
+      <div><div class="pt">Referral actuals vs monthly targets</div><div style="font-size:11px;color:#888780;margin-top:2px">Targets are read from monthly target fields when present, otherwise extrapolated from daily targets</div></div>
+      <div class="toggle-group"><button class="tgbtn on" onclick="setCV('sm')">Market trends</button><button class="tgbtn" onclick="setCV('cmp')">Monthly comparison</button></div>
+    </div>
+    <div class="chart-view on" id="cv-sm">
+      <div class="legend"><div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual (complete)</div><div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div><div class="leg-item"><div class="leg-dash"></div>Monthly target</div></div>
+      <div style="padding:8px 16px 0"><div class="pace-note" id="sm-pace-note"></div></div>
+      <div class="sm-grid" id="sm-grid"></div>
+      <div class="foot">Badge % = actual vs paced target for MTD months. On complete months it shows actual vs full target.</div>
+    </div>
+    <div class="chart-view" id="cv-cmp">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 0"><label style="font-size:12px;color:#888780">Compare month</label><select id="cmp-sel" onchange="buildCmp()"></select></div>
+      <div class="legend"><div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual</div><div class="leg-item"><div class="leg-dash"></div>Monthly target</div></div>
+      <div style="padding:12px 16px 8px"><div style="position:relative;width:100%;height:280px"><canvas id="cmpChart"></canvas></div></div>
+      <div class="foot" id="cmp-foot"></div>
+    </div>
   </div>
 </div>
 
 <div class="pg" id="pg-biz">
-  <div class="ldr-header">
-    <span class="ldr-txt">Leadership &amp; regional view</span>
-    <span class="ldr-sub">— Conversion and revenue are not within store control</span>
-  </div>
-  <div class="topbar" style="padding-top:14px">
-    <div class="month-wrap"><label>Viewing month</label>
-      <select id="biz-month-dd" onchange="selectMonth(this.value);buildBiz()"></select>
+  <div id="pin-overlay" class="pin-overlay">
+    <div class="pin-icon">&#128274;</div><div class="pin-title">Leadership view</div><div class="pin-sub">Enter PIN to access business outcomes</div>
+    <div class="pin-dots" id="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinPress('1')">1</button><button class="pin-btn" onclick="pinPress('2')">2</button><button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button><button class="pin-btn" onclick="pinPress('5')">5</button><button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button><button class="pin-btn" onclick="pinPress('8')">8</button><button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn clear" onclick="pinClear()">Clear</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn clear" onclick="pinDel()">&#9003;</button>
     </div>
+    <div class="pin-err" id="pin-err"></div>
   </div>
-  <div class="mrow" id="biz-scorecards"></div>
-  <div class="slbl">Referral pipeline — all markets combined</div>
-  <div class="panel">
-    <div class="ph"><span class="pt">Referral → repair funnel</span><span style="font-size:11px;color:#888780" id="funnel-period"></span></div>
-    <div class="funnel-wrap" id="funnel-wrap"></div>
-    <div class="foot">Drop-off = records lost at each stage vs previous stage.</div>
-  </div>
-  <div class="slbl">Completed jobs by market</div>
-  <div class="panel">
-    <div class="ph"><span class="pt">Referrals &amp; completed jobs by market</span></div>
-    <table><thead><tr>
-      <th style="width:18%">Market</th><th class="tr" style="width:13%">Referrals</th>
-      <th class="tr" style="width:13%">Completed Jobs</th>
-      <th class="tr" style="width:15%">Completion rate</th>
-      <th class="tr" style="width:15%">Daily ref target</th>
-      <th class="tr" style="width:13%">Stores active</th>
-      <th class="tr" style="width:13%">Revenue est.</th>
-    </tr></thead><tbody id="biztbl"></tbody></table>
-    <div class="foot">Completion rate = completed jobs ÷ referrals. Sorted lowest to highest.</div>
-  </div>
-  <div class="slbl">Trend — monthly referrals by market</div>
-  <div class="panel">
-    <div class="ph"><span class="pt">Monthly referral totals by market</span></div>
-    <div class="legend" id="biz-legend"></div>
-    <div style="padding:14px 16px 8px"><div style="position:relative;width:100%;height:240px"><canvas id="bizChart"></canvas></div></div>
-    <div class="foot" id="biz-chart-foot"></div>
+  <div class="biz-content" id="biz-content">
+    <div class="ldr-header"><span class="ldr-txt">Leadership &amp; market manager view</span><span class="ldr-sub">— Conversion and revenue are not within store control</span></div>
+    <div class="topbar" style="padding-top:14px">
+      <div class="month-wrap"><label>Viewing month</label><select id="biz-month-dd" onchange="selectMonth(this.value);buildBiz()"></select></div>
+      <button style="font-size:12px;padding:5px 14px;border-radius:20px;border:1.5px solid #F09595;background:#FCEBEB;color:#A32D2D;cursor:pointer" onclick="lockBiz()">&#128274; Lock</button>
+    </div>
+    <div class="mrow" id="biz-scorecards"></div>
+    <div class="slbl">Referral pipeline</div>
+    <div class="panel"><div class="ph"><span class="pt">Referral → repair funnel</span><span style="font-size:11px;color:#888780" id="funnel-period"></span></div><div class="funnel-wrap" id="funnel-wrap"></div><div class="foot">Drop-off = records lost at each stage vs previous stage.</div></div>
+    <div class="slbl">Conversion by market</div>
+    <div class="panel"><div class="ph"><span class="pt">Referrals → completed repairs by market</span></div><table><thead><tr><th style="width:18%">Market</th><th class="tr" style="width:15%">Referrals</th><th class="tr" style="width:15%">Completed</th><th class="tr" style="width:18%">Conv. rate</th><th class="tr" style="width:18%">Revenue (est.)</th></tr></thead><tbody id="biztbl"></tbody></table><div class="foot">Revenue estimated at $480 avg order. Conversion = completed ÷ referrals.</div></div>
+    <div class="slbl">Conversion trend</div>
+    <div class="panel"><div class="ph"><span class="pt">Monthly conversion rate by market</span></div><div class="legend" id="biz-legend"></div><div style="padding:14px 16px 8px"><div style="position:relative;width:100%;height:220px"><canvas id="bizChart"></canvas></div></div><div class="foot">Trend uses month-level completed jobs ÷ referrals by market.</div></div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ─── FALLBACK DATA ───
-var FALLBACK_DATA = [
-  {Day:"2026-01-31",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40041,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40043,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40045,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Bryan",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40046,Leads:5,CompletedJobs:2,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40048,Leads:4,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"C Cahoon",StoreManager:"Brendan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40049,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Peter",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:40050,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Ivyanna",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40063,Leads:4,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jaylen",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40087,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Joseph",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:40090,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40091,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jordan",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:40092,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Cornelius",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40093,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"C Cahoon",StoreManager:"Luis",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40094,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jonathan",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:40095,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Dawood",ReferralTarget:2.425,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40096,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Austin",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40098,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"David",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:40110,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40115,Leads:5,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Thomas",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40118,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Amy",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40140,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Devonte",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40150,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40152,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Eddie",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40154,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40155,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"J Adams",StoreManager:"Trent",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40160,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Chris",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40163,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40167,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Latisha",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40168,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"DJ",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40178,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Brandon",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40183,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Tevin",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40188,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40189,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40190,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Elisia",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40232,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Jiovani",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40261,Leads:4,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Miguel",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40274,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Trey",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40278,Leads:3,CompletedJobs:0,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:40279,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70059,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70061,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"",StoreManager:"",ReferralTarget:0.6,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70062,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Pam",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70070,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Andrew",ReferralTarget:0.6,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70084,Leads:3,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Carol",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70085,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"Devin",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70087,Leads:3,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Grant",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70089,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Richard",ReferralTarget:0.6,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70093,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Roger",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70094,Leads:3,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Ben",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70095,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Arden",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70096,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Cody",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70097,Leads:3,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Tamija",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70102,Leads:6,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70151,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70152,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Broderick",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70153,Leads:4,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"R Lee",StoreManager:"Ian",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70157,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70160,Leads:5,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Jesus",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70163,Leads:6,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70173,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Mitch",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70176,Leads:4,CompletedJobs:0,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Benny",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-01-31",StoreNumber:70178,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Keith",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70047,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70049,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Andrew",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70050,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Lathon",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70051,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"C Durbin",StoreManager:"Billy",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70055,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"C Durbin",StoreManager:"Joshua",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70057,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Steven",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70058,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Blake",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70060,Leads:4,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"John",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70063,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70064,Leads:4,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Francisco",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70069,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"John",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70081,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"C Durbin",StoreManager:"Eduardo",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70086,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"R Dayton",StoreManager:"Esteban",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70090,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70103,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"John",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70121,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"R Dayton",StoreManager:"Blair",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70122,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70123,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Daan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70124,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"S Newlin",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70125,Leads:5,CompletedJobs:0,Market:"Houston",Regional:"R Walzer",Area:"B Fellman",StoreManager:"Brandon",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-01-31",StoreNumber:70126,Leads:4,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40040,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40043,Leads:7,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40046,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40050,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Ivyanna",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40063,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jaylen",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40087,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Joseph",ReferralTarget:1.225,CompletedTarget:0.25},
-  {Day:"2026-02-28",StoreNumber:40092,Leads:7,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Cornelius",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40095,Leads:8,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Dawood",ReferralTarget:2.425,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40110,Leads:8,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40115,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Thomas",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40118,Leads:6,CompletedJobs:2,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Amy",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40150,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40163,Leads:6,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40183,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Tevin",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40188,Leads:5,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40261,Leads:6,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Miguel",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:40279,Leads:5,CompletedJobs:2,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70095,Leads:5,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"B Smith",StoreManager:"Arden",ReferralTarget:0.9,CompletedTarget:0.25},
-  {Day:"2026-02-28",StoreNumber:70102,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70151,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70157,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"C Barrow",StoreManager:"Bryan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70163,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70063,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70090,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70122,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-02-28",StoreNumber:70126,Leads:5,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40043,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"A Vinson",StoreManager:"Wayne",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40046,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40063,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Jaylen",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40095,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Dawood",ReferralTarget:2.425,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40110,Leads:7,CompletedJobs:1,Market:"Nashville",Regional:"C Ledbetter",Area:"L Cunningham",StoreManager:"Iris",ReferralTarget:2.425,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40150,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40163,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Niko",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40188,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"R Parker",StoreManager:"Marvum",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:40279,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"V Prindiville",StoreManager:"Justin",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70102,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Willie",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70151,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"A Slocumb",StoreManager:"Noah",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70163,Leads:7,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"J Maldonado",StoreManager:"Hunter",ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70063,Leads:7,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Anthony",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70090,Leads:7,CompletedJobs:3,Market:"Houston",Regional:"R Walzer",Area:"A Ornelas",StoreManager:"Johnathan",ReferralTarget:1.825,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70122,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Christopher",ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:"2026-03-17",StoreNumber:70126,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Temilotzin",ReferralTarget:1.525,CompletedTarget:0.5}
+var LIVE_URL='https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
+var AOV=480;
+var PIN_CORRECT='1986',pinEntry='',bizUnlocked=false;
+var RAW=[];
+var MKTS=[];
+var MONTHS_META=[];
+var CURRENT_MONTH_KEY='';
+var selMonthKey='';
+var dataSource='fallback';
+var MKT_COLORS={Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
+var smCharts={},cmpChart=null,bCI=null;
+
+/* Minimal fallback sample. Replace or expand with the full fallback array from your source file if needed. */
+var FALLBACK_DATA=[
+  {Day:'2026-01-31',StoreNumber:40040,Leads:5,CompletedJobs:1,Market:'Nashville',Regional:'M Popielarz',Area:'K Rea',StoreManager:'Tristan',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-01-31',StoreNumber:40150,Leads:3,CompletedJobs:1,Market:'Atlanta',Regional:'J Dietz',Area:'D Albright',StoreManager:'Gary',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-01-31',StoreNumber:70102,Leads:6,CompletedJobs:1,Market:'Dallas',Regional:'S Bonge',Area:'J Maldonado',StoreManager:'Willie',ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:'2026-01-31',StoreNumber:70047,Leads:5,CompletedJobs:1,Market:'Houston',Regional:'R Walzer',Area:'K Cedeno',StoreManager:'Spencer',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-02-28',StoreNumber:40040,Leads:6,CompletedJobs:1,Market:'Nashville',Regional:'M Popielarz',Area:'K Rea',StoreManager:'Tristan',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-02-28',StoreNumber:40150,Leads:5,CompletedJobs:1,Market:'Atlanta',Regional:'J Dietz',Area:'D Albright',StoreManager:'Gary',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-02-28',StoreNumber:70102,Leads:7,CompletedJobs:2,Market:'Dallas',Regional:'S Bonge',Area:'J Maldonado',StoreManager:'Willie',ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:'2026-02-28',StoreNumber:70047,Leads:6,CompletedJobs:2,Market:'Houston',Regional:'R Walzer',Area:'K Cedeno',StoreManager:'Spencer',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-03-17',StoreNumber:40040,Leads:5,CompletedJobs:1,Market:'Nashville',Regional:'M Popielarz',Area:'K Rea',StoreManager:'Tristan',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-03-17',StoreNumber:40150,Leads:4,CompletedJobs:1,Market:'Atlanta',Regional:'J Dietz',Area:'D Albright',StoreManager:'Gary',ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:'2026-03-17',StoreNumber:70102,Leads:7,CompletedJobs:2,Market:'Dallas',Regional:'S Bonge',Area:'J Maldonado',StoreManager:'Willie',ReferralTarget:2.125,CompletedTarget:0.5},
+  {Day:'2026-03-17',StoreNumber:70047,Leads:6,CompletedJobs:2,Market:'Houston',Regional:'R Walzer',Area:'K Cedeno',StoreManager:'Spencer',ReferralTarget:1.525,CompletedTarget:0.5}
 ];
 
-var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
+function toNum(v){var n=Number(v);return Number.isFinite(n)?n:0;}
+function pc(a,t){return t>0?Math.round(a/t*100):0;}
+function monthLabelFromKey(mk){var p=mk.split('-');var y=+p[0],m=+p[1];var mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return mons[m-1]+' '+y;}
+function makeScorecard(l,v,s,t){return'<div class="mc '+t+'"><div class="ml">'+l+'</div><div class="mv">'+v+'</div><div class="ms">'+s+'</div></div>';}
+function paceStatus(a,t,pace){if(t<=0)return{cls:'',label:'no target set',badge:'bt',row:'',sc:'neutral'};var r=a/(t*pace);if(r>=1)return{cls:'cg',label:'ahead of daily pace',badge:'bg',row:'win-row',sc:'win'};if(r>=0.9)return{cls:'ca',label:'within 10% of daily pace',badge:'ba',row:'warn-row',sc:'warn'};return{cls:'cr',label:'behind daily pace',badge:'br',row:'danger-row',sc:'danger'};}
+function vsPaceStr(a,t,p){if(t<=0)return'—';var v=a-Math.round(t*p);return(v>=0?'+':'')+v+' vs pace';}
+function pillHTML(monthKey){var meta=MONTHS_META.find(function(m){return m.key===monthKey;});if(!meta)return'';return meta.isMTD?'<span class="mtd-pill">MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days</span>':'<span class="complete-pill">Complete month</span>';}
+function dateRangeLabel(monthKey){var meta=MONTHS_META.find(function(m){return m.key===monthKey;});if(!meta)return'';var parts=monthKey.split('-');var y=parts[0],m=parseInt(parts[1],10);var mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var mn=mons[m-1];return meta.isMTD?mn+' 1 – '+mn+' '+meta.daysElapsed+', '+y+' (month-to-date)':mn+' 1 – '+mn+' '+meta.daysTotal+', '+y+' (complete)';}
+function paceFraction(monthKey){var meta=MONTHS_META.find(function(m){return m.key===monthKey;});if(!meta)return 1;return meta.isMTD?(meta.daysElapsed/meta.daysTotal):1;}
 
-var RAW = [];
-var MKTS = [];
-var MKT_COLORS = {Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
-var MONTHS_META = [];
-var CURRENT_MONTH_KEY = '';
-var selMonthKey = '';
-var smCharts = {}, cmpChart = null, bCI = null;
-var AOV = 480;
-var dataSource = 'fallback';
-
-function normaliseRow(r) {
-  var sn = Number(r['Store Number']);
-if (!Number.isFinite(sn)) return null;
-  var mkt = r['Market'];
-  if (!mkt || mkt === '#N/A') return null;
-
-  var leads = typeof r['Leads'] === 'number' ? r['Leads'] : 0;
-  var comp = typeof r['Completed Jobs'] === 'number' ? r['Completed Jobs'] : 0;
-  var rt = typeof r['Referral Target'] === 'number' ? r['Referral Target'] : 0;
-  var ct = typeof r['Completed Target'] === 'number' ? r['Completed Target'] : 0;
-  var mrt =
-    typeof r['Monthly Referral Target'] === 'number' ? r['Monthly Referral Target'] :
-    typeof r['MonthlyReferralTarget'] === 'number' ? r['MonthlyReferralTarget'] :
-    null;
-
-  var dayStr = (r['Day'] || '').substring(0, 10);
-  var monthKey = dayStr.substring(0, 7);
-
+function normaliseRow(r){
+  var sn=toNum(r['Store Number']!=null?r['Store Number']:r.StoreNumber);
+  if(!sn)return null;
+  var dayStr=((r['Day']||r.Day||'')+'').substring(0,10);
+  if(!dayStr)return null;
+  var market=r['Market']||r.Market||'';
+  if(!market||market==='#N/A')return null;
   return {
-    day: dayStr,
-    monthKey: monthKey,
-    storeNum: sn,
-    leads: leads,
-    completedJobs: comp,
-    market: mkt,
-    regional: r['Regional'] || '',
-    area: r['Area'] || '',
-    storeManager: r['Store Manager'] || '',
-    dailyRefTarget: rt,
-    dailyCompTarget: ct,
-    monthlyRefTarget: mrt
+    day:dayStr,
+    monthKey:dayStr.substring(0,7),
+    storeNum:sn,
+    leads:toNum(r['Leads']!=null?r['Leads']:r.Leads),
+    completedJobs:toNum(r['Completed Jobs']!=null?r['Completed Jobs']:r.CompletedJobs),
+    market:market,
+    regional:r['Regional']||r.Regional||'',
+    area:r['Area']||r.Area||'',
+    storeManager:r['Store Manager']||r.StoreManager||'',
+    dailyRefTarget:toNum(r['Referral Target']!=null?r['Referral Target']:r.ReferralTarget),
+    dailyCompTarget:toNum(r['Completed Target']!=null?r['Completed Target']:r.CompletedTarget),
+    monthlyRefTarget:(r['Monthly Referral Target']!=null?toNum(r['Monthly Referral Target']):r.MonthlyReferralTarget!=null?toNum(r.MonthlyReferralTarget):null)
   };
 }
 
-function normaliseFallbackRow(r) {
-  var dayStr = (r.Day || '').substring(0, 10);
-  return {
-    day: dayStr,
-    monthKey: dayStr.substring(0, 7),
-    storeNum: r.StoreNumber,
-    leads: r.Leads || 0,
-    completedJobs: r.CompletedJobs || 0,
-    market: r.Market,
-    regional: r.Regional || '',
-    area: r.Area || '',
-    storeManager: r.StoreManager || '',
-    dailyRefTarget: r.ReferralTarget || 0,
-    dailyCompTarget: r.CompletedTarget || 0,
-    monthlyRefTarget:
-      typeof r.MonthlyReferralTarget === 'number' ? r.MonthlyReferralTarget :
-      typeof r['Monthly Referral Target'] === 'number' ? r['Monthly Referral Target'] :
-      null
-  };
-}
-
-function buildDerived() {
-  var monthSet = {}, monthOrder = [];
-  RAW.forEach(function(r) {
-    if (!monthSet[r.monthKey]) { monthSet[r.monthKey] = true; monthOrder.push(r.monthKey); }
+function buildDerived(){
+  var monthSet={};
+  RAW.forEach(function(r){monthSet[r.monthKey]=true;});
+  var monthKeys=Object.keys(monthSet).sort();
+  CURRENT_MONTH_KEY=monthKeys[monthKeys.length-1]||'';
+  MONTHS_META=monthKeys.map(function(mk){
+    var y=+mk.split('-')[0],m=+mk.split('-')[1];
+    var daysInMonth=new Date(y,m,0).getDate();
+    var days=RAW.filter(function(r){return r.monthKey===mk;}).map(function(r){return r.day;}).sort();
+    var lastDay=days.length?parseInt(days[days.length-1].split('-')[2],10):daysInMonth;
+    var isMTD=mk===CURRENT_MONTH_KEY && lastDay<daysInMonth;
+    return {key:mk,label:monthLabelFromKey(mk),isMTD:isMTD,daysElapsed:isMTD?lastDay:daysInMonth,daysTotal:daysInMonth};
   });
+  MKTS=Array.from(new Set(RAW.map(function(r){return r.market;}))).sort();
+  if(!selMonthKey)selMonthKey=CURRENT_MONTH_KEY;
+}
 
-  monthOrder = monthOrder.filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
-
-  var latestWithData = '';
-  monthOrder.forEach(function(mk) {
-    var hasLeads = RAW.some(function(r) { return r.monthKey === mk && r.leads > 0; });
-    if (hasLeads) latestWithData = mk;
+function buildAllDDs(){
+  ['month-dd','am-month-dd','st-month-dd','biz-month-dd'].forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    el.innerHTML=MONTHS_META.map(function(m){return'<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+m.label+(m.isMTD?' — MTD':'')+'</option>';}).join('');
   });
-  CURRENT_MONTH_KEY = latestWithData || monthOrder[monthOrder.length - 1];
-
-  MONTHS_META = monthOrder.map(function(mk) {
-    var parts = mk.split('-');
-    var y = parseInt(parts[0]), m = parseInt(parts[1]);
-    var daysInMonth = new Date(y, m, 0).getDate();
-    var isFuture = false;
-    var isMTD = mk === CURRENT_MONTH_KEY;
-    var daysElapsed = 0;
-
-    if (isMTD) {
-      var days = RAW.filter(function(r){return r.monthKey===mk;}).map(function(r){return r.day;});
-      days.sort();
-      if (days.length) {
-        var lastDay = parseInt(days[days.length-1].split('-')[2]);
-        daysElapsed = lastDay;
-      } else {
-        daysElapsed = new Date().getDate();
-      }
-    } else {
-      daysElapsed = daysInMonth;
-    }
-
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var label = months[m-1] + ' ' + y;
-    return { key: mk, label: label, isMTD: isMTD, isFuture: isFuture, daysElapsed: daysElapsed, daysTotal: daysInMonth };
-  });
-
-  var mktSet = {};
-  RAW.forEach(function(r) { mktSet[r.market] = true; });
-  MKTS = Object.keys(mktSet).sort();
-
-  if (!selMonthKey) selMonthKey = CURRENT_MONTH_KEY;
-}
-
-function monthMarketTotals(monthKey, market) {
-  var rows = RAW.filter(function(r) { return r.monthKey === monthKey && r.market === market; });
-  var leads = 0, comp = 0, targSum = 0;
-  var storeSet = {};
-  rows.forEach(function(r) {
-    leads += r.leads;
-    comp += r.completedJobs;
-    targSum += r.dailyRefTarget;
-    storeSet[r.storeNum] = true;
-  });
-  return { leads: leads, comp: comp, dailyTargetSum: targSum, storeCount: Object.keys(storeSet).length };
-}
-
-function monthlyTarget(monthKey, market) {
-  var meta = MONTHS_META.find(function(m){ return m.key === monthKey; });
-  if (!meta) return 0;
-
-  var storeMap = {};
-
-  RAW.filter(function(r){
-    return r.monthKey === monthKey &&
-           r.market === market &&
-           typeof r.monthlyRefTarget === 'number' &&
-           !isNaN(r.monthlyRefTarget);
-  }).forEach(function(r){
-    if (!storeMap[r.storeNum]) storeMap[r.storeNum] = { sum: 0, count: 0 };
-    storeMap[r.storeNum].sum += r.monthlyRefTarget;
-    storeMap[r.storeNum].count += 1;
-  });
-
-  var stores = Object.keys(storeMap);
-  if (stores.length > 0) {
-    var total = 0;
-    stores.forEach(function(sn){
-      var s = storeMap[sn];
-      total += (s.count > 0 ? s.sum / s.count : 0);
-    });
-    return Math.round(total);
-  }
-
-  var seenStoreDays = {};
-  var fallbackSum = 0;
-  RAW.filter(function(r){
-    return r.monthKey === monthKey && r.market === market;
-  }).forEach(function(r){
-    var k = r.day + '|' + r.storeNum;
-    if (!seenStoreDays[k]) {
-      seenStoreDays[k] = true;
-      fallbackSum += (r.dailyRefTarget || 0);
-    }
-  });
-
-  if (meta.isMTD && meta.daysElapsed > 0) {
-    return Math.round(fallbackSum * meta.daysTotal / meta.daysElapsed);
-  }
-  return Math.round(fallbackSum);
-}
-
-function uniqueStores(monthKey, market) {
-  var seen = {};
-  RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
-  return Object.keys(seen).length;
-}
-
-function areasForMarket(market) {
-  var seen = {};
-  RAW.forEach(function(r){ if(r.market===market && r.area && r.area!=='OPEN' && r.area!=='') seen[r.area]=true; });
-  return Object.keys(seen).sort();
-}
-
-function paceFraction(monthKey) {
-  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
-  if (!meta || meta.isFuture) return 0;
-  if (!meta.isMTD) return 1;
-  return meta.daysElapsed / meta.daysTotal;
-}
-
-function pc(a,t) { return t > 0 ? Math.round(a/t*100) : 0; }
-
-function paceStatus(a, t, pace) {
-  if (t <= 0) return {cls:'',label:'no target',badge:'bt',row:'',sc:'neutral'};
-  var r = a / (t * pace);
-  if (r >= 1) return {cls:'cg',label:'ahead of pace',badge:'bg',row:'win-row',sc:'win'};
-  if (r >= 0.9) return {cls:'ca',label:'within 10% of pace',badge:'ba',row:'warn-row',sc:'warn'};
-  return {cls:'cr',label:'behind pace',badge:'br',row:'danger-row',sc:'danger'};
-}
-
-function vsPaceStr(a, t, pace) {
-  var v = a - Math.round(t * pace);
-  return (v >= 0 ? '+' : '') + v;
-}
-
-function makeScorecard(label, value, sub, type) {
-  return '<div class="mc '+type+'"><div class="ml">'+label+'</div><div class="mv">'+value+'</div><div class="ms">'+sub+'</div></div>';
-}
-
-function pillHTML(monthKey) {
-  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
-  if (!meta) return '';
-  if (meta.isMTD) return '<span class="mtd-pill">MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days</span>';
-  return '<span class="complete-pill">Complete month</span>';
-}
-
-function dateRangeLabel(monthKey) {
-  var meta = MONTHS_META.find(function(m){return m.key===monthKey;});
-  if (!meta) return '';
-  var parts = monthKey.split('-');
-  var y = parts[0], m = parseInt(parts[1]);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var mn = months[m-1];
-  if (meta.isMTD) return mn + ' 1 – ' + mn + ' ' + meta.daysElapsed + ', ' + y + ' (MTD)';
-  return mn + ' 1 – ' + mn + ' ' + meta.daysTotal + ', ' + y + ' (complete)';
-}
-
-function buildAllDDs() {
-  ['month-dd','am-month-dd','st-month-dd','biz-month-dd'].forEach(function(id) {
-    var el = document.getElementById(id); if (!el) return;
-    el.innerHTML = MONTHS_META.map(function(m) {
-      var lbl = m.label + (m.isMTD ? ' — MTD' : '');
-      return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
-    }).join('');
-  });
-
-  var csel = document.getElementById('cmp-sel');
-  if (csel) csel.innerHTML = MONTHS_META.filter(function(m){ return !m.isFuture; }).map(function(m){
-    var lbl = m.label + (m.isMTD ? ' — MTD' : '');
-    return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
-  }).join('');
-
+  var cmp=document.getElementById('cmp-sel');
+  if(cmp)cmp.innerHTML=MONTHS_META.map(function(m){return'<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+m.label+(m.isMTD?' — MTD':'')+'</option>';}).join('');
   ['am-mkt-sel','mkt-sel'].forEach(function(id){
-    var el=document.getElementById(id); if(!el) return;
-    var cur=el.value||'all';
+    var el=document.getElementById(id);if(!el)return;var cur=el.value||'all';
     el.innerHTML='<option value="all">All markets</option>'+MKTS.map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');
-    el.value=cur;
+    el.value=MKTS.indexOf(cur)>-1?cur:'all';
   });
 }
 
-function selectMonth(key) {
-  selMonthKey = key;
-  buildAllDDs();
-  var dl = dateRangeLabel(key), ph = pillHTML(key);
-  ['dr-lbl','am-dr','st-dr'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=dl;});
-  ['period-pill','am-pill','st-pill'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=ph;});
-  buildOv();
-}
-
-function buildOv() {
-  var mk = selMonthKey;
-  var meta = MONTHS_META.find(function(m){return m.key===mk;});
-  var pace = paceFraction(mk);
-  var isMTD = meta && meta.isMTD;
-  var isFuture = false;
-
-  document.getElementById('mkt-tbl-title').textContent = 'Market summary — ' + (meta?meta.label:mk);
-  document.getElementById('mkt-foot').textContent = isMTD
-    ? 'Vs pace = actual vs expected at '+meta.daysElapsed+'/'+meta.daysTotal+' days. Ranked by avg referrals per store.'
-    : 'Complete month. Ranked by avg referrals per store.';
-
-  var rows = MKTS.map(function(market) {
-    var totals = monthMarketTotals(mk, market);
-    var tgt = monthlyTarget(mk, market);
-    var sc = uniqueStores(mk, market);
-    var regSet = {};
-    RAW.filter(function(r){return r.market===market&&r.regional;}).forEach(function(r){regSet[r.regional]=true;});
-    var regional = Object.keys(regSet).join(', ');
-    return { market: market, regional: regional, sc: sc, leads: totals.leads, comp: totals.comp, tgt: tgt, hasActual: true };
-  });
-
-  var ta = rows.reduce(function(s,r){return s+r.leads;},0);
-  var tt = rows.reduce(function(s,r){return s+r.tgt;},0);
-  var op = pc(ta, tt);
-  var overallPS = paceStatus(ta, tt, pace);
-
-  document.getElementById('ov-scorecards').innerHTML =
-    makeScorecard('Total referrals', ta, 'all markets', 'neutral') +
-    makeScorecard('Total target', tt, meta?meta.label:mk, 'neutral') +
-    makeScorecard('Overall attainment', op+'%', isMTD?'of full-month target':'attainment', overallPS.sc) +
-    makeScorecard(isMTD?'Days elapsed':'Month status', isMTD?(meta.daysElapsed+' / '+meta.daysTotal):'Complete', isMTD?Math.round(pace*100)+'% of month done':'Full results', 'neutral');
-
-  var ranked = rows.slice().sort(function(a,b){ return (b.leads/Math.max(b.sc,1)) - (a.leads/Math.max(a.sc,1)); });
-  var rankCardCls = ['rank-1-card','rank-2-card','rank-3-card','rank-4-card'];
-  var rankNumCls = ['rn-1','rn-2','rn-3','rn-4'];
-  var rankLabels = ['1st','2nd','3rd','4th'];
-
-  document.getElementById('mcards').innerHTML = ranked.map(function(r, i) {
-    var ps = paceStatus(r.leads, r.tgt, pace);
-    var actualW = r.tgt > 0 ? Math.min(Math.round(r.leads/r.tgt*100), 100) : 0;
-    var paceW = Math.min(Math.round(pace*100), 100);
-    var fc = ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr';
-    var stCls = ps.cls==='cg'?'st-win':ps.cls==='ca'?'st-warn':'st-danger';
-    var avgS = r.sc > 0 ? (r.leads/r.sc).toFixed(2) : '—';
-    return '<div class="mcard '+rankCardCls[i]+'" style="margin-top:'+(i===0?'14px':'0')+'">'
-      +(i===0?'<div class="rank-crown">&#127942;</div>':'')
-      +'<div class="rank-num '+rankNumCls[i]+'">'+rankLabels[i]+'</div>'
-      +'<div class="mcard-mkt">'+r.market+'</div><div class="mcard-mgr">'+r.regional+'</div>'
-      +'<div class="mcard-nums"><span class="mcard-actual">'+r.leads+'</span><span class="mcard-tgt">of '+r.tgt+'</span></div>'
-      +'<div style="position:relative;margin-bottom:8px"><div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>'
-      +(isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'')+'</div>'
-      +'<span class="mcard-status '+stCls+'">'+avgS+' avg/store — '+ps.label+'</span>'
-      +(isMTD?'<div style="font-size:11px;color:#888780;margin-top:6px">Expected by day '+meta.daysElapsed+': '+Math.round(r.tgt*pace)+'</div>':'')
-      +'</div>';
-  }).join('');
-
-  document.getElementById('mtbl').innerHTML = ranked.map(function(r, i) {
-    var ps = paceStatus(r.leads, r.tgt, pace);
-    var vs = vsPaceStr(r.leads, r.tgt, pace);
-    var avgS = r.sc > 0 ? (r.leads/r.sc).toFixed(2) : '—';
-    return '<tr class="dr '+ps.row+'">'
-      +'<td style="font-size:12px;color:#888780;font-weight:500">'+(i+1)+'</td>'
-      +'<td style="font-weight:500">'+r.market+'</td><td style="color:#888780;font-size:12px">'+r.regional+'</td>'
-      +'<td class="tr">'+r.sc+'</td><td class="tr">'+r.tgt+'</td>'
-      +'<td class="tr">'+r.leads+'</td>'
-      +'<td class="tr" style="font-weight:500">'+avgS+'</td>'
-      +'<td class="tr" style="font-size:12px">'+vs+'</td>'
-      +'<td class="tr"><span class="b '+ps.badge+'">'+pc(r.leads,r.tgt)+'%</span></td></tr>';
-  }).join('');
-
-  buildSM();
-}
-
-function setChartView(v) {
-  document.querySelectorAll('.tgbtn').forEach(function(b,i){b.classList.toggle('on',(i===0&&v==='sm')||(i===1&&v==='cmp'));});
-  document.getElementById('cv-sm').classList.toggle('on', v==='sm');
-  document.getElementById('cv-cmp').classList.toggle('on', v==='cmp');
-  if (v==='sm') buildSM(); else buildCmp();
-}
-
-function buildSM() {
-  var grid = document.getElementById('sm-grid');
-  grid.innerHTML = MKTS.map(function(m) {
-    return '<div class="sm-card"><div class="sm-title"><span style="font-size:12px;font-weight:500;color:'+(MKT_COLORS[m]||'#185FA5')+'">'+m+'</span>'
-      +'<span style="font-size:11px;color:#888780" id="sm-stat-'+m+'"></span></div>'
-      +'<div style="position:relative;height:150px"><canvas id="sm-'+m+'"></canvas></div></div>';
-  }).join('');
-
-  MKTS.forEach(function(m) {
-    var color = MKT_COLORS[m] || '#185FA5';
-    var actualMonths = MONTHS_META.filter(function(mm){ return !mm.isFuture; });
-
-    var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
-    var actuals = actualMonths.map(function(mm) {
-      return monthMarketTotals(mm.key, m).leads;
-    });
-    var targets = actualMonths.map(function(mm) {
-      return monthlyTarget(mm.key, m);
-    });
-    var bgs = actualMonths.map(function(mm) {
-      if (mm.isMTD) return color + '55';
-      return color;
-    });
-
-    var curActual = monthMarketTotals(CURRENT_MONTH_KEY, m).leads;
-    var curTgt = monthlyTarget(CURRENT_MONTH_KEY, m);
-    var st = document.getElementById('sm-stat-'+m);
-    if (st && curTgt > 0) {
-      var p = pc(curActual, curTgt);
-      st.innerHTML = '<span style="font-weight:500;border-radius:20px;padding:2px 8px;font-size:11px;background:'+(p>=90?'#639922':p>=70?'#BA7517':'#E24B4A')+';color:#fff">'+p+'%</span>';
-    }
-
-    if (smCharts[m]) smCharts[m].destroy();
-    smCharts[m] = new Chart(document.getElementById('sm-'+m), {type:'bar',
-      data:{labels:labels,datasets:[
-        {label:'Actual',data:actuals,backgroundColor:bgs,borderRadius:6,order:2},
-        {label:'Target',data:targets,type:'line',borderColor:color,borderWidth:1.5,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:color,pointBorderWidth:2,fill:false,tension:0,order:1}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-        plugins:{legend:{display:false},tooltip:{callbacks:{
-          label:function(ctx){
-            if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;
-            return'Actual: '+actuals[ctx.dataIndex]+(actualMonths[ctx.dataIndex].isMTD?' (MTD)':'');
-          },
-          title:function(ctx){return m+' — '+actualMonths[ctx[0].dataIndex].label;}
-        }}},
-        scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},
-                y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat([1]))*1.18}}
-      }
-    });
-  });
-}
-
-function buildCmp() {
-  var mk = (document.getElementById('cmp-sel')||{}).value || selMonthKey;
-  var meta = MONTHS_META.find(function(m){return m.key===mk;});
-  if (!meta) return;
-  var actuals = MKTS.map(function(m){ return monthMarketTotals(mk,m).leads; });
-  var targets = MKTS.map(function(m){ return monthlyTarget(mk,m); });
-  var bgs = MKTS.map(function(m){ return meta.isMTD?(MKT_COLORS[m]||'#185FA5')+'88':(MKT_COLORS[m]||'#185FA5'); });
-  document.getElementById('cmp-foot').textContent = meta.isMTD?meta.label+' MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days.':'Complete month — final actuals vs target.';
-  if (cmpChart) cmpChart.destroy();
-  cmpChart = new Chart(document.getElementById('cmpChart'),{type:'bar',
-    data:{labels:MKTS,datasets:[
-      {label:'Actual',data:actuals,backgroundColor:bgs,borderRadius:8,order:2},
-      {label:'Target',data:targets,type:'line',borderColor:'#888780',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false,tension:0,order:1}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{callbacks:{
-        label:function(ctx){if(ctx.dataset.label==='Target')return'Target: '+ctx.parsed.y;return(meta.isMTD?'MTD: ':'Actual: ')+actuals[ctx.dataIndex];},
-        title:function(ctx){return ctx[0].label+' — '+meta.label;}
-      }}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},
-              y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals).concat([1]))*1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}}
+function getMonthRows(monthKey){return RAW.filter(function(r){return r.monthKey===monthKey;});}
+function uniqueCount(arr,key){var s={};arr.forEach(function(x){s[x[key]]=true;});return Object.keys(s).length;}
+function monthlyTargetForGroup(rows, monthKey){
+  if(!rows.length)return 0;
+  var byStore={};
+  rows.forEach(function(r){
+    if(typeof r.monthlyRefTarget==='number' && !isNaN(r.monthlyRefTarget)){
+      if(!byStore[r.storeNum])byStore[r.storeNum]={sum:0,count:0};
+      byStore[r.storeNum].sum+=r.monthlyRefTarget;byStore[r.storeNum].count++;
     }
   });
+  var stores=Object.keys(byStore);
+  if(stores.length){return Math.round(stores.reduce(function(s,k){var v=byStore[k];return s+(v.count?v.sum/v.count:0);},0));}
+  var meta=MONTHS_META.find(function(m){return m.key===monthKey;});
+  var seen={},sumDaily=0;
+  rows.forEach(function(r){var k=r.day+'|'+r.storeNum;if(!seen[k]){seen[k]=true;sumDaily+=toNum(r.dailyRefTarget);}});
+  if(meta&&meta.isMTD&&meta.daysElapsed>0)return Math.round(sumDaily*meta.daysTotal/meta.daysElapsed);
+  return Math.round(sumDaily);
 }
-
-function renderAM(filter) {
-  var mk = selMonthKey;
-  var meta = MONTHS_META.find(function(m){return m.key===mk;});
-  var pace = paceFraction(mk);
-
-  var areaMap = {};
-  RAW.forEach(function(r){
-    if (!r.area || r.area === '' || r.area === 'OPEN') return;
-    if (filter !== 'all' && r.market !== filter) return;
-    if (!areaMap[r.area]) areaMap[r.area] = {area: r.area, market: r.market, regional: r.regional, storeNums: {}};
-    areaMap[r.area].storeNums[r.storeNum] = true;
+function marketRollups(monthKey){
+  return MKTS.map(function(m){
+    var rows=getMonthRows(monthKey).filter(function(r){return r.market===m;});
+    var regional=Array.from(new Set(rows.map(function(r){return r.regional;}).filter(Boolean))).join(' / ');
+    var areas=Array.from(new Set(rows.map(function(r){return r.area;}).filter(Boolean))).length;
+    var a=rows.reduce(function(s,r){return s+r.leads;},0);
+    var c=rows.reduce(function(s,r){return s+r.completedJobs;},0);
+    var cnt=uniqueCount(rows,'storeNum');
+    var t=monthlyTargetForGroup(rows,monthKey);
+    return {m:m,regional:regional,a:a,c:c,t:t,cnt:cnt,areas:areas,avgS:cnt?a/cnt:0};
   });
-
-  var rows = Object.keys(areaMap).map(function(area) {
-    var info = areaMap[area];
-    var storeCnt = Object.keys(info.storeNums).length;
-    var totals = (function(){
-      var leads=0,comp=0;
-      RAW.filter(function(r){return r.area===area&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
-      return {leads:leads,comp:comp};
-    })();
-
-    var tgt = (function(){
-      var storeMap = {};
-      RAW.filter(function(r){
-        return r.area === area &&
-               r.monthKey === mk &&
-               typeof r.monthlyRefTarget === 'number' &&
-               !isNaN(r.monthlyRefTarget);
-      }).forEach(function(r){
-        if (!storeMap[r.storeNum]) storeMap[r.storeNum] = { sum: 0, count: 0 };
-        storeMap[r.storeNum].sum += r.monthlyRefTarget;
-        storeMap[r.storeNum].count += 1;
-      });
-
-      var stores = Object.keys(storeMap);
-      if (stores.length > 0) {
-        var total = 0;
-        stores.forEach(function(sn){
-          var s = storeMap[sn];
-          total += (s.count > 0 ? s.sum / s.count : 0);
-        });
-        return Math.round(total);
-      }
-
-      var seen = {}, sum = 0;
-      RAW.filter(function(r){ return r.area === area && r.monthKey === mk; }).forEach(function(r){
-        var k = r.day + '|' + r.storeNum;
-        if (!seen[k]) {
-          seen[k] = true;
-          sum += r.dailyRefTarget;
-        }
-      });
-      if (meta && meta.isMTD && meta.daysElapsed > 0) return Math.round(sum * meta.daysTotal / meta.daysElapsed);
-      return Math.round(sum);
-    })();
-
-    var ps = tgt > 0 ? paceStatus(totals.leads, tgt, pace) : {cls:'',label:'no target',badge:'bt',row:'',sc:'warn'};
-    return {area:area, market:info.market, regional:info.regional, cnt:storeCnt, leads:totals.leads, tgt:tgt, ps:ps, hasActual:true};
-}).sort(function(a,b){ return (b.leads/Math.max(b.tgt,1)) - (a.leads/Math.max(a.tgt,1)); });
-  
-  var on=rows.filter(function(x){return x.ps.cls==='cg';}).length;
-  var at=rows.filter(function(x){return x.ps.cls==='ca';}).length;
-  var bh=rows.filter(function(x){return x.ps.cls==='cr';}).length;
-  var wa=rows.filter(function(x){return x.hasActual&&x.tgt>0;});
-  var avg=wa.length?Math.round(wa.reduce(function(s,x){return s+x.leads/x.tgt;},0)/wa.length*100)+'%':'—';
-
-  document.getElementById('am-scorecards').innerHTML =
-    makeScorecard('On track',on,'≥ pace','win') + makeScorecard('At risk',at,'within 10% of pace','warn') +
-    makeScorecard('Behind',bh,'>10% behind pace','danger') + makeScorecard('Avg attainment',avg,'selected view','neutral');
-
-  document.getElementById('amtbl').innerHTML = rows.map(function(r) {
-    var vs = r.tgt>0 ? vsPaceStr(r.leads, r.tgt, pace) : '—';
-    return '<tr class="dr '+r.ps.row+'">'
-      +'<td style="font-weight:500">'+r.area+'</td><td style="font-size:12px;color:#888780">'+r.market+'</td>'
-      +'<td class="tr">'+r.cnt+'</td><td class="tr">'+r.tgt+'</td><td class="tr">'+r.leads+'</td>'
-      +'<td class="tr" style="font-size:12px">'+vs+(r.tgt>0?' ('+r.ps.label+')':'')+'</td>'
-      +'<td class="tr"><span class="b '+r.ps.badge+'">'+(r.tgt>0?pc(r.leads,r.tgt)+'%':'no target')+'</span></td></tr>';
-  }).join('');
 }
 
-function filterMkt(mkt) {
-  var sel = document.getElementById('am-sel');
-  sel.innerHTML = '<option value="all">All areas</option>';
-  var areas = mkt === 'all' ? [] : areasForMarket(mkt);
-  areas.forEach(function(a){ var o=document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+function selectMonth(key){
+  selMonthKey=key;buildAllDDs();
+  var dl=dateRangeLabel(key),ph=pillHTML(key);
+  ['dr-lbl','am-dr','st-dr'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=dl;});
+  ['period-pill','am-pill','st-pill'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=ph;});
+  buildOv();renderAM(document.getElementById('am-mkt-sel').value||'all');filterMkt(document.getElementById('mkt-sel').value||'all');if(bizUnlocked)buildBiz();
+}
+
+function filterMkt(mkt){
+  var sel=document.getElementById('am-sel');sel.innerHTML='<option value="all">All areas</option>';
+  var rows=getMonthRows(selMonthKey).filter(function(r){return mkt==='all'||r.market===mkt;});
+  Array.from(new Set(rows.map(function(r){return r.area;}).filter(Boolean))).sort().forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});
   renderS();
 }
 
-function renderS() {
-  var mk = selMonthKey;
-  var meta = MONTHS_META.find(function(m){return m.key===mk;});
-  var pace = paceFraction(mk);
-  var mktF = document.getElementById('mkt-sel').value;
-  var amF = document.getElementById('am-sel').value;
+function renderS(){
+  var pace=paceFraction(selMonthKey), mkt=document.getElementById('mkt-sel').value, amf=document.getElementById('am-sel').value;
+  var rows=getMonthRows(selMonthKey).filter(function(r){return (mkt==='all'||r.market===mkt)&&(amf==='all'||r.area===amf);});
+  var byStore={};
+  rows.forEach(function(r){if(!byStore[r.storeNum])byStore[r.storeNum]={n:r.storeNum,mgr:r.storeManager||'—',area:r.area||'—',mkt:r.market,rows:[]};byStore[r.storeNum].rows.push(r);});
+  var data=Object.keys(byStore).map(function(k){var s=byStore[k],a=s.rows.reduce(function(x,r){return x+r.leads;},0),t=monthlyTargetForGroup(s.rows,selMonthKey);return{n:s.n,mgr:s.mgr,area:s.area,mkt:s.mkt,a:a,t:t,ps:paceStatus(a,t,pace)};}).sort(function(a,b){return b.a-a.a;});
+  var totalRefs=data.reduce(function(s,x){return s+x.a;},0), withTarget=data.filter(function(s){return s.t>0;});
+  var tqCount=Math.max(1,Math.ceil(data.length*0.25)), topQ=data.slice(0,tqCount), topQRefs=topQ.reduce(function(s,x){return s+x.a;},0), topQPct=totalRefs?Math.round(topQRefs/totalRefs*100):0;
+  var on=data.filter(function(s){return s.ps.cls==='cg';}).length, at=data.filter(function(s){return s.ps.cls==='ca';}).length, bh=data.filter(function(s){return s.ps.cls==='cr';}).length;
+  var avg=withTarget.length?Math.round(withTarget.reduce(function(s,x){return s+(x.a/x.t);},0)/withTarget.length*100)+'%':'—';
+  document.getElementById('st-scorecards').innerHTML=makeScorecard('On track',on,'≥ daily pace','win')+makeScorecard('At risk',at,'within 10% of pace','warn')+makeScorecard('Behind',bh,'>10% behind pace','danger')+makeScorecard('Avg attainment',avg,'vs full-month target','neutral');
 
-  var storeMap = {};
-  RAW.forEach(function(r){
-    if (mktF !== 'all' && r.market !== mktF) return;
-    if (amF !== 'all' && r.area !== amF) return;
-    if (!storeMap[r.storeNum]) storeMap[r.storeNum] = {storeNum:r.storeNum,market:r.market,area:r.area,storeManager:r.storeManager};
-  });
+  var tqWrap=document.getElementById('tq-callout-wrap');
+  tqWrap.innerHTML=totalRefs?'<div class="tq-callout"><div class="tq-title"><span>&#127942;</span> Top quartile spotlight</div><div class="tq-stat">'+topQPct+'% of all referrals</div><div class="tq-body">'+tqCount+' stores (top 25%) are generating '+topQRefs+' of '+totalRefs+' total referrals'+(topQPct>60?' — high concentration. Strong coaching opportunity to develop the remaining '+(data.length-tqCount)+' stores.':' — relatively even distribution across the team.')+'</div><div class="tq-grid">'+topQ.slice(0,6).map(function(s){return'<div class="tq-item"><div class="tq-item-name">Store '+s.n+'</div><div class="tq-item-mkt">'+s.mgr+' · '+s.area+'</div><div class="tq-item-refs">'+s.a+' refs</div><div class="tq-item-pct">'+(totalRefs?Math.round(s.a/totalRefs*100):0)+'% of total</div></div>';}).join('')+'</div></div>':'';
 
-  var rows = Object.keys(storeMap).map(function(sn) {
-    var info = storeMap[sn];
-    var totals = (function(){
-      var leads=0,comp=0;
-      RAW.filter(function(r){return r.storeNum==sn&&r.monthKey===mk;}).forEach(function(r){leads+=r.leads;comp+=r.completedJobs;});
-      return {leads:leads,comp:comp};
-    })();
+  var maxRefs=data[0]?data[0].a:1;
+  document.getElementById('dist-subtitle').textContent=data.length+' stores · '+totalRefs+' total referrals';
+  document.getElementById('dist-wrap').innerHTML='<div class="dist-section-label" style="padding-left:58px">Top 25% ('+tqCount+' stores)</div>'+data.map(function(s,i){var w=maxRefs?Math.round(s.a/maxRefs*100):0;var clr=i<tqCount?'#EF9F27':s.ps.cls==='cg'?'#639922':s.ps.cls==='ca'?'#BA7517':'#E24B4A';return(i===tqCount?'<div class="dist-section-label" style="padding-left:58px;margin-top:4px">Remaining 75% ('+(data.length-tqCount)+' stores)</div>':'')+'<div class="dist-bar-row"><div class="dist-store-label">'+s.n+'</div><div class="dist-bar-bg"><div class="dist-bar-fill" style="width:'+w+'%;background:'+clr+'"></div></div><div class="dist-val">'+s.a+'</div></div>';}).join('');
+  document.getElementById('dist-foot').textContent='Gold = top 25% by referral count. Remaining bars colored by daily pace status.';
 
-    var tgt = (function(){
-      var rows = RAW.filter(function(r){
-        return r.storeNum == sn &&
-               r.monthKey === mk &&
-               typeof r.monthlyRefTarget === 'number' &&
-               !isNaN(r.monthlyRefTarget);
-      });
-
-      if (rows.length > 0) {
-        var sum = 0;
-        rows.forEach(function(r){ sum += r.monthlyRefTarget; });
-        return Math.round(sum / rows.length);
-      }
-
-      var seen = {}, sumDaily = 0;
-      RAW.filter(function(r){ return r.storeNum == sn && r.monthKey === mk; }).forEach(function(r){
-        var k = r.day;
-        if (!seen[k]) {
-          seen[k] = true;
-          sumDaily += r.dailyRefTarget;
-        }
-      });
-      if (meta && meta.isMTD && meta.daysElapsed > 0) return Math.round(sumDaily * meta.daysTotal / meta.daysElapsed);
-      return Math.round(sumDaily);
-    })();
-
-    var ps = tgt>0 ? paceStatus(totals.leads,tgt,pace) : {cls:'',label:'no target',badge:'bt',row:'',sc:'warn'};
-    return {sn:sn,market:info.market,area:info.area||'—',mgr:info.storeManager||'—',leads:totals.leads,tgt:tgt,ps:ps,hasActual:true};
-}).sort(function(a,b){ return (b.leads/Math.max(b.tgt,1)) - (a.leads/Math.max(a.tgt,1)); });
-  
-  var on=rows.filter(function(s){return s.ps.cls==='cg';}).length;
-  var at=rows.filter(function(s){return s.ps.cls==='ca';}).length;
-  var bh=rows.filter(function(s){return s.ps.cls==='cr';}).length;
-  var wa=rows.filter(function(s){return s.hasActual&&s.tgt>0;});
-  var avg=wa.length?Math.round(wa.reduce(function(s,x){return s+x.leads/x.tgt;},0)/wa.length*100)+'%':'—';
-
-  document.getElementById('st-scorecards').innerHTML =
-    makeScorecard('On track',on,'≥ pace','win') + makeScorecard('At risk',at,'within 10% of pace','warn') +
-    makeScorecard('Behind',bh,'>10% behind pace','danger') + makeScorecard('Avg attainment',avg,'selected view','neutral');
-
-  document.getElementById('stbl').innerHTML = rows.map(function(s) {
-    var vs = s.tgt>0 ? vsPaceStr(s.leads,s.tgt,pace) : '—';
-    return '<tr class="dr '+s.ps.row+'">'
-      +'<td style="font-weight:500">#'+s.sn+'</td><td style="font-size:12px;color:#5F5E5A">'+s.mgr+'</td>'
-      +'<td style="font-size:12px;color:#888780">'+s.area+'</td>'
-      +'<td style="font-size:12px;color:#888780">'+s.market+'</td>'
-      +'<td class="tr">'+s.tgt+'</td><td class="tr">'+s.leads+'</td>'
-      +'<td class="tr" style="font-size:12px">'+vs+(s.tgt>0?' ('+s.ps.label+')':'')+'</td>'
-      +'<td class="tr"><span class="b '+s.ps.badge+'">'+(s.tgt>0?pc(s.leads,s.tgt)+'%':'no target')+'</span></td></tr>';
-  }).join('');
+  var items=[];
+  if(topQPct>55)items.push({icon:'ci-amber',lbl:'&#9888;',head:'Top '+tqCount+' stores generating '+topQPct+'% of referrals',sub:'High concentration means the program depends on a small group. Identify what those stores are doing differently and replicate it.',act:'Coaching action: schedule peer-to-peer sessions between top and bottom quartile stores in each area.'});
+  var zeros=data.filter(function(s){return s.a===0&&s.t>0;});
+  if(zeros.length)items.push({icon:'ci-red',lbl:'&#128683;',head:zeros.length+' store'+(zeros.length>1?'s have':' has')+' submitted zero referrals',sub:'Stores in '+Array.from(new Set(zeros.map(function(s){return s.area;}))).join(', ')+' have not participated this period.',act:'Coaching action: area manager outreach within 24 hours. Verify workflow training is complete.'});
+  var hvBehind=data.filter(function(s){return s.ps.cls==='cr'&&s.t>=40;});
+  if(hvBehind.length)items.push({icon:'ci-red',lbl:'&#9650;',head:hvBehind.length+' high-target store'+(hvBehind.length>1?'s are':' is')+' behind daily pace',sub:'Biggest impact on attainment: '+hvBehind.slice(0,3).map(function(s){return'Store '+s.n+' (target '+s.t+')';}).join(', ')+'.',act:'Coaching action: prioritize check-ins — their gap has the largest effect on overall % to goal.'});
+  var abovePace=data.filter(function(s){return s.ps.cls==='cg'&&s.t>0;});
+  if(abovePace.length){var best=abovePace.sort(function(a,b){return(b.a/b.t)-(a.a/a.t);})[0];items.push({icon:'ci-blue',lbl:'&#11088;',head:abovePace.length+' store'+(abovePace.length>1?'s are':' is')+' at or ahead of daily pace',sub:'Store '+best.n+' ('+best.mgr+', '+best.area+') is leading with '+best.a+' referrals at '+pc(best.a,best.t)+'% to goal.',act:'Coaching action: recognize top performers in your next team huddle.'});}
+  if(!items.length)items.push({icon:'ci-blue',lbl:'&#10003;',head:'No urgent coaching items',sub:'All stores are within acceptable pace range.',act:''});
+  document.getElementById('coaching-period').textContent=dateRangeLabel(selMonthKey);
+  document.getElementById('coaching-wrap').innerHTML=items.map(function(it){return'<div class="coaching-item"><div class="coaching-icon '+it.icon+'">'+it.lbl+'</div><div class="coaching-text"><div class="coaching-headline">'+it.head+'</div><div class="coaching-sub">'+it.sub+'</div>'+(it.act?'<div class="coaching-action">'+it.act+'</div>':'')+'</div></div>';}).join('');
 }
 
-function buildBiz() {
-  var mk = selMonthKey;
-  var meta = MONTHS_META.find(function(m){return m.key===mk;});
-  document.getElementById('funnel-period').textContent = dateRangeLabel(mk);
+function renderAM(filter){
+  var pace=paceFraction(selMonthKey);
+  var rows=getMonthRows(selMonthKey).filter(function(r){return filter==='all'||r.market===filter;});
+  var byArea={};
+  rows.forEach(function(r){var k=(r.market||'')+'||'+(r.area||'—');if(!byArea[k])byArea[k]={name:r.area||'—',market:r.market,regional:r.regional,rows:[]};byArea[k].rows.push(r);});
+  var data=Object.keys(byArea).map(function(k){var g=byArea[k],a=g.rows.reduce(function(s,r){return s+r.leads;},0),t=monthlyTargetForGroup(g.rows,selMonthKey),cnt=uniqueCount(g.rows,'storeNum');return{name:g.name,market:g.market,regional:g.regional,cnt:cnt,a:a,t:t,ps:paceStatus(a,t,pace)};}).sort(function(a,b){return (a.t>0?a.a/a.t:1)-(b.t>0?b.a/b.t:1);});
+  var on=data.filter(function(x){return x.ps.cls==='cg';}).length, at=data.filter(function(x){return x.ps.cls==='ca';}).length, bh=data.filter(function(x){return x.ps.cls==='cr';}).length, wa=data.filter(function(x){return x.t>0;});
+  var avg=wa.length?Math.round(wa.reduce(function(s,x){return s+x.a/x.t;},0)/wa.length*100)+'%':'—';
+  document.getElementById('am-scorecards').innerHTML=makeScorecard('On track',on,'≥ daily pace','win')+makeScorecard('At risk',at,'within 10% of pace','warn')+makeScorecard('Behind',bh,'>10% behind pace','danger')+makeScorecard('Avg attainment',avg,'vs full-month target','neutral');
+  document.getElementById('am-foot').textContent=(MONTHS_META.find(function(m){return m.key===selMonthKey;})||{}).isMTD?'Daily pace = actual minus expected by this point in month.':'Complete month — % to goal is final attainment.';
+  document.getElementById('amtbl').innerHTML=data.map(function(r){var pv=r.t>0?r.a-Math.round(r.t*pace):null;return'<tr class="dr '+r.ps.row+'"><td style="font-weight:500">'+r.name+'</td><td style="font-size:12px;color:#888780">'+r.market+'</td><td style="font-size:12px;color:#888780">'+(r.regional||'—')+'</td><td class="tr">'+r.cnt+'</td><td class="tr">'+r.t+'</td><td class="tr">'+r.a+'</td><td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv!==null?(pv>=0?'+':'')+pv+' vs pace':'—')+'</td><td class="tr"><span class="b '+r.ps.badge+'">'+(r.t>0?pc(r.a,r.t)+'%':'—')+'</span></td></tr>';}).join('');
+}
 
-  var mktRows = MKTS.map(function(m) {
-    var totals = monthMarketTotals(mk, m);
-    var tgt = monthlyTarget(mk, m);
-    var cvr = totals.leads > 0 ? Math.round(totals.comp/totals.leads*100) : 0;
-    return {m:m, leads:totals.leads, comp:totals.comp, tgt:tgt, cvr:cvr, rev:totals.comp*AOV, sc:uniqueStores(mk,m)};
-  });
+function buildOv(){
+  var pace=paceFraction(selMonthKey), meta=MONTHS_META.find(function(m){return m.key===selMonthKey;}), isMTD=meta&&meta.isMTD;
+  document.getElementById('mkt-tbl-title').textContent='Market summary — '+(meta?meta.label:selMonthKey);
+  document.getElementById('mkt-foot').textContent=isMTD?'Daily pace = actual minus expected at '+meta.daysElapsed+'/'+meta.daysTotal+' days. % to goal = actual ÷ full month target.':'Complete month. % to goal = final attainment vs full monthly target.';
+  var mk=document.getElementById('metric-key');
+  if(isMTD){mk.innerHTML='<div class="mk-item"><span class="mk-label">Daily pace</span><span class="mk-desc">Actual minus expected given days elapsed ('+Math.round(pace*100)+'% of month).</span></div><div class="mk-item"><span class="mk-label">% to goal</span><span class="mk-desc">Actual ÷ full month target. It can be below 100% mid-month even when on pace.</span></div>';mk.style.display='flex';}else mk.style.display='none';
+  var rows=marketRollups(selMonthKey), ta=rows.reduce(function(s,r){return s+r.a;},0), tt=rows.reduce(function(s,r){return s+r.t;},0), oPS=paceStatus(ta,tt,pace);
+  document.getElementById('ov-scorecards').innerHTML=makeScorecard('Total referrals',ta,'all markets','neutral')+makeScorecard('Total target',tt,meta?meta.label:selMonthKey,'neutral')+makeScorecard('Overall attainment',tt>0?pc(ta,tt)+'%':'—',isMTD?'of full-month target':'attainment',oPS.sc)+makeScorecard(isMTD?'Days elapsed':'Month status',isMTD?(meta.daysElapsed+' / '+meta.daysTotal):'Complete',isMTD?Math.round(pace*100)+'% of month done':'Full results','neutral');
+  var ranked=rows.slice().sort(function(a,b){return b.avgS-a.avgS;});
+  document.getElementById('mcards').innerHTML=ranked.map(function(r,i){var ps=paceStatus(r.a,r.t,pace),actualW=r.t?Math.min(Math.round(r.a/r.t*100),100):0,paceW=Math.min(Math.round(pace*100),100),fc=ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr',stCls=ps.cls==='cg'?'st-win':ps.cls==='ca'?'st-warn':'st-danger',pv=r.t?r.a-Math.round(r.t*pace):0,rnCls=['rn-1','rn-2','rn-3','rn-4'][i]||'rn-4',rcCls=['rank-1-card','rank-2-card','rank-3-card','rank-4-card'][i]||'rank-4-card',rnLbl=['1st','2nd','3rd','4th'][i]||(i+1)+'th';return'<div class="mcard '+rcCls+'" style="margin-top:'+(i===0?'14px':'0')+'">'+(i===0?'<div class="rank-crown">&#127942;</div>':'')+'<div class="rank-num '+rnCls+'">'+rnLbl+'</div><div class="mcard-mkt">'+r.m+'</div><div class="mcard-mgr">'+(r.regional||'—')+'</div><div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.t+' target</span></div><div style="position:relative;margin-bottom:8px"><div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>'+(isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'')+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="mcard-status '+stCls+'">'+(pv>=0?'+':'')+pv+' daily pace</span><span style="font-size:12px;color:#888780">'+pc(r.a,r.t)+'% to goal</span></div>'+(isMTD&&r.t?'<div style="font-size:11px;color:#888780;margin-top:5px">Paced target today: '+Math.round(r.t*pace)+'</div>':'')+'</div>';}).join('');
+  document.getElementById('mtbl').innerHTML=ranked.map(function(r,i){var ps=paceStatus(r.a,r.t,pace),pv=r.t?r.a-Math.round(r.t*pace):null;return'<tr class="dr '+ps.row+'"><td style="font-size:12px;color:#888780;font-weight:500">'+(i+1)+'</td><td style="font-weight:500">'+r.m+'</td><td style="color:#888780;font-size:12px">'+(r.regional||'—')+'</td><td class="tr">'+r.areas+'</td><td class="tr">'+r.cnt+'</td><td class="tr">'+r.t+'</td><td class="tr">'+r.a+'</td><td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td><td class="tr '+ps.cls+'" style="font-size:12px">'+(pv!==null?(pv>=0?'+':'')+pv+' vs pace':'—')+'</td><td class="tr"><span class="b '+ps.badge+'">'+pc(r.a,r.t)+'%</span></td></tr>';}).join('');
+  buildSM();
+}
 
-  var totR=mktRows.reduce(function(s,r){return s+r.leads;},0);
-  var totC=mktRows.reduce(function(s,r){return s+r.comp;},0);
-  var totRev=mktRows.reduce(function(s,r){return s+r.rev;},0);
-  var totCvr=totR>0?Math.round(totC/totR*100):0;
+function setCV(v){document.querySelectorAll('.tgbtn').forEach(function(b,i){b.classList.toggle('on',(i===0&&v==='sm')||(i===1&&v==='cmp'));});document.getElementById('cv-sm').classList.toggle('on',v==='sm');document.getElementById('cv-cmp').classList.toggle('on',v==='cmp');if(v==='sm')buildSM();else buildCmp();}
 
-  document.getElementById('biz-scorecards').innerHTML =
-    makeScorecard('Total referrals',totR,'all markets','neutral') +
-    makeScorecard('Completed jobs',totC,'from referrals','win') +
-    makeScorecard('Completion rate',totCvr+'%','referral → job',totCvr>=30?'win':totCvr>=20?'warn':'danger') +
-    makeScorecard('Revenue est.','$'+(totRev/1000).toFixed(1)+'k','from referral jobs','neutral');
-
-  var totBooked = Math.round(totR * 0.47);
-  var totPending = Math.max(0, totBooked - totC);
-  var stages = [{label:'Referrals',n:totR,color:'#185FA5'},{label:'Est. booked',n:totBooked,color:'#3B6D11'},{label:'Completed',n:totC,color:'#639922'}];
-  var fw = document.getElementById('funnel-wrap');
-  fw.innerHTML = stages.map(function(s,i){
-    var pct=totR>0?Math.round(s.n/totR*100):0;
-    var prev=i>0?stages[i-1].n:null;
-    var drop=prev&&prev>0?Math.round((prev-s.n)/prev*100):null;
-    var arrow=i>0?'<div class="funnel-arrow">▾</div>':'';
-    return arrow+'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div>'
-      +'<div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:'+pct+'%;background:'+s.color+'">'+s.n+'</div></div>'
-      +'<div class="funnel-num">'+pct+'% of leads</div>'
-      +(drop!==null?'<div class="funnel-drop">−'+drop+'% drop</div>':'<div class="funnel-drop"></div>')
-      +'</div>';
-  }).join('');
-  if (totPending>0) fw.innerHTML+='<div style="margin-top:10px;padding:8px 14px;background:#FAEEDA;border-radius:20px;font-size:12px;color:#633806;font-weight:500">~'+totPending+' estimated booked jobs pending outcome</div>';
-
-  document.getElementById('biztbl').innerHTML = mktRows.slice().sort(function(a,b){return a.cvr-b.cvr;}).map(function(r){
-    var cc=r.cvr>=30?'bg':r.cvr>=20?'ba':'br';
-    return '<tr class="dr '+(r.cvr>=30?'win-row':r.cvr>=20?'warn-row':'danger-row')+'"><td>'+r.m+'</td>'
-      +'<td class="tr">'+r.leads+'</td><td class="tr">'+r.comp+'</td>'
-      +'<td class="tr"><span class="b '+cc+'">'+r.cvr+'%</span></td>'
-      +'<td class="tr">'+r.tgt+'</td>'
-      +'<td class="tr">'+r.sc+'</td>'
-      +'<td class="tr">$'+(r.rev/1000).toFixed(1)+'k</td></tr>';
-  }).join('');
-
-  document.getElementById('biz-legend').innerHTML = MKTS.map(function(m){
-    return '<div class="leg-item"><div class="leg-dot" style="background:'+(MKT_COLORS[m]||'#185FA5')+';border-radius:3px"></div>'+m+'</div>';
-  }).join('');
-
-  var completeMeta = MONTHS_META.filter(function(m){return !m.isFuture;});
-  var ds = MKTS.map(function(m){
-    return {
-      label:m,
-      data:completeMeta.map(function(mm){ return monthMarketTotals(mm.key,m).leads; }),
-      borderColor:MKT_COLORS[m]||'#185FA5',borderWidth:2.5,
-      pointBackgroundColor:MKT_COLORS[m]||'#185FA5',pointRadius:5,pointHoverRadius:7,
-      tension:0.35,fill:false
-    };
-  });
-  if (completeMeta.length) {
-    document.getElementById('biz-chart-foot').textContent = 'Monthly referral totals from '+completeMeta[0].label+' to '+completeMeta[completeMeta.length-1].label+'.';
-  } else {
-    document.getElementById('biz-chart-foot').textContent = '';
-  }
-  if (bCI) bCI.destroy();
-  bCI = new Chart(document.getElementById('bizChart'),{type:'line',
-    data:{labels:completeMeta.map(function(m){return m.label.substring(0,3);}),datasets:ds},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+' refs';}}}},
-      scales:{x:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'}},
-              y:{grid:{color:'#F1EFE8'},min:0,ticks:{font:{size:11},color:'#888780'},title:{display:true,text:'Referrals',font:{size:11},color:'#888780'}}}
-    }
+function buildSM(){
+  var meta=MONTHS_META.find(function(m){return m.key===selMonthKey;}), pace=paceFraction(selMonthKey), isMTD=meta&&meta.isMTD;
+  document.getElementById('sm-pace-note').textContent=isMTD?'MTD: badge % shows actual vs paced target ('+Math.round(pace*100)+'% of month elapsed).':'Complete month: badge % shows actual vs full monthly target.';
+  var grid=document.getElementById('sm-grid');
+  grid.innerHTML=MKTS.map(function(m){return'<div class="sm-card"><div class="sm-title"><span style="font-size:12px;font-weight:500;color:'+(MKT_COLORS[m]||'#185FA5')+'">'+m+'</span><span id="sm-stat-'+m+'"></span></div><div style="position:relative;height:150px"><canvas id="sm-'+m+'"></canvas></div></div>';}).join('');
+  MKTS.forEach(function(m){
+    var acts=MONTHS_META.map(function(mm){return marketRollups(mm.key).find(function(x){return x.m===m;})?.a||0;});
+    var tgts=MONTHS_META.map(function(mm){return marketRollups(mm.key).find(function(x){return x.m===m;})?.t||0;});
+    var bp=tgts[MONTHS_META.findIndex(function(mm){return mm.key===selMonthKey;})]>0?(isMTD?pc((marketRollups(selMonthKey).find(function(x){return x.m===m;})||{a:0}).a,Math.round((marketRollups(selMonthKey).find(function(x){return x.m===m;})||{t:0}).t*pace)):pc((marketRollups(selMonthKey).find(function(x){return x.m===m;})||{a:0}).a,(marketRollups(selMonthKey).find(function(x){return x.m===m;})||{t:0}).t)):0;
+    var bb=bp>=90?'#639922':bp>=70?'#BA7517':'#E24B4A';
+    document.getElementById('sm-stat-'+m).innerHTML='<span style="font-weight:500;border-radius:20px;padding:2px 8px;font-size:11px;background:'+bb+';color:#fff">'+bp+'%'+(isMTD?' of pace':'')+'</span>';
+    var bgs=MONTHS_META.map(function(mm){return mm.isMTD?(MKT_COLORS[m]||'#185FA5')+'55':(MKT_COLORS[m]||'#185FA5');});
+    if(smCharts[m])smCharts[m].destroy();
+    smCharts[m]=new Chart(document.getElementById('sm-'+m),{type:'bar',data:{labels:MONTHS_META.map(function(mm){return mm.label.substring(0,3);}),datasets:[{label:'Actual',data:acts,backgroundColor:bgs,borderRadius:6,order:2},{label:'Target',data:tgts,type:'line',borderColor:MKT_COLORS[m]||'#185FA5',borderWidth:1.5,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:MKT_COLORS[m]||'#185FA5',pointBorderWidth:2,fill:false,tension:0,order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label==='Target'?'Target: '+ctx.parsed.y:'Actual: '+ctx.parsed.y+(MONTHS_META[ctx.dataIndex].isMTD?' (MTD)':'');},title:function(ctx){return m+' — '+MONTHS_META[ctx[0].dataIndex].label;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,tgts.concat(acts).concat([1]))*1.15}}}});
   });
 }
 
-function sw(t) {
-  var keys=['ov','am','st','biz'];
-  document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('on',keys[i]===t);});
-  keys.forEach(function(k){document.getElementById('pg-'+k).classList.toggle('on',k===t);});
-  if(t==='am')renderAM(document.getElementById('am-mkt-sel').value||'all');
-  if(t==='st')filterMkt(document.getElementById('mkt-sel').value||'all');
-  if(t==='biz')buildBiz();
+function buildCmp(){
+  var mKey=(document.getElementById('cmp-sel')||{}).value||selMonthKey, meta=MONTHS_META.find(function(m){return m.key===mKey;}), isMTD=meta&&meta.isMTD;
+  var roll=marketRollups(mKey), actuals=MKTS.map(function(m){return (roll.find(function(x){return x.m===m;})||{a:0}).a;}), targets=MKTS.map(function(m){return (roll.find(function(x){return x.m===m;})||{t:0}).t;});
+  document.getElementById('cmp-foot').textContent=isMTD?meta.label+' MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days.':'Complete month — final actuals vs target.';
+  if(cmpChart)cmpChart.destroy();
+  cmpChart=new Chart(document.getElementById('cmpChart'),{type:'bar',data:{labels:MKTS,datasets:[{label:'Actual',data:actuals,backgroundColor:MKTS.map(function(m){return isMTD?(MKT_COLORS[m]||'#185FA5')+'88':(MKT_COLORS[m]||'#185FA5');}),borderRadius:8,order:2},{label:'Target',data:targets,type:'line',borderColor:'#888780',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false,tension:0,order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label==='Target'?'Target: '+ctx.parsed.y:(isMTD?'MTD: ':'Actual: ')+actuals[ctx.dataIndex];},title:function(ctx){return ctx[0].label+' — '+meta.label;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals).concat([1]))*1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}}}});
 }
 
-function initWithData(rows, source) {
-  RAW = rows;
-  dataSource = source;
-  buildDerived();
-  buildAllDDs();
-  selectMonth(CURRENT_MONTH_KEY);
+function buildBiz(){
+  var roll=marketRollups(selMonthKey), totR=roll.reduce(function(s,r){return s+r.a;},0), totC=roll.reduce(function(s,r){return s+r.c;},0), tcv=totR?Math.round(totC/totR*100):0;
+  document.getElementById('biz-scorecards').innerHTML=makeScorecard('Total referrals',totR,'all markets','neutral')+makeScorecard('Completed repairs',totC,'from referrals','win')+makeScorecard('Conversion rate',tcv+'%','referral → repair',tcv>=30?'win':tcv>=20?'warn':'danger')+makeScorecard('Est. revenue','$'+Math.round(totC*AOV/1000)+'k','at $480 avg order','neutral');
+  document.getElementById('funnel-period').textContent=dateRangeLabel(selMonthKey);
+  var stages=[{label:'Referrals',n:totR,color:'#185FA5'},{label:'Completed',n:totC,color:'#639922'}];
+  document.getElementById('funnel-wrap').innerHTML=stages.map(function(s,i){var pct=totR?Math.round(s.n/totR*100):0;var prev=i>0?stages[i-1].n:null;var drop=prev?Math.round((prev-s.n)/prev*100):null;return(i>0?'<div class="funnel-arrow">▾</div>':'')+'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:'+pct+'%;background:'+s.color+'">'+s.n+'</div></div><div class="funnel-num">'+pct+'% of refs</div>'+(drop!==null?'<div class="funnel-drop">−'+drop+'% drop</div>':'<div class="funnel-drop"></div>')+'</div>';}).join('');
+  document.getElementById('biztbl').innerHTML=roll.map(function(r){var cvr=r.a?Math.round(r.c/r.a*100):0,rev=r.c*AOV,cc=cvr>=30?'bg':cvr>=20?'ba':'br';return'<tr class="dr '+(cvr>=30?'win-row':cvr>=20?'warn-row':'danger-row')+'"><td>'+r.m+'</td><td class="tr">'+r.a+'</td><td class="tr">'+r.c+'</td><td class="tr"><span class="b '+cc+'">'+cvr+'%</span></td><td class="tr">$'+Math.round(rev/1000)+'k</td></tr>';}).join('');
+  document.getElementById('biz-legend').innerHTML=MKTS.map(function(m){return'<div class="leg-item"><div class="leg-dot" style="background:'+(MKT_COLORS[m]||'#185FA5')+'"></div>'+m+'</div>';}).join('');
+  var ds=MKTS.map(function(m){return{label:m,data:MONTHS_META.map(function(mm){var rr=marketRollups(mm.key).find(function(x){return x.m===m;})||{a:0,c:0};return rr.a?Math.round(rr.c/rr.a*100):0;}),borderColor:MKT_COLORS[m]||'#185FA5',borderWidth:2.5,pointBackgroundColor:MKT_COLORS[m]||'#185FA5',pointRadius:5,pointHoverRadius:7,tension:.35,fill:false};});
+  if(bCI)bCI.destroy();
+  bCI=new Chart(document.getElementById('bizChart'),{type:'line',data:{labels:MONTHS_META.map(function(mm){return mm.label.substring(0,3);}),datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+'%';}}}},scales:{x:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'}},y:{grid:{color:'#F1EFE8'},min:0,suggestedMax:40,ticks:{font:{size:11},color:'#888780',callback:function(v){return v+'%';}},title:{display:true,text:'Conversion rate',font:{size:11},color:'#888780'}}}}});
+}
 
-  var mktList = MKTS.join(' · ');
-  document.getElementById('markets-sub').textContent = mktList;
-  var latestDay = RAW.map(function(r){return r.day;}).sort().pop() || '';
-  document.getElementById('ulbl').textContent = latestDay ? 'Data through ' + latestDay : 'Data loaded';
+function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updatePinDots();if(pinEntry.length===4){if(pinEntry===PIN_CORRECT){bizUnlocked=true;document.getElementById('pin-overlay').style.display='none';document.getElementById('biz-content').style.display='block';buildBiz();}else{document.getElementById('pin-err').textContent='Incorrect PIN. Try again.';setTimeout(function(){pinEntry='';updatePinDots();document.getElementById('pin-err').textContent='';},800);}}}
+function pinDel(){pinEntry=pinEntry.slice(0,-1);updatePinDots();}
+function pinClear(){pinEntry='';updatePinDots();}
+function updatePinDots(){for(var i=0;i<4;i++){var d=document.getElementById('pd'+i);if(d)d.className='pin-dot'+(i<pinEntry.length?' filled':'');}}
+function lockBiz(){bizUnlocked=false;pinEntry='';updatePinDots();document.getElementById('pin-overlay').style.display='block';document.getElementById('biz-content').style.display='none';}
 
-  var pill = document.getElementById('ds-pill');
-  if (source === 'live') {
-    pill.textContent = 'Live data'; pill.className = 'data-source-pill ds-live';
-  } else {
-    pill.textContent = 'Fallback data'; pill.className = 'data-source-pill ds-fallback';
-  }
+function sw(t){var keys=['st','am','ov','biz'];document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('on',keys[i]===t);});keys.forEach(function(k){document.getElementById('pg-'+k).classList.toggle('on',k===t);});if(t==='am')renderAM(document.getElementById('am-mkt-sel').value||'all');if(t==='st')renderS();if(t==='ov')buildOv();if(t==='biz'&&bizUnlocked)buildBiz();}
 
+function initWithData(rows,source){
+  RAW=rows;dataSource=source;buildDerived();buildAllDDs();selectMonth(selMonthKey||CURRENT_MONTH_KEY);
+  document.getElementById('markets-sub').textContent=MKTS.join(' · ');
+  var latestDay=RAW.map(function(r){return r.day;}).sort().pop()||'';
+  document.getElementById('ulbl').textContent=latestDay?'Data through '+latestDay:'Data loaded';
+  var pill=document.getElementById('ds-pill');
+  if(source==='live'){pill.textContent='Live data';pill.className='data-source-pill ds-live';}else{pill.textContent='Fallback data';pill.className='data-source-pill ds-fallback';}
+  document.getElementById('udot').className='udot'+(source==='live'?'':' stale');
   filterMkt('all');
-  document.getElementById('loading-overlay').style.display = 'none';
+  document.getElementById('loading-overlay').style.display='none';
 }
 
-function loadData() {
-  document.getElementById('loading-text').textContent = 'Fetching live data…';
+function loadData(){
+  document.getElementById('loading-text').textContent='Fetching live data…';
   fetch(LIVE_URL)
-    .then(function(res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.json();
-    })
-    .then(function(json) {
-      document.getElementById('loading-text').textContent = 'Processing ' + json.length + ' records…';
-      var rows = json.map(normaliseRow).filter(Boolean);
-      if (rows.length === 0) throw new Error('No usable rows');
-      initWithData(rows, 'live');
-    })
-    .catch(function(err) {
-      console.warn('Live data fetch failed, using fallback:', err.message);
-      document.getElementById('loading-text').textContent = 'Using fallback data…';
-      var rows = FALLBACK_DATA.map(normaliseFallbackRow).filter(Boolean);
-      initWithData(rows, 'fallback');
-    });
+    .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
+    .then(function(json){document.getElementById('loading-text').textContent='Processing '+json.length+' records…';var rows=json.map(normaliseRow).filter(Boolean);if(!rows.length)throw new Error('No usable rows');initWithData(rows,'live');})
+    .catch(function(err){console.warn('Live data fetch failed, using fallback:',err.message);document.getElementById('loading-text').textContent='Using fallback data…';var rows=FALLBACK_DATA.map(normaliseRow).filter(Boolean);initWithData(rows,'fallback');});
 }
 
 loadData();
 </script>
-</body></html>
+</body>
+</html>
