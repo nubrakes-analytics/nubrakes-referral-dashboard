@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8" />
-<title>NuBrakes referral program dashboard</title>
+<meta charset="UTF-8">
+<title>NuBrakes Referral Program Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:sans-serif;padding:0 0 32px;background:transparent}
@@ -16,63 +16,166 @@ body{font-family:sans-serif;padding:0 0 32px;background:transparent}
 .data-source-pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
 .ds-live{background:#EAF3DE;color:#27500A}
 .ds-fallback{background:#FAEEDA;color:#633806}
+
 .tab-row{display:flex;align-items:center;gap:6px;padding:12px 0 0;flex-wrap:wrap;border-bottom:2px solid #E6F1FB}
 .tab{font-size:13px;padding:8px 18px;cursor:pointer;border-radius:20px 20px 0 0;color:#5F5E5A;border:none;background:none;white-space:nowrap;font-weight:400}
 .tab.on{color:#0C447C;background:#E6F1FB;font-weight:500}
 .tab.leadership{color:#534AB7}
 .tab.leadership.on{background:#EEEDFE;color:#3C3489}
 .tab-sep{width:1px;background:#D3D1C7;height:20px;margin:0 2px}
-.pg{display:none}.pg.on{display:block}
+
+.pg{display:none}
+.pg.on{display:block}
+
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0 14px;flex-wrap:wrap;gap:10px}
-.month-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.month-wrap{display:flex;align-items:center;gap:8px}
 .month-wrap label{font-size:12px;color:#888780}
 .dr-label{font-size:12px;color:#5F5E5A;background:#F1EFE8;padding:5px 12px;border-radius:20px}
 .mtd-pill{font-size:11px;background:#FAEEDA;color:#633806;border-radius:20px;padding:3px 10px;font-weight:500}
 .complete-pill{font-size:11px;background:#EAF3DE;color:#27500A;border-radius:20px;padding:3px 10px;font-weight:500}
 select{font-size:13px;padding:7px 12px;border-radius:20px;border:1.5px solid #B5D4F4;background:#fff;color:#0C447C;font-weight:500;cursor:pointer}
+
 .mrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
 .mc{border-radius:16px;padding:16px 18px}
-.mc.win{background:#EAF3DE;border:1.5px solid #97C459}.mc.neutral{background:#E6F1FB;border:1.5px solid #85B7EB}.mc.warn{background:#FAEEDA;border:1.5px solid #FAC775}.mc.danger{background:#FCEBEB;border:1.5px solid #F09595}
+.mc.win{background:#EAF3DE;border:1.5px solid #97C459}
+.mc.neutral{background:#E6F1FB;border:1.5px solid #85B7EB}
+.mc.warn{background:#FAEEDA;border:1.5px solid #FAC775}
+.mc.danger{background:#FCEBEB;border:1.5px solid #F09595}
 .ml{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .mc.win .ml{color:#3B6D11}.mc.neutral .ml{color:#185FA5}.mc.warn .ml{color:#854F0B}.mc.danger .ml{color:#A32D2D}
 .mv{font-size:28px;font-weight:500}
 .mc.win .mv{color:#27500A}.mc.neutral .mv{color:#0C447C}.mc.warn .mv{color:#633806}.mc.danger .mv{color:#791F1F}
 .ms{font-size:12px;margin-top:3px}
 .mc.win .ms{color:#3B6D11}.mc.neutral .ms{color:#185FA5}.mc.warn .ms{color:#854F0B}.mc.danger .ms{color:#A32D2D}
+
 .slbl{font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
 .mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.5rem}
 .mcard{border-radius:16px;padding:16px;position:relative;border:2px solid transparent}
-.mcard.rank-1-card{background:#FFF8E1;border-color:#EF9F27}.mcard.rank-2-card{background:#F1EFE8;border-color:#B4B2A9}.mcard.rank-3-card{background:#FDE8D8;border-color:#F0997B}.mcard.rank-4-card{background:#fff;border-color:#E5E5E5}
+.mcard.rank-1-card{background:#FFF8E1;border-color:#EF9F27}
+.mcard.rank-2-card{background:#F1EFE8;border-color:#B4B2A9}
+.mcard.rank-3-card{background:#FDE8D8;border-color:#F0997B}
+.mcard.rank-4-card{background:#fff;border-color:#E5E5E5}
 .rank-crown{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:16px;background:#fff;border-radius:20px;padding:1px 8px;border:1.5px solid #EF9F27}
 .rank-num{position:absolute;top:10px;right:12px;font-size:11px;font-weight:500;border-radius:20px;padding:2px 8px}
 .rn-1{background:#EF9F27;color:#412402}.rn-2{background:#D3D1C7;color:#2C2C2A}.rn-3{background:#F0997B;color:#4A1B0C}.rn-4{background:#F1EFE8;color:#888780}
-.mcard-mkt{font-size:14px;font-weight:500;color:#111;margin-bottom:1px}.mcard-mgr{font-size:11px;color:#888780;margin-bottom:10px}.mcard-nums{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}.mcard-actual{font-size:24px;font-weight:500;color:#111}.mcard-tgt{font-size:12px;color:#888780}
-.pbb{height:8px;background:rgba(0,0,0,0.08);border-radius:20px;overflow:hidden;margin-bottom:6px}.pbf{height:100%;border-radius:20px}.fg{background:#639922}.fa{background:#BA7517}.fr{background:#E24B4A}
+.mcard-mkt{font-size:14px;font-weight:500;color:#111;margin-bottom:1px}
+.mcard-mgr{font-size:11px;color:#888780;margin-bottom:10px}
+.mcard-nums{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.mcard-actual{font-size:24px;font-weight:500;color:#111}
+.mcard-tgt{font-size:12px;color:#888780}
+.pbb{height:8px;background:rgba(0,0,0,0.08);border-radius:20px;overflow:hidden;margin-bottom:6px}
+.pbf{height:100%;border-radius:20px}
+.fg{background:#639922}.fa{background:#BA7517}.fr{background:#E24B4A}
 .mcard-status{font-size:12px;font-weight:500;border-radius:20px;padding:3px 10px;display:inline-block;margin-top:4px}
 .st-win{background:#EAF3DE;color:#27500A}.st-warn{background:#FAEEDA;color:#633806}.st-danger{background:#FCEBEB;color:#791F1F}
+
 .panel{background:#fff;border:1.5px solid #E6F1FB;border-radius:16px;overflow:hidden;margin-bottom:1.5rem}
 .ph{padding:12px 16px;border-bottom:1.5px solid #E6F1FB;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .pt{font-size:13px;font-weight:500;color:#111}
-.toggle-group{display:flex;background:#E6F1FB;border-radius:20px;padding:3px;gap:3px}.tgbtn{font-size:12px;padding:5px 14px;border-radius:20px;border:none;cursor:pointer;color:#185FA5;background:transparent;font-weight:500}.tgbtn.on{background:#0C447C;color:#fff}
-.frow{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}.fl{font-size:13px;color:#5F5E5A}
-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}th{font-size:11px;font-weight:500;color:#888780;text-align:left;padding:8px 16px;border-bottom:1.5px solid #E6F1FB;text-transform:uppercase;letter-spacing:.04em}th.tr{text-align:right}td{padding:10px 16px;border-bottom:1px solid #F1EFE8;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}td.tr{text-align:right}tr:last-child td{border-bottom:none}tr.win-row td{background:#EAF3DE}tr.warn-row td{background:#FAEEDA}tr.danger-row td{background:#FCEBEB}tr.top-q td{background:#FFF8E1}tr.dr:hover td{filter:brightness(0.97)}
-.b{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px}.bg{background:#639922;color:#EAF3DE}.ba{background:#BA7517;color:#FAEEDA}.br{background:#E24B4A;color:#FCEBEB}.bt{background:#E6F1FB;color:#0C447C}.gold-b{background:#EF9F27;color:#412402}
-.foot{font-size:11px;color:#888780;padding:8px 16px;border-top:1px solid #F1EFE8}.legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px}.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#5F5E5A}.leg-dot{width:10px;height:10px;border-radius:3px}.leg-dash{width:18px;height:0;border-top:2px dashed #888780}
-.sm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:14px}.sm-card{background:#F1EFE8;border:1.5px solid #D3D1C7;border-radius:12px;padding:12px}.chart-view{display:none}.chart-view.on{display:block}
-.ldr-header{background:#EEEDFE;border-bottom:1.5px solid #CECBF6;padding:10px 16px;display:flex;align-items:center;gap:8px}.ldr-txt{font-size:12px;color:#3C3489;font-weight:500}.ldr-sub{font-size:11px;color:#534AB7}
-.funnel-wrap{padding:20px 24px}.funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}.funnel-label{font-size:12px;color:#5F5E5A;width:90px;text-align:right;flex-shrink:0}.funnel-bar-bg{flex:1;height:32px;background:#F1EFE8;border-radius:20px;overflow:hidden}.funnel-bar-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:12px;font-size:12px;font-weight:500;color:#fff}.funnel-num{font-size:12px;color:#888780;width:90px;flex-shrink:0}.funnel-drop{font-size:11px;color:#A32D2D;width:65px;flex-shrink:0;text-align:right;font-weight:500}.funnel-arrow{font-size:11px;color:#D3D1C7;padding:0 0 4px 102px}
-.metric-key{display:flex;gap:16px;flex-wrap:wrap;padding:10px 16px;background:#F9F9FB;border-bottom:1px solid #E6F1FB}.mk-item{display:flex;align-items:flex-start;gap:6px}.mk-label{font-size:11px;font-weight:500;color:#0C447C;min-width:90px}.mk-desc{font-size:11px;color:#5F5E5A;line-height:1.4}
+
+.toggle-group{display:flex;background:#E6F1FB;border-radius:20px;padding:3px;gap:3px}
+.tgbtn{font-size:12px;padding:5px 14px;border-radius:20px;border:none;cursor:pointer;color:#185FA5;background:transparent;font-weight:500}
+.tgbtn.on{background:#0C447C;color:#fff}
+
+.frow{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.fl{font-size:13px;color:#5F5E5A}
+
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th{font-size:11px;font-weight:500;color:#888780;text-align:left;padding:8px 16px;border-bottom:1.5px solid #E6F1FB;text-transform:uppercase;letter-spacing:.04em}
+th.tr{text-align:right}
+td{padding:10px 16px;border-bottom:1px solid #F1EFE8;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.tr{text-align:right}
+tr:last-child td{border-bottom:none}
+tr.win-row td{background:#EAF3DE}
+tr.warn-row td{background:#FAEEDA}
+tr.danger-row td{background:#FCEBEB}
+tr.top-q td{background:#FFF8E1}
+tr.dr:hover td{filter:brightness(0.97)}
+
+.b{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px}
+.bg{background:#639922;color:#EAF3DE}.ba{background:#BA7517;color:#FAEEDA}.br{background:#E24B4A;color:#FCEBEB}.bt{background:#E6F1FB;color:#0C447C}
+.gold-b{background:#EF9F27;color:#412402}
+
+.foot{font-size:11px;color:#888780;padding:8px 16px;border-top:1px solid #F1EFE8}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#5F5E5A}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+.leg-dash{width:18px;height:0;border-top:2px dashed #888780}
+.sm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:14px}
+.sm-card{background:#F1EFE8;border:1.5px solid #D3D1C7;border-radius:12px;padding:12px}
+.chart-view{display:none}.chart-view.on{display:block}
+
+.ldr-header{background:#EEEDFE;border-bottom:1.5px solid #CECBF6;padding:10px 16px;display:flex;align-items:center;gap:8px}
+.ldr-txt{font-size:12px;color:#3C3489;font-weight:500}
+.ldr-sub{font-size:11px;color:#534AB7}
+
+.funnel-wrap{padding:20px 24px}
+.funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.funnel-label{font-size:12px;color:#5F5E5A;width:90px;text-align:right;flex-shrink:0}
+.funnel-bar-bg{flex:1;height:32px;background:#F1EFE8;border-radius:20px;overflow:hidden}
+.funnel-bar-fill{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:12px;font-size:12px;font-weight:500;color:#fff}
+.funnel-num{font-size:12px;color:#888780;width:90px;flex-shrink:0}
+.funnel-drop{font-size:11px;color:#A32D2D;width:65px;flex-shrink:0;text-align:right;font-weight:500}
+.funnel-arrow{font-size:11px;color:#D3D1C7;padding:0 0 4px 102px}
+
+.metric-key{display:flex;gap:16px;flex-wrap:wrap;padding:10px 16px;background:#F9F9FB;border-bottom:1px solid #E6F1FB}
+.mk-item{display:flex;align-items:flex-start;gap:6px}
+.mk-label{font-size:11px;font-weight:500;color:#0C447C;min-width:90px}
+.mk-desc{font-size:11px;color:#5F5E5A;line-height:1.4}
 .pace-note{font-size:11px;background:#E6F1FB;color:#0C447C;border-radius:8px;padding:6px 12px;margin:8px 16px 0;display:inline-block}
-.tq-callout{background:#FFF8E1;border:1.5px solid #EF9F27;border-radius:16px;padding:16px 20px;margin-bottom:1.5rem}.tq-title{font-size:13px;font-weight:500;color:#633806;margin-bottom:8px;display:flex;align-items:center;gap:8px}.tq-body{font-size:12px;color:#854F0B;margin-top:4px;line-height:1.5}.tq-stat{font-size:22px;font-weight:500;color:#412402}.tq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.tq-item{background:#fff;border-radius:12px;padding:10px 14px;border:1px solid #FAC775}.tq-item-name{font-size:12px;font-weight:500;color:#111}.tq-item-mkt{font-size:11px;color:#888780}.tq-item-refs{font-size:18px;font-weight:500;color:#412402}.tq-item-pct{font-size:11px;color:#92600A}
-.dist-wrap{padding:14px 16px 8px}.dist-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}.dist-store-label{font-size:10px;color:#888780;width:50px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dist-bar-bg{flex:1;height:14px;background:#F1EFE8;border-radius:20px;overflow:hidden}.dist-bar-fill{height:100%;border-radius:20px}.dist-val{font-size:10px;color:#5F5E5A;width:28px;flex-shrink:0;text-align:right}.dist-section-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;padding:4px 0 2px;color:#888780}
-.coaching-wrap{padding:14px 16px}.coaching-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F1EFE8}.coaching-item:last-child{border-bottom:none}.coaching-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:500}.ci-red{background:#FCEBEB;color:#A32D2D}.ci-amber{background:#FAEEDA;color:#854F0B}.ci-blue{background:#E6F1FB;color:#185FA5}.coaching-text{flex:1}.coaching-headline{font-size:13px;font-weight:500;color:#111;margin-bottom:2px}.coaching-sub{font-size:12px;color:#888780;line-height:1.4}.coaching-action{font-size:11px;color:#185FA5;font-weight:500;margin-top:4px}
-.pin-overlay{padding:48px 24px;text-align:center}.pin-icon{font-size:32px;margin-bottom:12px}.pin-title{font-size:16px;font-weight:500;color:#111;margin-bottom:6px}.pin-sub{font-size:13px;color:#888780;margin-bottom:24px}.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:20px}.pin-dot{width:14px;height:14px;border-radius:50%;background:#E6F1FB;border:2px solid #B5D4F4}.pin-dot.filled{background:#0C447C;border-color:#0C447C}.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin:0 auto}.pin-btn{font-size:18px;font-weight:500;padding:14px;border-radius:16px;border:1.5px solid #B5D4F4;background:#fff;cursor:pointer;color:#0C447C}.pin-btn:hover{background:#E6F1FB}.pin-btn.clear{font-size:13px;color:#854F0B;border-color:#FAC775;background:#FAEEDA}.pin-err{font-size:12px;color:#A32D2D;margin-top:8px;min-height:18px}.biz-content{display:none}
-.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}.loading-spinner{width:36px;height:36px;border:3px solid #E6F1FB;border-top-color:#0C447C;border-radius:50%;animation:spin .8s linear infinite}.loading-text{font-size:13px;color:#5F5E5A}@keyframes spin{to{transform:rotate(360deg)}}
-@media (max-width:1100px){.mrow,.mgrid,.tq-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:720px){.mrow,.mgrid,.sm-grid,.tq-grid{grid-template-columns:1fr}table{display:block;overflow:auto}.funnel-label,.funnel-num,.funnel-drop{width:auto}.funnel-arrow{padding-left:0}}
+
+.tq-callout{background:#FFF8E1;border:1.5px solid #EF9F27;border-radius:16px;padding:16px 20px;margin-bottom:1.5rem}
+.tq-title{font-size:13px;font-weight:500;color:#633806;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tq-body{font-size:12px;color:#854F0B;margin-top:4px;line-height:1.5}
+.tq-stat{font-size:22px;font-weight:500;color:#412402}
+.tq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.tq-item{background:#fff;border-radius:12px;padding:10px 14px;border:1px solid #FAC775}
+.tq-item-name{font-size:12px;font-weight:500;color:#111}
+.tq-item-mkt{font-size:11px;color:#888780}
+.tq-item-pct{font-size:18px;font-weight:500;color:#412402}
+.tq-item-detail{font-size:11px;color:#92600A}
+
+.coaching-wrap{padding:14px 16px}
+.coaching-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F1EFE8}
+.coaching-item:last-child{border-bottom:none}
+.coaching-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:500}
+.ci-red{background:#FCEBEB;color:#A32D2D}
+.ci-amber{background:#FAEEDA;color:#854F0B}
+.ci-blue{background:#E6F1FB;color:#185FA5}
+.coaching-text{flex:1}
+.coaching-headline{font-size:13px;font-weight:500;color:#111;margin-bottom:2px}
+.coaching-sub{font-size:12px;color:#888780;line-height:1.4}
+.coaching-action{font-size:11px;color:#185FA5;font-weight:500;margin-top:4px}
+
+.pin-overlay{padding:48px 24px;text-align:center}
+.pin-icon{font-size:32px;margin-bottom:12px}
+.pin-title{font-size:16px;font-weight:500;color:#111;margin-bottom:6px}
+.pin-sub{font-size:13px;color:#888780;margin-bottom:24px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:20px}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:#E6F1FB;border:2px solid #B5D4F4}
+.pin-dot.filled{background:#0C447C;border-color:#0C447C}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin:0 auto}
+.pin-btn{font-size:18px;font-weight:500;padding:14px;border-radius:16px;border:1.5px solid #B5D4F4;background:#fff;cursor:pointer;color:#0C447C}
+.pin-btn:hover{background:#E6F1FB}
+.pin-btn.clear{font-size:13px;color:#854F0B;border-color:#FAC775;background:#FAEEDA}
+.pin-err{font-size:12px;color:#A32D2D;margin-top:8px;min-height:18px}
+.biz-content{display:none}
+
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
+.loading-spinner{width:36px;height:36px;border:3px solid #E6F1FB;border-top-color:#0C447C;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:#5F5E5A}
+
+@media (max-width:1100px){
+  .mrow,.mgrid,.tq-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:700px){
+  .mrow,.mgrid,.sm-grid,.tq-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
+
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-spinner"></div>
   <div class="loading-text" id="loading-text">Fetching live data…</div>
@@ -85,7 +188,10 @@ table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}th{f
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <span class="data-source-pill" id="ds-pill">—</span>
-    <div class="updated-flag"><div class="udot" id="udot"></div><span id="ulbl">Loading…</span></div>
+    <div class="updated-flag">
+      <div class="udot" id="udot"></div>
+      <span id="ulbl">Loading…</span>
+    </div>
   </div>
 </div>
 
@@ -97,377 +203,1434 @@ table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}th{f
   <div class="tab leadership" onclick="sw('biz')">Business outcomes</div>
 </div>
 
+<!-- STORE DRILL-DOWN -->
 <div class="pg on" id="pg-st">
   <div class="topbar">
-    <div class="month-wrap"><label>Viewing month</label><select id="st-month-dd" onchange="selectMonth(this.value)"></select><span id="st-pill"></span></div>
+    <div class="month-wrap">
+      <label>Viewing month</label>
+      <select id="st-month-dd" onchange="selectMonth(this.value)"></select>
+      <span id="st-pill"></span>
+    </div>
     <div class="dr-label" id="st-dr"></div>
   </div>
+
   <div class="frow">
     <span class="fl">Market</span>
-    <select id="mkt-sel" onchange="filterMkt(this.value)"><option value="all">All markets</option></select>
+    <select id="mkt-sel" onchange="filterMkt(this.value)">
+      <option value="all">All markets</option>
+    </select>
     <span class="fl">Area manager</span>
-    <select id="am-sel" onchange="renderS()"><option value="all">All areas</option></select>
+    <select id="am-sel" onchange="renderS()">
+      <option value="all">All areas</option>
+    </select>
   </div>
+
   <div class="mrow" id="st-scorecards"></div>
+
   <div id="tq-callout-wrap"></div>
-  <div class="panel" id="dist-panel">
-    <div class="ph"><span class="pt">Referral distribution by store</span><span style="font-size:11px;color:#888780" id="dist-subtitle"></span></div>
-    <div class="dist-wrap" id="dist-wrap"></div>
-    <div class="foot" id="dist-foot"></div>
+
+  <div class="panel">
+    <div class="ph">
+      <span class="pt">Store attainment — sorted by % to target</span>
+      <span style="font-size:11px;color:#888780" id="st-tbl-sub"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:11%">Store #</th>
+          <th style="width:12%">Manager</th>
+          <th style="width:13%">Area mgr</th>
+          <th style="width:11%">Market</th>
+          <th class="tr" style="width:9%">Target</th>
+          <th class="tr" style="width:9%">Actual</th>
+          <th class="tr" style="width:12%">% to target</th>
+          <th class="tr" style="width:15%">Daily pace</th>
+          <th class="tr" style="width:8%">Top 25%</th>
+        </tr>
+      </thead>
+      <tbody id="stbl"></tbody>
+    </table>
+    <div class="foot" id="st-foot"></div>
   </div>
+
   <div class="slbl">Coaching spotlight</div>
   <div class="panel">
-    <div class="ph"><span class="pt">Action items for area managers</span><span style="font-size:11px;color:#888780" id="coaching-period"></span></div>
+    <div class="ph">
+      <span class="pt">Action items for area managers</span>
+      <span style="font-size:11px;color:#888780" id="coaching-period"></span>
+    </div>
     <div class="coaching-wrap" id="coaching-wrap"></div>
   </div>
 </div>
 
+<!-- AREA MANAGER VIEW -->
 <div class="pg" id="pg-am">
   <div class="topbar">
-    <div class="month-wrap"><label>Viewing month</label><select id="am-month-dd" onchange="selectMonth(this.value)"></select><span id="am-pill"></span></div>
+    <div class="month-wrap">
+      <label>Viewing month</label>
+      <select id="am-month-dd" onchange="selectMonth(this.value)"></select>
+      <span id="am-pill"></span>
+    </div>
     <div class="dr-label" id="am-dr"></div>
   </div>
-  <div class="frow"><span class="fl">Market</span><select id="am-mkt-sel" onchange="renderAM(this.value)"><option value="all">All markets</option></select></div>
+
+  <div class="frow">
+    <span class="fl">Market</span>
+    <select id="am-mkt-sel" onchange="renderAM(this.value)">
+      <option value="all">All markets</option>
+    </select>
+  </div>
+
   <div class="mrow" id="am-scorecards"></div>
+
   <div class="panel">
     <div class="ph"><span class="pt">Area manager attainment — lowest to highest</span></div>
-    <table><thead><tr><th style="width:20%">Area manager</th><th style="width:14%">Market</th><th style="width:14%">Regional</th><th class="tr" style="width:9%">Stores</th><th class="tr" style="width:11%">Target</th><th class="tr" style="width:11%">Actual</th><th class="tr" style="width:14%">Daily pace</th><th class="tr" style="width:13%">% to goal</th></tr></thead><tbody id="amtbl"></tbody></table>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">Area manager</th>
+          <th style="width:14%">Market</th>
+          <th style="width:14%">Mkt manager</th>
+          <th class="tr" style="width:9%">Stores</th>
+          <th class="tr" style="width:11%">Target</th>
+          <th class="tr" style="width:11%">Actual</th>
+          <th class="tr" style="width:14%">Daily pace</th>
+          <th class="tr" style="width:13%">% to goal</th>
+        </tr>
+      </thead>
+      <tbody id="amtbl"></tbody>
+    </table>
     <div class="foot" id="am-foot"></div>
   </div>
 </div>
 
+<!-- MARKET OVERVIEW -->
 <div class="pg" id="pg-ov">
   <div class="topbar">
-    <div class="month-wrap"><label>Viewing month</label><select id="month-dd" onchange="selectMonth(this.value)"></select><span id="period-pill"></span></div>
+    <div class="month-wrap">
+      <label>Viewing month</label>
+      <select id="month-dd" onchange="selectMonth(this.value)"></select>
+      <span id="period-pill"></span>
+    </div>
     <div class="dr-label" id="dr-lbl"></div>
   </div>
+
   <div class="slbl">Month summary</div>
   <div class="mrow" id="ov-scorecards"></div>
+
   <div class="slbl">Market leaderboard — ranked by avg referrals per store</div>
   <div class="mgrid" id="mcards"></div>
+
   <div class="slbl">Market summary</div>
   <div class="panel">
     <div class="ph"><span class="pt" id="mkt-tbl-title"></span></div>
     <div class="metric-key" id="metric-key"></div>
-    <table><thead><tr><th style="width:4%"></th><th style="width:13%">Market</th><th style="width:14%">Regional</th><th class="tr" style="width:7%">Areas</th><th class="tr" style="width:7%">Stores</th><th class="tr" style="width:10%">Target</th><th class="tr" style="width:10%">Actual</th><th class="tr" style="width:9%">Avg/store</th><th class="tr" style="width:14%">Daily pace</th><th class="tr" style="width:12%">% to goal</th></tr></thead><tbody id="mtbl"></tbody></table>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:4%"></th>
+          <th style="width:13%">Market</th>
+          <th style="width:14%">Mkt manager</th>
+          <th class="tr" style="width:7%">Areas</th>
+          <th class="tr" style="width:7%">Stores</th>
+          <th class="tr" style="width:10%">Target</th>
+          <th class="tr" style="width:10%">Actual</th>
+          <th class="tr" style="width:9%">Avg/store</th>
+          <th class="tr" style="width:14%">Daily pace</th>
+          <th class="tr" style="width:12%">% to goal</th>
+        </tr>
+      </thead>
+      <tbody id="mtbl"></tbody>
+    </table>
     <div class="foot" id="mkt-foot"></div>
   </div>
+
   <div class="slbl">Referral performance by market</div>
   <div class="panel">
     <div class="ph">
-      <div><div class="pt">Referral actuals vs monthly targets</div><div style="font-size:11px;color:#888780;margin-top:2px">Targets are read from monthly target fields when present, otherwise extrapolated from daily targets</div></div>
-      <div class="toggle-group"><button class="tgbtn on" onclick="setCV('sm')">Market trends</button><button class="tgbtn" onclick="setCV('cmp')">Monthly comparison</button></div>
+      <div>
+        <div class="pt">Referral actuals vs monthly targets</div>
+        <div style="font-size:11px;color:#888780;margin-top:2px">Targets derived from monthly target when available, otherwise scaled from daily target</div>
+      </div>
+      <div class="toggle-group">
+        <button class="tgbtn on" onclick="setCV('sm')">Market trends</button>
+        <button class="tgbtn" onclick="setCV('cmp')">Monthly comparison</button>
+      </div>
     </div>
+
     <div class="chart-view on" id="cv-sm">
-      <div class="legend"><div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual (complete)</div><div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div><div class="leg-item"><div class="leg-dash"></div>Monthly target</div></div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual (complete)</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div>
+        <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
+      </div>
       <div style="padding:8px 16px 0"><div class="pace-note" id="sm-pace-note"></div></div>
       <div class="sm-grid" id="sm-grid"></div>
       <div class="foot">Badge % = actual vs paced target for MTD months. On complete months it shows actual vs full target.</div>
     </div>
+
     <div class="chart-view" id="cv-cmp">
-      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 0"><label style="font-size:12px;color:#888780">Compare month</label><select id="cmp-sel" onchange="buildCmp()"></select></div>
-      <div class="legend"><div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual</div><div class="leg-item"><div class="leg-dash"></div>Monthly target</div></div>
-      <div style="padding:12px 16px 8px"><div style="position:relative;width:100%;height:280px"><canvas id="cmpChart"></canvas></div></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 0">
+        <label style="font-size:12px;color:#888780">Compare month</label>
+        <select id="cmp-sel" onchange="buildCmp()"></select>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Actual</div>
+        <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
+      </div>
+      <div style="padding:12px 16px 8px">
+        <div style="position:relative;width:100%;height:280px">
+          <canvas id="cmpChart"></canvas>
+        </div>
+      </div>
       <div class="foot" id="cmp-foot"></div>
     </div>
   </div>
 </div>
 
+<!-- BUSINESS OUTCOMES PIN PROTECTED -->
 <div class="pg" id="pg-biz">
   <div id="pin-overlay" class="pin-overlay">
-    <div class="pin-icon">&#128274;</div><div class="pin-title">Leadership view</div><div class="pin-sub">Enter PIN to access business outcomes</div>
-    <div class="pin-dots" id="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+    <div class="pin-icon">&#128274;</div>
+    <div class="pin-title">Leadership view</div>
+    <div class="pin-sub">Enter PIN to access business outcomes</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
     <div class="pin-pad">
-      <button class="pin-btn" onclick="pinPress('1')">1</button><button class="pin-btn" onclick="pinPress('2')">2</button><button class="pin-btn" onclick="pinPress('3')">3</button>
-      <button class="pin-btn" onclick="pinPress('4')">4</button><button class="pin-btn" onclick="pinPress('5')">5</button><button class="pin-btn" onclick="pinPress('6')">6</button>
-      <button class="pin-btn" onclick="pinPress('7')">7</button><button class="pin-btn" onclick="pinPress('8')">8</button><button class="pin-btn" onclick="pinPress('9')">9</button>
-      <button class="pin-btn clear" onclick="pinClear()">Clear</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn clear" onclick="pinDel()">&#9003;</button>
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn clear" onclick="pinClear()">Clear</button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn clear" onclick="pinDel()">&#9003;</button>
     </div>
     <div class="pin-err" id="pin-err"></div>
   </div>
+
   <div class="biz-content" id="biz-content">
-    <div class="ldr-header"><span class="ldr-txt">Leadership &amp; market manager view</span><span class="ldr-sub">— Conversion and revenue are not within store control</span></div>
+    <div class="ldr-header">
+      <span class="ldr-txt">Leadership &amp; market manager view</span>
+      <span class="ldr-sub">— Conversion and revenue are not within store control</span>
+    </div>
+
     <div class="topbar" style="padding-top:14px">
-      <div class="month-wrap"><label>Viewing month</label><select id="biz-month-dd" onchange="selectMonth(this.value);buildBiz()"></select></div>
+      <div class="month-wrap">
+        <label>Viewing month</label>
+        <select id="biz-month-dd" onchange="selectMonth(this.value);buildBiz()"></select>
+      </div>
       <button style="font-size:12px;padding:5px 14px;border-radius:20px;border:1.5px solid #F09595;background:#FCEBEB;color:#A32D2D;cursor:pointer" onclick="lockBiz()">&#128274; Lock</button>
     </div>
+
     <div class="mrow" id="biz-scorecards"></div>
+
     <div class="slbl">Referral pipeline</div>
-    <div class="panel"><div class="ph"><span class="pt">Referral → repair funnel</span><span style="font-size:11px;color:#888780" id="funnel-period"></span></div><div class="funnel-wrap" id="funnel-wrap"></div><div class="foot">Drop-off = records lost at each stage vs previous stage.</div></div>
+    <div class="panel">
+      <div class="ph">
+        <span class="pt">Referral → repair funnel</span>
+        <span style="font-size:11px;color:#888780" id="funnel-period"></span>
+      </div>
+      <div class="funnel-wrap" id="funnel-wrap"></div>
+      <div class="foot">Drop-off = records lost at each stage vs previous stage.</div>
+    </div>
+
     <div class="slbl">Conversion by market</div>
-    <div class="panel"><div class="ph"><span class="pt">Referrals → completed repairs by market</span></div><table><thead><tr><th style="width:18%">Market</th><th class="tr" style="width:15%">Referrals</th><th class="tr" style="width:15%">Completed</th><th class="tr" style="width:18%">Conv. rate</th><th class="tr" style="width:18%">Revenue (est.)</th></tr></thead><tbody id="biztbl"></tbody></table><div class="foot">Revenue estimated at $480 avg order. Conversion = completed ÷ referrals.</div></div>
+    <div class="panel">
+      <div class="ph"><span class="pt">Referrals → completed repairs by market</span></div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:18%">Market</th>
+            <th class="tr" style="width:15%">Referrals</th>
+            <th class="tr" style="width:15%">Completed</th>
+            <th class="tr" style="width:18%">Conv. rate</th>
+            <th class="tr" style="width:18%">Revenue (est.)</th>
+          </tr>
+        </thead>
+        <tbody id="biztbl"></tbody>
+      </table>
+      <div class="foot">Revenue estimated at $480 avg order. Conversion = completed ÷ referrals.</div>
+    </div>
+
     <div class="slbl">Conversion trend</div>
-    <div class="panel"><div class="ph"><span class="pt">Monthly conversion rate by market</span></div><div class="legend" id="biz-legend"></div><div style="padding:14px 16px 8px"><div style="position:relative;width:100%;height:220px"><canvas id="bizChart"></canvas></div></div><div class="foot">Trend uses month-level completed jobs ÷ referrals by market.</div></div>
+    <div class="panel">
+      <div class="ph"><span class="pt">Monthly conversion rate by market</span></div>
+      <div class="legend" id="biz-legend"></div>
+      <div style="padding:14px 16px 8px">
+        <div style="position:relative;width:100%;height:220px">
+          <canvas id="bizChart"></canvas>
+        </div>
+      </div>
+      <div class="foot">Trend uses raw monthly referral and completed job totals from the dataset.</div>
+    </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-var LIVE_URL='https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
-var AOV=480;
-var PIN_CORRECT='1986',pinEntry='',bizUnlocked=false;
-var RAW=[];
-var MKTS=[];
-var MONTHS_META=[];
-var CURRENT_MONTH_KEY='';
-var selMonthKey='';
-var dataSource='fallback';
-var MKT_COLORS={Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
-var smCharts={},cmpChart=null,bCI=null;
-
-/* Minimal fallback sample. Replace or expand with the full fallback array from your source file if needed. */
-var FALLBACK_DATA=[
-  {Day:'2026-01-31',StoreNumber:40040,Leads:5,CompletedJobs:1,Market:'Nashville',Regional:'M Popielarz',Area:'K Rea',StoreManager:'Tristan',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-01-31',StoreNumber:40150,Leads:3,CompletedJobs:1,Market:'Atlanta',Regional:'J Dietz',Area:'D Albright',StoreManager:'Gary',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-01-31',StoreNumber:70102,Leads:6,CompletedJobs:1,Market:'Dallas',Regional:'S Bonge',Area:'J Maldonado',StoreManager:'Willie',ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:'2026-01-31',StoreNumber:70047,Leads:5,CompletedJobs:1,Market:'Houston',Regional:'R Walzer',Area:'K Cedeno',StoreManager:'Spencer',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-02-28',StoreNumber:40040,Leads:6,CompletedJobs:1,Market:'Nashville',Regional:'M Popielarz',Area:'K Rea',StoreManager:'Tristan',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-02-28',StoreNumber:40150,Leads:5,CompletedJobs:1,Market:'Atlanta',Regional:'J Dietz',Area:'D Albright',StoreManager:'Gary',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-02-28',StoreNumber:70102,Leads:7,CompletedJobs:2,Market:'Dallas',Regional:'S Bonge',Area:'J Maldonado',StoreManager:'Willie',ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:'2026-02-28',StoreNumber:70047,Leads:6,CompletedJobs:2,Market:'Houston',Regional:'R Walzer',Area:'K Cedeno',StoreManager:'Spencer',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-03-17',StoreNumber:40040,Leads:5,CompletedJobs:1,Market:'Nashville',Regional:'M Popielarz',Area:'K Rea',StoreManager:'Tristan',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-03-17',StoreNumber:40150,Leads:4,CompletedJobs:1,Market:'Atlanta',Regional:'J Dietz',Area:'D Albright',StoreManager:'Gary',ReferralTarget:1.525,CompletedTarget:0.5},
-  {Day:'2026-03-17',StoreNumber:70102,Leads:7,CompletedJobs:2,Market:'Dallas',Regional:'S Bonge',Area:'J Maldonado',StoreManager:'Willie',ReferralTarget:2.125,CompletedTarget:0.5},
-  {Day:'2026-03-17',StoreNumber:70047,Leads:6,CompletedJobs:2,Market:'Houston',Regional:'R Walzer',Area:'K Cedeno',StoreManager:'Spencer',ReferralTarget:1.525,CompletedTarget:0.5}
+/* =========================
+   DATA CONFIG
+========================= */
+var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
+var FALLBACK_DATA = [
+  {Day:"2026-01-31",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40041,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:40150,Leads:3,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70059,Leads:5,CompletedJobs:1,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-01-31",StoreNumber:70047,Leads:5,CompletedJobs:1,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40040,Leads:6,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:40150,Leads:5,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-02-28",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:40150,Leads:4,CompletedJobs:1,Market:"Atlanta",Regional:"J Dietz",Area:"D Albright",StoreManager:"Gary",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70059,Leads:6,CompletedJobs:2,Market:"Dallas",Regional:"S Bonge",Area:"OPEN",StoreManager:"James",ReferralTarget:1.525,CompletedTarget:0.5},
+  {Day:"2026-03-17",StoreNumber:70047,Leads:6,CompletedJobs:2,Market:"Houston",Regional:"R Walzer",Area:"K Cedeno",StoreManager:"Spencer",ReferralTarget:1.525,CompletedTarget:0.5}
 ];
 
-function toNum(v){var n=Number(v);return Number.isFinite(n)?n:0;}
-function pc(a,t){return t>0?Math.round(a/t*100):0;}
-function monthLabelFromKey(mk){var p=mk.split('-');var y=+p[0],m=+p[1];var mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return mons[m-1]+' '+y;}
-function makeScorecard(l,v,s,t){return'<div class="mc '+t+'"><div class="ml">'+l+'</div><div class="mv">'+v+'</div><div class="ms">'+s+'</div></div>';}
-function paceStatus(a,t,pace){if(t<=0)return{cls:'',label:'no target set',badge:'bt',row:'',sc:'neutral'};var r=a/(t*pace);if(r>=1)return{cls:'cg',label:'ahead of daily pace',badge:'bg',row:'win-row',sc:'win'};if(r>=0.9)return{cls:'ca',label:'within 10% of daily pace',badge:'ba',row:'warn-row',sc:'warn'};return{cls:'cr',label:'behind daily pace',badge:'br',row:'danger-row',sc:'danger'};}
-function vsPaceStr(a,t,p){if(t<=0)return'—';var v=a-Math.round(t*p);return(v>=0?'+':'')+v+' vs pace';}
-function pillHTML(monthKey){var meta=MONTHS_META.find(function(m){return m.key===monthKey;});if(!meta)return'';return meta.isMTD?'<span class="mtd-pill">MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days</span>':'<span class="complete-pill">Complete month</span>';}
-function dateRangeLabel(monthKey){var meta=MONTHS_META.find(function(m){return m.key===monthKey;});if(!meta)return'';var parts=monthKey.split('-');var y=parts[0],m=parseInt(parts[1],10);var mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var mn=mons[m-1];return meta.isMTD?mn+' 1 – '+mn+' '+meta.daysElapsed+', '+y+' (month-to-date)':mn+' 1 – '+mn+' '+meta.daysTotal+', '+y+' (complete)';}
-function paceFraction(monthKey){var meta=MONTHS_META.find(function(m){return m.key===monthKey;});if(!meta)return 1;return meta.isMTD?(meta.daysElapsed/meta.daysTotal):1;}
+/* =========================
+   STATE
+========================= */
+var RAW = [];
+var MKTS = [];
+var MONTHS_META = [];
+var CURRENT_MONTH_KEY = '';
+var selMonthKey = '';
+var AOV = 480;
+var dataSource = 'fallback';
+var MKT_COLORS = {Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
+var smCharts = {}, cmpChart = null, bCI = null;
 
-function normaliseRow(r){
-  var sn=toNum(r['Store Number']!=null?r['Store Number']:r.StoreNumber);
-  if(!sn)return null;
-  var dayStr=((r['Day']||r.Day||'')+'').substring(0,10);
-  if(!dayStr)return null;
-  var market=r['Market']||r.Market||'';
-  if(!market||market==='#N/A')return null;
+var PIN_CORRECT = '1986';
+var pinEntry = '';
+var bizUnlocked = false;
+
+/* =========================
+   NORMALIZE
+========================= */
+function normaliseRow(r) {
+  var sn = Number(r['Store Number']);
+  if (!Number.isFinite(sn)) return null;
+
+  var mkt = r['Market'];
+  if (!mkt || mkt === '#N/A') return null;
+
+  var leads = typeof r['Leads'] === 'number' ? r['Leads'] : Number(r['Leads'] || 0);
+  var comp = typeof r['Completed Jobs'] === 'number' ? r['Completed Jobs'] : Number(r['Completed Jobs'] || 0);
+  var rt = typeof r['Referral Target'] === 'number' ? r['Referral Target'] : Number(r['Referral Target'] || 0);
+  var ct = typeof r['Completed Target'] === 'number' ? r['Completed Target'] : Number(r['Completed Target'] || 0);
+  var mrt =
+    typeof r['Monthly Referral Target'] === 'number' ? r['Monthly Referral Target'] :
+    typeof r['MonthlyReferralTarget'] === 'number' ? r['MonthlyReferralTarget'] :
+    (r['Monthly Referral Target'] != null ? Number(r['Monthly Referral Target']) : null);
+
+  var dayStr = String(r['Day'] || '').substring(0,10);
+  if (!dayStr) return null;
+
   return {
-    day:dayStr,
-    monthKey:dayStr.substring(0,7),
-    storeNum:sn,
-    leads:toNum(r['Leads']!=null?r['Leads']:r.Leads),
-    completedJobs:toNum(r['Completed Jobs']!=null?r['Completed Jobs']:r.CompletedJobs),
-    market:market,
-    regional:r['Regional']||r.Regional||'',
-    area:r['Area']||r.Area||'',
-    storeManager:r['Store Manager']||r.StoreManager||'',
-    dailyRefTarget:toNum(r['Referral Target']!=null?r['Referral Target']:r.ReferralTarget),
-    dailyCompTarget:toNum(r['Completed Target']!=null?r['Completed Target']:r.CompletedTarget),
-    monthlyRefTarget:(r['Monthly Referral Target']!=null?toNum(r['Monthly Referral Target']):r.MonthlyReferralTarget!=null?toNum(r.MonthlyReferralTarget):null)
+    day: dayStr,
+    monthKey: dayStr.substring(0,7),
+    storeNum: sn,
+    leads: Number.isFinite(leads) ? leads : 0,
+    completedJobs: Number.isFinite(comp) ? comp : 0,
+    market: mkt,
+    regional: r['Regional'] || '',
+    area: r['Area'] || '',
+    storeManager: r['Store Manager'] || '',
+    dailyRefTarget: Number.isFinite(rt) ? rt : 0,
+    dailyCompTarget: Number.isFinite(ct) ? ct : 0,
+    monthlyRefTarget: Number.isFinite(mrt) ? mrt : null
   };
 }
 
-function buildDerived(){
-  var monthSet={};
-  RAW.forEach(function(r){monthSet[r.monthKey]=true;});
-  var monthKeys=Object.keys(monthSet).sort();
-  CURRENT_MONTH_KEY=monthKeys[monthKeys.length-1]||'';
-  MONTHS_META=monthKeys.map(function(mk){
-    var y=+mk.split('-')[0],m=+mk.split('-')[1];
-    var daysInMonth=new Date(y,m,0).getDate();
-    var days=RAW.filter(function(r){return r.monthKey===mk;}).map(function(r){return r.day;}).sort();
-    var lastDay=days.length?parseInt(days[days.length-1].split('-')[2],10):daysInMonth;
-    var isMTD=mk===CURRENT_MONTH_KEY && lastDay<daysInMonth;
-    return {key:mk,label:monthLabelFromKey(mk),isMTD:isMTD,daysElapsed:isMTD?lastDay:daysInMonth,daysTotal:daysInMonth};
-  });
-  MKTS=Array.from(new Set(RAW.map(function(r){return r.market;}))).sort();
-  if(!selMonthKey)selMonthKey=CURRENT_MONTH_KEY;
+function normaliseFallbackRow(r) {
+  var dayStr = String(r.Day || '').substring(0,10);
+  return {
+    day: dayStr,
+    monthKey: dayStr.substring(0,7),
+    storeNum: Number(r.StoreNumber),
+    leads: Number(r.Leads || 0),
+    completedJobs: Number(r.CompletedJobs || 0),
+    market: r.Market || '',
+    regional: r.Regional || '',
+    area: r.Area || '',
+    storeManager: r.StoreManager || '',
+    dailyRefTarget: Number(r.ReferralTarget || 0),
+    dailyCompTarget: Number(r.CompletedTarget || 0),
+    monthlyRefTarget:
+      typeof r.MonthlyReferralTarget === 'number' ? r.MonthlyReferralTarget :
+      typeof r['Monthly Referral Target'] === 'number' ? r['Monthly Referral Target'] :
+      null
+  };
 }
 
-function buildAllDDs(){
-  ['month-dd','am-month-dd','st-month-dd','biz-month-dd'].forEach(function(id){
-    var el=document.getElementById(id);if(!el)return;
-    el.innerHTML=MONTHS_META.map(function(m){return'<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+m.label+(m.isMTD?' — MTD':'')+'</option>';}).join('');
+/* =========================
+   DERIVED META
+========================= */
+function buildDerived() {
+  var monthSet = {};
+  RAW.forEach(function(r){ monthSet[r.monthKey] = true; });
+
+  var monthOrder = Object.keys(monthSet).sort();
+
+  var latestWithData = '';
+  monthOrder.forEach(function(mk){
+    var hasLeads = RAW.some(function(r){ return r.monthKey === mk && r.leads > 0; });
+    if (hasLeads) latestWithData = mk;
   });
-  var cmp=document.getElementById('cmp-sel');
-  if(cmp)cmp.innerHTML=MONTHS_META.map(function(m){return'<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+m.label+(m.isMTD?' — MTD':'')+'</option>';}).join('');
-  ['am-mkt-sel','mkt-sel'].forEach(function(id){
-    var el=document.getElementById(id);if(!el)return;var cur=el.value||'all';
-    el.innerHTML='<option value="all">All markets</option>'+MKTS.map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');
-    el.value=MKTS.indexOf(cur)>-1?cur:'all';
+  CURRENT_MONTH_KEY = latestWithData || monthOrder[monthOrder.length - 1] || '';
+
+  MONTHS_META = monthOrder.map(function(mk){
+    var parts = mk.split('-');
+    var y = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    var daysInMonth = new Date(y, m, 0).getDate();
+    var isMTD = mk === CURRENT_MONTH_KEY;
+    var daysElapsed = daysInMonth;
+
+    if (isMTD) {
+      var days = RAW.filter(function(r){ return r.monthKey === mk; }).map(function(r){ return r.day; }).sort();
+      if (days.length) {
+        daysElapsed = parseInt(days[days.length - 1].split('-')[2], 10);
+      }
+    }
+
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return {
+      key: mk,
+      label: months[m-1] + ' ' + y,
+      isMTD: isMTD,
+      isFuture: false,
+      daysElapsed: daysElapsed,
+      daysTotal: daysInMonth
+    };
   });
+
+  var mktSet = {};
+  RAW.forEach(function(r){
+    if (r.market) mktSet[r.market] = true;
+  });
+  MKTS = Object.keys(mktSet).sort();
+
+  if (!selMonthKey) selMonthKey = CURRENT_MONTH_KEY;
 }
 
-function getMonthRows(monthKey){return RAW.filter(function(r){return r.monthKey===monthKey;});}
-function uniqueCount(arr,key){var s={};arr.forEach(function(x){s[x[key]]=true;});return Object.keys(s).length;}
-function monthlyTargetForGroup(rows, monthKey){
-  if(!rows.length)return 0;
-  var byStore={};
+/* =========================
+   HELPERS
+========================= */
+function getMeta(monthKey) {
+  return MONTHS_META.find(function(m){ return m.key === monthKey; }) || null;
+}
+
+function pc(a, t) {
+  return t > 0 ? Math.round(a / t * 100) : 0;
+}
+
+function paceFraction(monthKey) {
+  var meta = getMeta(monthKey);
+  if (!meta) return 1;
+  if (!meta.isMTD) return 1;
+  return meta.daysElapsed / meta.daysTotal;
+}
+
+function paceStatus(a, t, pace) {
+  if (t <= 0) return {cls:'',label:'no target set',badge:'bt',row:'',sc:'neutral'};
+  var r = a / (t * pace);
+  if (r >= 1) return {cls:'cg',label:'ahead of daily pace',badge:'bg',row:'win-row',sc:'win'};
+  if (r >= 0.9) return {cls:'ca',label:'within 10% of daily pace',badge:'ba',row:'warn-row',sc:'warn'};
+  return {cls:'cr',label:'behind daily pace',badge:'br',row:'danger-row',sc:'danger'};
+}
+
+function vsPaceStr(a, t, pace) {
+  if (t <= 0) return '—';
+  var v = a - Math.round(t * pace);
+  return (v >= 0 ? '+' : '') + v + ' vs pace';
+}
+
+function makeScorecard(l, v, s, t) {
+  return '<div class="mc '+t+'"><div class="ml">'+l+'</div><div class="mv">'+v+'</div><div class="ms">'+s+'</div></div>';
+}
+
+function pillHTML(monthKey) {
+  var meta = getMeta(monthKey);
+  if (!meta) return '';
+  if (meta.isMTD) return '<span class="mtd-pill">MTD — ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' days</span>';
+  return '<span class="complete-pill">Complete month</span>';
+}
+
+function dateRangeLabel(monthKey) {
+  var meta = getMeta(monthKey);
+  if (!meta) return '';
+  var parts = monthKey.split('-');
+  var y = parts[0];
+  var m = parseInt(parts[1], 10);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var mn = months[m - 1];
+  if (meta.isMTD) return mn + ' 1 – ' + mn + ' ' + meta.daysElapsed + ', ' + y + ' (month-to-date)';
+  return mn + ' 1 – ' + mn + ' ' + meta.daysTotal + ', ' + y + ' (complete)';
+}
+
+function marketManagerLabel(market) {
+  var seen = {};
+  RAW.forEach(function(r){
+    if (r.market === market && r.regional) seen[r.regional] = true;
+  });
+  return Object.keys(seen).join(' / ') || '—';
+}
+
+function monthMarketTotals(monthKey, market) {
+  var rows = RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; });
+  var leads = 0, comp = 0;
+  var storeSet = {};
   rows.forEach(function(r){
-    if(typeof r.monthlyRefTarget==='number' && !isNaN(r.monthlyRefTarget)){
-      if(!byStore[r.storeNum])byStore[r.storeNum]={sum:0,count:0};
-      byStore[r.storeNum].sum+=r.monthlyRefTarget;byStore[r.storeNum].count++;
+    leads += r.leads;
+    comp += r.completedJobs;
+    storeSet[r.storeNum] = true;
+  });
+  return {
+    leads: leads,
+    comp: comp,
+    storeCount: Object.keys(storeSet).length
+  };
+}
+
+function monthlyTargetForStoreMonth(storeNum, monthKey) {
+  var meta = getMeta(monthKey);
+  if (!meta) return 0;
+
+  var rows = RAW.filter(function(r){
+    return r.storeNum == storeNum && r.monthKey === monthKey;
+  });
+
+  if (!rows.length) return 0;
+
+  var monthlyRows = rows.filter(function(r){
+    return typeof r.monthlyRefTarget === 'number' && !isNaN(r.monthlyRefTarget);
+  });
+
+  if (monthlyRows.length > 0) {
+    var sum = 0;
+    monthlyRows.forEach(function(r){ sum += r.monthlyRefTarget; });
+    return Math.round(sum / monthlyRows.length);
+  }
+
+  var seenDay = {};
+  var sumDaily = 0;
+  rows.forEach(function(r){
+    if (!seenDay[r.day]) {
+      seenDay[r.day] = true;
+      sumDaily += (r.dailyRefTarget || 0);
     }
   });
-  var stores=Object.keys(byStore);
-  if(stores.length){return Math.round(stores.reduce(function(s,k){var v=byStore[k];return s+(v.count?v.sum/v.count:0);},0));}
-  var meta=MONTHS_META.find(function(m){return m.key===monthKey;});
-  var seen={},sumDaily=0;
-  rows.forEach(function(r){var k=r.day+'|'+r.storeNum;if(!seen[k]){seen[k]=true;sumDaily+=toNum(r.dailyRefTarget);}});
-  if(meta&&meta.isMTD&&meta.daysElapsed>0)return Math.round(sumDaily*meta.daysTotal/meta.daysElapsed);
+
+  if (meta.isMTD && meta.daysElapsed > 0) {
+    return Math.round(sumDaily * meta.daysTotal / meta.daysElapsed);
+  }
+
   return Math.round(sumDaily);
 }
-function marketRollups(monthKey){
-  return MKTS.map(function(m){
-    var rows=getMonthRows(monthKey).filter(function(r){return r.market===m;});
-    var regional=Array.from(new Set(rows.map(function(r){return r.regional;}).filter(Boolean))).join(' / ');
-    var areas=Array.from(new Set(rows.map(function(r){return r.area;}).filter(Boolean))).length;
-    var a=rows.reduce(function(s,r){return s+r.leads;},0);
-    var c=rows.reduce(function(s,r){return s+r.completedJobs;},0);
-    var cnt=uniqueCount(rows,'storeNum');
-    var t=monthlyTargetForGroup(rows,monthKey);
-    return {m:m,regional:regional,a:a,c:c,t:t,cnt:cnt,areas:areas,avgS:cnt?a/cnt:0};
+
+function monthlyTarget(monthKey, market) {
+  var storeMap = {};
+  RAW.filter(function(r){
+    return r.monthKey === monthKey && r.market === market;
+  }).forEach(function(r){
+    if (!storeMap[r.storeNum]) storeMap[r.storeNum] = true;
+  });
+
+  return Object.keys(storeMap).reduce(function(sum, storeNum){
+    return sum + monthlyTargetForStoreMonth(storeNum, monthKey);
+  }, 0);
+}
+
+function uniqueStores(monthKey, market) {
+  var seen = {};
+  RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; }).forEach(function(r){ seen[r.storeNum] = true; });
+  return Object.keys(seen).length;
+}
+
+function areasForMarket(market) {
+  var seen = {};
+  RAW.forEach(function(r){
+    if (r.market === market && r.area) seen[r.area] = true;
+  });
+  return Object.keys(seen).sort();
+}
+
+function uniqueAreasCount(monthKey, market) {
+  var seen = {};
+  RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market && r.area; }).forEach(function(r){ seen[r.area] = true; });
+  return Object.keys(seen).length;
+}
+
+function safeColor(m) {
+  return MKT_COLORS[m] || '#185FA5';
+}
+
+/* =========================
+   DROPDOWNS / INIT
+========================= */
+function buildAllDDs() {
+  ['month-dd','am-month-dd','st-month-dd','biz-month-dd'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = MONTHS_META.map(function(m){
+      var lbl = m.label + (m.isMTD ? ' — MTD' : '');
+      return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
+    }).join('');
+  });
+
+  var cmpSel = document.getElementById('cmp-sel');
+  if (cmpSel) {
+    cmpSel.innerHTML = MONTHS_META.map(function(m){
+      var lbl = m.label + (m.isMTD ? ' — MTD' : '');
+      return '<option value="'+m.key+'"'+(m.key===selMonthKey?' selected':'')+'>'+lbl+'</option>';
+    }).join('');
+  }
+
+  ['am-mkt-sel','mkt-sel'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    var cur = el.value || 'all';
+    el.innerHTML = '<option value="all">All markets</option>' + MKTS.map(function(m){
+      return '<option value="'+m+'">'+m+'</option>';
+    }).join('');
+    el.value = MKTS.indexOf(cur) >= 0 ? cur : 'all';
   });
 }
 
-function selectMonth(key){
-  selMonthKey=key;buildAllDDs();
-  var dl=dateRangeLabel(key),ph=pillHTML(key);
-  ['dr-lbl','am-dr','st-dr'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=dl;});
-  ['period-pill','am-pill','st-pill'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=ph;});
-  buildOv();renderAM(document.getElementById('am-mkt-sel').value||'all');filterMkt(document.getElementById('mkt-sel').value||'all');if(bizUnlocked)buildBiz();
+function selectMonth(key) {
+  selMonthKey = key;
+  buildAllDDs();
+
+  var dl = dateRangeLabel(key);
+  var ph = pillHTML(key);
+
+  ['dr-lbl','am-dr','st-dr'].forEach(function(id){
+    var e = document.getElementById(id);
+    if (e) e.textContent = dl;
+  });
+
+  ['period-pill','am-pill','st-pill'].forEach(function(id){
+    var e = document.getElementById(id);
+    if (e) e.innerHTML = ph;
+  });
+
+  buildOv();
+  renderAM(document.getElementById('am-mkt-sel').value || 'all');
+  renderS();
+  if (bizUnlocked) buildBiz();
 }
 
-function filterMkt(mkt){
-  var sel=document.getElementById('am-sel');sel.innerHTML='<option value="all">All areas</option>';
-  var rows=getMonthRows(selMonthKey).filter(function(r){return mkt==='all'||r.market===mkt;});
-  Array.from(new Set(rows.map(function(r){return r.area;}).filter(Boolean))).sort().forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o);});
+/* =========================
+   STORE DRILLDOWN
+========================= */
+function filterMkt(mkt) {
+  var sel = document.getElementById('am-sel');
+  sel.innerHTML = '<option value="all">All areas</option>';
+
+  var areas = mkt === 'all'
+    ? Array.from(new Set(RAW.map(function(r){ return r.area; }).filter(Boolean))).sort()
+    : areasForMarket(mkt);
+
+  areas.forEach(function(a){
+    var o = document.createElement('option');
+    o.value = a;
+    o.textContent = a;
+    sel.appendChild(o);
+  });
+
   renderS();
 }
 
-function renderS(){
-  var pace=paceFraction(selMonthKey), mkt=document.getElementById('mkt-sel').value, amf=document.getElementById('am-sel').value;
-  var rows=getMonthRows(selMonthKey).filter(function(r){return (mkt==='all'||r.market===mkt)&&(amf==='all'||r.area===amf);});
-  var byStore={};
-  rows.forEach(function(r){if(!byStore[r.storeNum])byStore[r.storeNum]={n:r.storeNum,mgr:r.storeManager||'—',area:r.area||'—',mkt:r.market,rows:[]};byStore[r.storeNum].rows.push(r);});
-  var data=Object.keys(byStore).map(function(k){var s=byStore[k],a=s.rows.reduce(function(x,r){return x+r.leads;},0),t=monthlyTargetForGroup(s.rows,selMonthKey);return{n:s.n,mgr:s.mgr,area:s.area,mkt:s.mkt,a:a,t:t,ps:paceStatus(a,t,pace)};}).sort(function(a,b){return b.a-a.a;});
-  var totalRefs=data.reduce(function(s,x){return s+x.a;},0), withTarget=data.filter(function(s){return s.t>0;});
-  var tqCount=Math.max(1,Math.ceil(data.length*0.25)), topQ=data.slice(0,tqCount), topQRefs=topQ.reduce(function(s,x){return s+x.a;},0), topQPct=totalRefs?Math.round(topQRefs/totalRefs*100):0;
-  var on=data.filter(function(s){return s.ps.cls==='cg';}).length, at=data.filter(function(s){return s.ps.cls==='ca';}).length, bh=data.filter(function(s){return s.ps.cls==='cr';}).length;
-  var avg=withTarget.length?Math.round(withTarget.reduce(function(s,x){return s+(x.a/x.t);},0)/withTarget.length*100)+'%':'—';
-  document.getElementById('st-scorecards').innerHTML=makeScorecard('On track',on,'≥ daily pace','win')+makeScorecard('At risk',at,'within 10% of pace','warn')+makeScorecard('Behind',bh,'>10% behind pace','danger')+makeScorecard('Avg attainment',avg,'vs full-month target','neutral');
+function renderS() {
+  var mk = selMonthKey;
+  var pace = paceFraction(mk);
+  var isMTD = (getMeta(mk) || {}).isMTD;
+  var mktF = document.getElementById('mkt-sel').value;
+  var amF = document.getElementById('am-sel').value;
 
-  var tqWrap=document.getElementById('tq-callout-wrap');
-  tqWrap.innerHTML=totalRefs?'<div class="tq-callout"><div class="tq-title"><span>&#127942;</span> Top quartile spotlight</div><div class="tq-stat">'+topQPct+'% of all referrals</div><div class="tq-body">'+tqCount+' stores (top 25%) are generating '+topQRefs+' of '+totalRefs+' total referrals'+(topQPct>60?' — high concentration. Strong coaching opportunity to develop the remaining '+(data.length-tqCount)+' stores.':' — relatively even distribution across the team.')+'</div><div class="tq-grid">'+topQ.slice(0,6).map(function(s){return'<div class="tq-item"><div class="tq-item-name">Store '+s.n+'</div><div class="tq-item-mkt">'+s.mgr+' · '+s.area+'</div><div class="tq-item-refs">'+s.a+' refs</div><div class="tq-item-pct">'+(totalRefs?Math.round(s.a/totalRefs*100):0)+'% of total</div></div>';}).join('')+'</div></div>':'';
+  var storeMap = {};
+  RAW.forEach(function(r){
+    if (mktF !== 'all' && r.market !== mktF) return;
+    if (amF !== 'all' && r.area !== amF) return;
 
-  var maxRefs=data[0]?data[0].a:1;
-  document.getElementById('dist-subtitle').textContent=data.length+' stores · '+totalRefs+' total referrals';
-  document.getElementById('dist-wrap').innerHTML='<div class="dist-section-label" style="padding-left:58px">Top 25% ('+tqCount+' stores)</div>'+data.map(function(s,i){var w=maxRefs?Math.round(s.a/maxRefs*100):0;var clr=i<tqCount?'#EF9F27':s.ps.cls==='cg'?'#639922':s.ps.cls==='ca'?'#BA7517':'#E24B4A';return(i===tqCount?'<div class="dist-section-label" style="padding-left:58px;margin-top:4px">Remaining 75% ('+(data.length-tqCount)+' stores)</div>':'')+'<div class="dist-bar-row"><div class="dist-store-label">'+s.n+'</div><div class="dist-bar-bg"><div class="dist-bar-fill" style="width:'+w+'%;background:'+clr+'"></div></div><div class="dist-val">'+s.a+'</div></div>';}).join('');
-  document.getElementById('dist-foot').textContent='Gold = top 25% by referral count. Remaining bars colored by daily pace status.';
+    if (!storeMap[r.storeNum]) {
+      storeMap[r.storeNum] = {
+        n: r.storeNum,
+        mgr: r.storeManager || '—',
+        area: r.area || '—',
+        mkt: r.market,
+        a: 0,
+        t: 0
+      };
+    }
 
-  var items=[];
-  if(topQPct>55)items.push({icon:'ci-amber',lbl:'&#9888;',head:'Top '+tqCount+' stores generating '+topQPct+'% of referrals',sub:'High concentration means the program depends on a small group. Identify what those stores are doing differently and replicate it.',act:'Coaching action: schedule peer-to-peer sessions between top and bottom quartile stores in each area.'});
-  var zeros=data.filter(function(s){return s.a===0&&s.t>0;});
-  if(zeros.length)items.push({icon:'ci-red',lbl:'&#128683;',head:zeros.length+' store'+(zeros.length>1?'s have':' has')+' submitted zero referrals',sub:'Stores in '+Array.from(new Set(zeros.map(function(s){return s.area;}))).join(', ')+' have not participated this period.',act:'Coaching action: area manager outreach within 24 hours. Verify workflow training is complete.'});
-  var hvBehind=data.filter(function(s){return s.ps.cls==='cr'&&s.t>=40;});
-  if(hvBehind.length)items.push({icon:'ci-red',lbl:'&#9650;',head:hvBehind.length+' high-target store'+(hvBehind.length>1?'s are':' is')+' behind daily pace',sub:'Biggest impact on attainment: '+hvBehind.slice(0,3).map(function(s){return'Store '+s.n+' (target '+s.t+')';}).join(', ')+'.',act:'Coaching action: prioritize check-ins — their gap has the largest effect on overall % to goal.'});
-  var abovePace=data.filter(function(s){return s.ps.cls==='cg'&&s.t>0;});
-  if(abovePace.length){var best=abovePace.sort(function(a,b){return(b.a/b.t)-(a.a/a.t);})[0];items.push({icon:'ci-blue',lbl:'&#11088;',head:abovePace.length+' store'+(abovePace.length>1?'s are':' is')+' at or ahead of daily pace',sub:'Store '+best.n+' ('+best.mgr+', '+best.area+') is leading with '+best.a+' referrals at '+pc(best.a,best.t)+'% to goal.',act:'Coaching action: recognize top performers in your next team huddle.'});}
-  if(!items.length)items.push({icon:'ci-blue',lbl:'&#10003;',head:'No urgent coaching items',sub:'All stores are within acceptable pace range.',act:''});
-  document.getElementById('coaching-period').textContent=dateRangeLabel(selMonthKey);
-  document.getElementById('coaching-wrap').innerHTML=items.map(function(it){return'<div class="coaching-item"><div class="coaching-icon '+it.icon+'">'+it.lbl+'</div><div class="coaching-text"><div class="coaching-headline">'+it.head+'</div><div class="coaching-sub">'+it.sub+'</div>'+(it.act?'<div class="coaching-action">'+it.act+'</div>':'')+'</div></div>';}).join('');
+    if (r.monthKey === mk) {
+      storeMap[r.storeNum].a += r.leads;
+    }
+  });
+
+  Object.keys(storeMap).forEach(function(sn){
+    storeMap[sn].t = monthlyTargetForStoreMonth(sn, mk);
+  });
+
+  var data = Object.values(storeMap).map(function(s){
+    var effectiveTgt = isMTD && s.t > 0 ? Math.round(s.t * pace) : s.t;
+    var pctToTarget = effectiveTgt > 0 ? Math.round(s.a / effectiveTgt * 100) : 0;
+    return {
+      n: s.n,
+      mgr: s.mgr,
+      area: s.area,
+      mkt: s.mkt,
+      a: s.a,
+      t: s.t,
+      pctToTarget: pctToTarget,
+      ps: paceStatus(s.a, s.t, pace)
+    };
+  });
+
+  var withTarget = data.filter(function(s){ return s.t > 0; });
+  var sortedByPct = withTarget.slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
+
+  var tqCount = Math.max(1, Math.ceil(sortedByPct.length * 0.25));
+  var topQ = sortedByPct.slice(0, tqCount);
+  var bottomQ = sortedByPct.slice(Math.max(0, sortedByPct.length - tqCount));
+  var topQSet = new Set(topQ.map(function(s){ return s.n; }));
+
+  var topQAvg = topQ.length ? Math.round(topQ.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / topQ.length) : 0;
+  var bottomQAvg = bottomQ.length ? Math.round(bottomQ.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / bottomQ.length) : 0;
+  var gap = topQAvg - bottomQAvg;
+
+  var on = data.filter(function(s){ return s.ps.cls === 'cg'; }).length;
+  var at = data.filter(function(s){ return s.ps.cls === 'ca'; }).length;
+  var bh = data.filter(function(s){ return s.ps.cls === 'cr'; }).length;
+  var avg = withTarget.length ? Math.round(withTarget.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / withTarget.length) + '%' : '—';
+
+  document.getElementById('st-scorecards').innerHTML =
+    makeScorecard('On track', on, '≥ daily pace', 'win') +
+    makeScorecard('At risk', at, 'within 10% of pace', 'warn') +
+    makeScorecard('Behind', bh, '>10% behind pace', 'danger') +
+    makeScorecard('Avg % to target', avg, 'stores with targets', 'neutral');
+
+  var tqWrap = document.getElementById('tq-callout-wrap');
+  if (tqWrap && withTarget.length > 0) {
+    tqWrap.innerHTML =
+      '<div class="tq-callout">' +
+        '<div class="tq-title"><span>&#127942;</span> Top quartile spotlight — ranked by % to target</div>' +
+        '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:4px">' +
+          '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Top 25% avg</div><div class="tq-stat">'+topQAvg+'%</div></div>' +
+          '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Bottom 25% avg</div><div class="tq-stat" style="color:#A32D2D">'+bottomQAvg+'%</div></div>' +
+          '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Attainment gap</div><div class="tq-stat" style="color:#633806">'+gap+' pts</div></div>' +
+        '</div>' +
+        '<div class="tq-body" style="margin-top:8px">Top '+topQ.length+' stores averaging '+topQAvg+'% to target vs bottom '+bottomQ.length+' at '+bottomQAvg+'%. ' +
+          (gap > 30 ? 'Large gap — significant coaching opportunity.' : 'Moderate gap — focus on lifting bottom quartile performance.') +
+        '</div>' +
+        '<div class="tq-grid">' +
+          topQ.slice(0,6).map(function(s){
+            return '<div class="tq-item">' +
+              '<div class="tq-item-name">Store '+s.n+'</div>' +
+              '<div class="tq-item-mkt">'+s.mgr+' · '+s.area+'</div>' +
+              '<div class="tq-item-pct">'+s.pctToTarget+'%</div>' +
+              '<div class="tq-item-detail">'+s.a+' of '+s.t+' target</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+  } else {
+    tqWrap.innerHTML = '';
+  }
+
+  var sub = document.getElementById('st-tbl-sub');
+  if (sub) sub.textContent = isMTD
+    ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed)'
+    : '% to full monthly target';
+
+  var noTarget = data.filter(function(s){ return s.t === 0; });
+  var allSorted = sortedByPct.concat(noTarget);
+
+  document.getElementById('stbl').innerHTML = allSorted.map(function(s){
+    var isTopQ = topQSet.has(s.n);
+    var rowCls = isTopQ ? 'top-q dr' : (s.ps.row + ' dr');
+    var paceStr = vsPaceStr(s.a, s.t, pace);
+    var pctBadge = s.t > 0
+      ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 70 ? 'ba' : 'br')+'">'+s.pctToTarget+'%</span>'
+      : '—';
+
+    return '<tr class="'+rowCls+'">' +
+      '<td style="font-weight:500">'+s.n+'</td>' +
+      '<td style="font-size:12px">'+s.mgr+'</td>' +
+      '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
+      '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
+      '<td class="tr">'+s.t+'</td>' +
+      '<td class="tr">'+s.a+'</td>' +
+      '<td class="tr">'+pctBadge+'</td>' +
+      '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+paceStr+'</td>' +
+      '<td class="tr">'+(isTopQ ? '<span class="b gold-b">&#127942;</span>' : '')+'</td>' +
+    '</tr>';
+  }).join('');
+
+  var stFoot = document.getElementById('st-foot');
+  if (stFoot) {
+    stFoot.textContent = 'Sorted highest to lowest % to ' + (isMTD ? 'paced' : 'full-month') + ' target. Gold rows = top 25%. Row color = daily pace status.';
+  }
+
+  document.getElementById('coaching-period').textContent = dateRangeLabel(mk);
+
+  var items = [];
+  if (gap > 25 && withTarget.length >= 8) {
+    items.push({
+      icon:'ci-amber',
+      lbl:'&#9888;',
+      head:'Top quartile outperforming bottom by '+gap+' percentage points',
+      sub:'Top 25% averaging '+topQAvg+'% to target vs bottom 25% at '+bottomQAvg+'%.',
+      act:'Coaching action: pair bottom-quartile store managers with top performers for knowledge sharing.'
+    });
+  }
+
+  var zeros = data.filter(function(s){ return s.a === 0 && s.t > 0; });
+  if (zeros.length > 0) {
+    var zAreas = Array.from(new Set(zeros.map(function(s){ return s.area; })));
+    items.push({
+      icon:'ci-red',
+      lbl:'&#128683;',
+      head:zeros.length+' store'+(zeros.length > 1 ? 's have' : ' has')+' submitted zero referrals',
+      sub:'Stores in '+zAreas.join(', ')+' have not participated at all this period.',
+      act:'Coaching action: area manager outreach within 24 hours. Verify referral workflow adoption.'
+    });
+  }
+
+  var bqUnder50 = bottomQ.filter(function(s){ return s.pctToTarget < 50; });
+  if (bqUnder50.length > 0) {
+    items.push({
+      icon:'ci-red',
+      lbl:'&#9650;',
+      head:bqUnder50.length+' bottom-quartile store'+(bqUnder50.length > 1 ? 's are' : ' is')+' below 50% of target',
+      sub:bqUnder50.slice(0,3).map(function(s){ return 'Store '+s.n+' ('+s.pctToTarget+'% — '+s.a+' of '+s.t+')'; }).join(', ') + '.',
+      act:'Coaching action: review operational blockers and manager-level referral process adherence.'
+    });
+  }
+
+  var atOrAbove = withTarget.filter(function(s){ return s.pctToTarget >= 100; });
+  if (atOrAbove.length > 0) {
+    var best = atOrAbove[0];
+    items.push({
+      icon:'ci-blue',
+      lbl:'&#11088;',
+      head:atOrAbove.length+' store'+(atOrAbove.length > 1 ? 's are' : ' is')+' at or above 100% of '+(isMTD ? 'paced ' : '')+'target',
+      sub:'Store '+best.n+' ('+best.mgr+', '+best.area+') leading at '+best.pctToTarget+'% — '+best.a+' referrals vs '+best.t+' target.',
+      act:'Coaching action: recognize these stores and replicate what is working.'
+    });
+  }
+
+  if (items.length === 0) {
+    items.push({
+      icon:'ci-blue',
+      lbl:'&#10003;',
+      head:'No urgent coaching items',
+      sub:'All stores are within acceptable range.',
+      act:''
+    });
+  }
+
+  document.getElementById('coaching-wrap').innerHTML = items.map(function(it){
+    return '<div class="coaching-item">' +
+      '<div class="coaching-icon '+it.icon+'">'+it.lbl+'</div>' +
+      '<div class="coaching-text">' +
+        '<div class="coaching-headline">'+it.head+'</div>' +
+        '<div class="coaching-sub">'+it.sub+'</div>' +
+        (it.act ? '<div class="coaching-action">'+it.act+'</div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
-function renderAM(filter){
-  var pace=paceFraction(selMonthKey);
-  var rows=getMonthRows(selMonthKey).filter(function(r){return filter==='all'||r.market===filter;});
-  var byArea={};
-  rows.forEach(function(r){var k=(r.market||'')+'||'+(r.area||'—');if(!byArea[k])byArea[k]={name:r.area||'—',market:r.market,regional:r.regional,rows:[]};byArea[k].rows.push(r);});
-  var data=Object.keys(byArea).map(function(k){var g=byArea[k],a=g.rows.reduce(function(s,r){return s+r.leads;},0),t=monthlyTargetForGroup(g.rows,selMonthKey),cnt=uniqueCount(g.rows,'storeNum');return{name:g.name,market:g.market,regional:g.regional,cnt:cnt,a:a,t:t,ps:paceStatus(a,t,pace)};}).sort(function(a,b){return (a.t>0?a.a/a.t:1)-(b.t>0?b.a/b.t:1);});
-  var on=data.filter(function(x){return x.ps.cls==='cg';}).length, at=data.filter(function(x){return x.ps.cls==='ca';}).length, bh=data.filter(function(x){return x.ps.cls==='cr';}).length, wa=data.filter(function(x){return x.t>0;});
-  var avg=wa.length?Math.round(wa.reduce(function(s,x){return s+x.a/x.t;},0)/wa.length*100)+'%':'—';
-  document.getElementById('am-scorecards').innerHTML=makeScorecard('On track',on,'≥ daily pace','win')+makeScorecard('At risk',at,'within 10% of pace','warn')+makeScorecard('Behind',bh,'>10% behind pace','danger')+makeScorecard('Avg attainment',avg,'vs full-month target','neutral');
-  document.getElementById('am-foot').textContent=(MONTHS_META.find(function(m){return m.key===selMonthKey;})||{}).isMTD?'Daily pace = actual minus expected by this point in month.':'Complete month — % to goal is final attainment.';
-  document.getElementById('amtbl').innerHTML=data.map(function(r){var pv=r.t>0?r.a-Math.round(r.t*pace):null;return'<tr class="dr '+r.ps.row+'"><td style="font-weight:500">'+r.name+'</td><td style="font-size:12px;color:#888780">'+r.market+'</td><td style="font-size:12px;color:#888780">'+(r.regional||'—')+'</td><td class="tr">'+r.cnt+'</td><td class="tr">'+r.t+'</td><td class="tr">'+r.a+'</td><td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv!==null?(pv>=0?'+':'')+pv+' vs pace':'—')+'</td><td class="tr"><span class="b '+r.ps.badge+'">'+(r.t>0?pc(r.a,r.t)+'%':'—')+'</span></td></tr>';}).join('');
+/* =========================
+   AREA MANAGER VIEW
+========================= */
+function renderAM(filterMarket) {
+  var mk = selMonthKey;
+  var pace = paceFraction(mk);
+  var isMTD = (getMeta(mk) || {}).isMTD;
+
+  var areas = {};
+  RAW.forEach(function(r){
+    if (!r.area) return;
+    if (filterMarket !== 'all' && r.market !== filterMarket) return;
+
+    var k = r.market + '||' + r.area;
+    if (!areas[k]) {
+      areas[k] = {
+        area: r.area,
+        market: r.market,
+        regional: marketManagerLabel(r.market),
+        storeNums: {},
+        a: 0,
+        t: 0
+      };
+    }
+
+    areas[k].storeNums[r.storeNum] = true;
+    if (r.monthKey === mk) {
+      areas[k].a += r.leads;
+    }
+  });
+
+  Object.keys(areas).forEach(function(k){
+    var storeNums = Object.keys(areas[k].storeNums);
+    areas[k].t = storeNums.reduce(function(sum, sn){
+      return sum + monthlyTargetForStoreMonth(sn, mk);
+    }, 0);
+  });
+
+  var data = Object.values(areas).map(function(r){
+    return {
+      name: r.area,
+      market: r.market,
+      regional: r.regional,
+      cnt: Object.keys(r.storeNums).length,
+      a: r.a,
+      t: r.t,
+      ps: paceStatus(r.a, r.t, pace)
+    };
+  }).sort(function(a,b){
+    var pa = a.t > 0 ? a.a / a.t : -1;
+    var pb = b.t > 0 ? b.a / b.t : -1;
+    return pa - pb;
+  });
+
+  var on = data.filter(function(x){ return x.ps.cls === 'cg'; }).length;
+  var at = data.filter(function(x){ return x.ps.cls === 'ca'; }).length;
+  var bh = data.filter(function(x){ return x.ps.cls === 'cr'; }).length;
+  var wa = data.filter(function(x){ return x.t > 0; });
+  var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.a / x.t; }, 0) / wa.length * 100) + '%' : '—';
+
+  document.getElementById('am-scorecards').innerHTML =
+    makeScorecard('On track', on, '≥ daily pace', 'win') +
+    makeScorecard('At risk', at, 'within 10% of pace', 'warn') +
+    makeScorecard('Behind', bh, '>10% behind pace', 'danger') +
+    makeScorecard('Avg attainment', avg, 'vs full-month target', 'neutral');
+
+  var af = document.getElementById('am-foot');
+  if (af) {
+    af.textContent = isMTD
+      ? 'Daily pace = actual minus expected at ' + Math.round(pace * 100) + '% of month. % to goal = actual ÷ full month target.'
+      : 'Complete month — % to goal is final attainment.';
+  }
+
+  document.getElementById('amtbl').innerHTML = data.map(function(r){
+    var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : null;
+    return '<tr class="dr '+r.ps.row+'">' +
+      '<td style="font-weight:500">'+r.name+'</td>' +
+      '<td style="font-size:12px;color:#888780">'+r.market+'</td>' +
+      '<td style="font-size:12px;color:#888780">'+r.regional+'</td>' +
+      '<td class="tr">'+r.cnt+'</td>' +
+      '<td class="tr">'+r.t+'</td>' +
+      '<td class="tr">'+r.a+'</td>' +
+      '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv + ' vs pace' : '—')+'</td>' +
+      '<td class="tr"><span class="b '+(r.t > 0 ? (pc(r.a, r.t) >= 75 ? 'bg' : pc(r.a, r.t) >= 60 ? 'ba' : 'br') : 'bt')+'">'+(r.t > 0 ? pc(r.a, r.t) + '%' : '—')+'</span></td>' +
+    '</tr>';
+  }).join('');
 }
 
-function buildOv(){
-  var pace=paceFraction(selMonthKey), meta=MONTHS_META.find(function(m){return m.key===selMonthKey;}), isMTD=meta&&meta.isMTD;
-  document.getElementById('mkt-tbl-title').textContent='Market summary — '+(meta?meta.label:selMonthKey);
-  document.getElementById('mkt-foot').textContent=isMTD?'Daily pace = actual minus expected at '+meta.daysElapsed+'/'+meta.daysTotal+' days. % to goal = actual ÷ full month target.':'Complete month. % to goal = final attainment vs full monthly target.';
-  var mk=document.getElementById('metric-key');
-  if(isMTD){mk.innerHTML='<div class="mk-item"><span class="mk-label">Daily pace</span><span class="mk-desc">Actual minus expected given days elapsed ('+Math.round(pace*100)+'% of month).</span></div><div class="mk-item"><span class="mk-label">% to goal</span><span class="mk-desc">Actual ÷ full month target. It can be below 100% mid-month even when on pace.</span></div>';mk.style.display='flex';}else mk.style.display='none';
-  var rows=marketRollups(selMonthKey), ta=rows.reduce(function(s,r){return s+r.a;},0), tt=rows.reduce(function(s,r){return s+r.t;},0), oPS=paceStatus(ta,tt,pace);
-  document.getElementById('ov-scorecards').innerHTML=makeScorecard('Total referrals',ta,'all markets','neutral')+makeScorecard('Total target',tt,meta?meta.label:selMonthKey,'neutral')+makeScorecard('Overall attainment',tt>0?pc(ta,tt)+'%':'—',isMTD?'of full-month target':'attainment',oPS.sc)+makeScorecard(isMTD?'Days elapsed':'Month status',isMTD?(meta.daysElapsed+' / '+meta.daysTotal):'Complete',isMTD?Math.round(pace*100)+'% of month done':'Full results','neutral');
-  var ranked=rows.slice().sort(function(a,b){return b.avgS-a.avgS;});
-  document.getElementById('mcards').innerHTML=ranked.map(function(r,i){var ps=paceStatus(r.a,r.t,pace),actualW=r.t?Math.min(Math.round(r.a/r.t*100),100):0,paceW=Math.min(Math.round(pace*100),100),fc=ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr',stCls=ps.cls==='cg'?'st-win':ps.cls==='ca'?'st-warn':'st-danger',pv=r.t?r.a-Math.round(r.t*pace):0,rnCls=['rn-1','rn-2','rn-3','rn-4'][i]||'rn-4',rcCls=['rank-1-card','rank-2-card','rank-3-card','rank-4-card'][i]||'rank-4-card',rnLbl=['1st','2nd','3rd','4th'][i]||(i+1)+'th';return'<div class="mcard '+rcCls+'" style="margin-top:'+(i===0?'14px':'0')+'">'+(i===0?'<div class="rank-crown">&#127942;</div>':'')+'<div class="rank-num '+rnCls+'">'+rnLbl+'</div><div class="mcard-mkt">'+r.m+'</div><div class="mcard-mgr">'+(r.regional||'—')+'</div><div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.t+' target</span></div><div style="position:relative;margin-bottom:8px"><div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>'+(isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'')+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="mcard-status '+stCls+'">'+(pv>=0?'+':'')+pv+' daily pace</span><span style="font-size:12px;color:#888780">'+pc(r.a,r.t)+'% to goal</span></div>'+(isMTD&&r.t?'<div style="font-size:11px;color:#888780;margin-top:5px">Paced target today: '+Math.round(r.t*pace)+'</div>':'')+'</div>';}).join('');
-  document.getElementById('mtbl').innerHTML=ranked.map(function(r,i){var ps=paceStatus(r.a,r.t,pace),pv=r.t?r.a-Math.round(r.t*pace):null;return'<tr class="dr '+ps.row+'"><td style="font-size:12px;color:#888780;font-weight:500">'+(i+1)+'</td><td style="font-weight:500">'+r.m+'</td><td style="color:#888780;font-size:12px">'+(r.regional||'—')+'</td><td class="tr">'+r.areas+'</td><td class="tr">'+r.cnt+'</td><td class="tr">'+r.t+'</td><td class="tr">'+r.a+'</td><td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td><td class="tr '+ps.cls+'" style="font-size:12px">'+(pv!==null?(pv>=0?'+':'')+pv+' vs pace':'—')+'</td><td class="tr"><span class="b '+ps.badge+'">'+pc(r.a,r.t)+'%</span></td></tr>';}).join('');
-  buildSM();
-}
-
-function setCV(v){document.querySelectorAll('.tgbtn').forEach(function(b,i){b.classList.toggle('on',(i===0&&v==='sm')||(i===1&&v==='cmp'));});document.getElementById('cv-sm').classList.toggle('on',v==='sm');document.getElementById('cv-cmp').classList.toggle('on',v==='cmp');if(v==='sm')buildSM();else buildCmp();}
-
-function buildSM(){
-  var meta=MONTHS_META.find(function(m){return m.key===selMonthKey;}), pace=paceFraction(selMonthKey), isMTD=meta&&meta.isMTD;
-  document.getElementById('sm-pace-note').textContent=isMTD?'MTD: badge % shows actual vs paced target ('+Math.round(pace*100)+'% of month elapsed).':'Complete month: badge % shows actual vs full monthly target.';
-  var grid=document.getElementById('sm-grid');
-  grid.innerHTML=MKTS.map(function(m){return'<div class="sm-card"><div class="sm-title"><span style="font-size:12px;font-weight:500;color:'+(MKT_COLORS[m]||'#185FA5')+'">'+m+'</span><span id="sm-stat-'+m+'"></span></div><div style="position:relative;height:150px"><canvas id="sm-'+m+'"></canvas></div></div>';}).join('');
-  MKTS.forEach(function(m){
-    var acts=MONTHS_META.map(function(mm){return marketRollups(mm.key).find(function(x){return x.m===m;})?.a||0;});
-    var tgts=MONTHS_META.map(function(mm){return marketRollups(mm.key).find(function(x){return x.m===m;})?.t||0;});
-    var bp=tgts[MONTHS_META.findIndex(function(mm){return mm.key===selMonthKey;})]>0?(isMTD?pc((marketRollups(selMonthKey).find(function(x){return x.m===m;})||{a:0}).a,Math.round((marketRollups(selMonthKey).find(function(x){return x.m===m;})||{t:0}).t*pace)):pc((marketRollups(selMonthKey).find(function(x){return x.m===m;})||{a:0}).a,(marketRollups(selMonthKey).find(function(x){return x.m===m;})||{t:0}).t)):0;
-    var bb=bp>=90?'#639922':bp>=70?'#BA7517':'#E24B4A';
-    document.getElementById('sm-stat-'+m).innerHTML='<span style="font-weight:500;border-radius:20px;padding:2px 8px;font-size:11px;background:'+bb+';color:#fff">'+bp+'%'+(isMTD?' of pace':'')+'</span>';
-    var bgs=MONTHS_META.map(function(mm){return mm.isMTD?(MKT_COLORS[m]||'#185FA5')+'55':(MKT_COLORS[m]||'#185FA5');});
-    if(smCharts[m])smCharts[m].destroy();
-    smCharts[m]=new Chart(document.getElementById('sm-'+m),{type:'bar',data:{labels:MONTHS_META.map(function(mm){return mm.label.substring(0,3);}),datasets:[{label:'Actual',data:acts,backgroundColor:bgs,borderRadius:6,order:2},{label:'Target',data:tgts,type:'line',borderColor:MKT_COLORS[m]||'#185FA5',borderWidth:1.5,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:MKT_COLORS[m]||'#185FA5',pointBorderWidth:2,fill:false,tension:0,order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label==='Target'?'Target: '+ctx.parsed.y:'Actual: '+ctx.parsed.y+(MONTHS_META[ctx.dataIndex].isMTD?' (MTD)':'');},title:function(ctx){return m+' — '+MONTHS_META[ctx[0].dataIndex].label;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,tgts.concat(acts).concat([1]))*1.15}}}});
+/* =========================
+   MARKET OVERVIEW
+========================= */
+function getMktRollup(monthKey) {
+  return MKTS.map(function(m){
+    var totals = monthMarketTotals(monthKey, m);
+    return {
+      m: m,
+      cnt: uniqueStores(monthKey, m),
+      areas: uniqueAreasCount(monthKey, m),
+      a: totals.leads,
+      t: monthlyTarget(monthKey, m),
+      avgS: uniqueStores(monthKey, m) > 0 ? totals.leads / uniqueStores(monthKey, m) : 0
+    };
   });
 }
 
-function buildCmp(){
-  var mKey=(document.getElementById('cmp-sel')||{}).value||selMonthKey, meta=MONTHS_META.find(function(m){return m.key===mKey;}), isMTD=meta&&meta.isMTD;
-  var roll=marketRollups(mKey), actuals=MKTS.map(function(m){return (roll.find(function(x){return x.m===m;})||{a:0}).a;}), targets=MKTS.map(function(m){return (roll.find(function(x){return x.m===m;})||{t:0}).t;});
-  document.getElementById('cmp-foot').textContent=isMTD?meta.label+' MTD — '+meta.daysElapsed+' of '+meta.daysTotal+' days.':'Complete month — final actuals vs target.';
-  if(cmpChart)cmpChart.destroy();
-  cmpChart=new Chart(document.getElementById('cmpChart'),{type:'bar',data:{labels:MKTS,datasets:[{label:'Actual',data:actuals,backgroundColor:MKTS.map(function(m){return isMTD?(MKT_COLORS[m]||'#185FA5')+'88':(MKT_COLORS[m]||'#185FA5');}),borderRadius:8,order:2},{label:'Target',data:targets,type:'line',borderColor:'#888780',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false,tension:0,order:1}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label==='Target'?'Target: '+ctx.parsed.y:(isMTD?'MTD: ':'Actual: ')+actuals[ctx.dataIndex];},title:function(ctx){return ctx[0].label+' — '+meta.label;}}}},scales:{x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals).concat([1]))*1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}}}});
+function buildOv() {
+  var mk = selMonthKey;
+  var meta = getMeta(mk);
+  var pace = paceFraction(mk);
+  var isMTD = meta && meta.isMTD;
+
+  document.getElementById('mkt-tbl-title').textContent = 'Market summary — ' + (meta ? meta.label : mk);
+  document.getElementById('mkt-foot').textContent = isMTD
+    ? 'Daily pace = actual minus expected at ' + meta.daysElapsed + '/' + meta.daysTotal + ' days. % to goal = actual ÷ full month target.'
+    : 'Complete month. % to goal = final attainment vs full monthly target.';
+
+  var mkEl = document.getElementById('metric-key');
+  if (isMTD) {
+    mkEl.innerHTML =
+      '<div class="mk-item"><span class="mk-label">Daily pace</span><span class="mk-desc">Actual minus expected given days elapsed ('+Math.round(pace*100)+'% of month). Positive = on track.</span></div>' +
+      '<div class="mk-item"><span class="mk-label">% to goal</span><span class="mk-desc">Actual ÷ full month target. This can still be below 100% mid-month even when pacing is healthy.</span></div>';
+    mkEl.style.display = 'flex';
+  } else {
+    mkEl.style.display = 'none';
+  }
+
+  var rows = getMktRollup(mk);
+  var ta = rows.reduce(function(s,r){ return s + r.a; }, 0);
+  var tt = rows.reduce(function(s,r){ return s + r.t; }, 0);
+  var oPS = paceStatus(ta, tt, pace);
+
+  document.getElementById('ov-scorecards').innerHTML =
+    makeScorecard('Total referrals', ta, 'all markets', 'neutral') +
+    makeScorecard('Total target', tt, meta ? meta.label : mk, 'neutral') +
+    makeScorecard('Overall attainment', tt > 0 ? pc(ta, tt) + '%' : '—', isMTD ? 'of full-month target' : 'attainment', oPS.sc) +
+    makeScorecard(isMTD ? 'Days elapsed' : 'Month status', isMTD ? (meta.daysElapsed + ' / ' + meta.daysTotal) : 'Complete', isMTD ? Math.round(pace * 100) + '% of month done' : 'Full results', 'neutral');
+
+  var ranked = rows.slice().sort(function(a,b){ return b.avgS - a.avgS; });
+
+  document.getElementById('mcards').innerHTML = ranked.map(function(r, i){
+    var ps = paceStatus(r.a, r.t, pace);
+    var actualW = r.t > 0 ? Math.min(Math.round(r.a / r.t * 100), 100) : 0;
+    var paceW = Math.min(Math.round(pace * 100), 100);
+    var fc = ps.cls === 'cg' ? 'fg' : ps.cls === 'ca' ? 'fa' : 'fr';
+    var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
+    var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : 0;
+
+    return '<div class="mcard '+['rank-1-card','rank-2-card','rank-3-card','rank-4-card'][i]+'" style="margin-top:'+(i===0?'14px':'0')+'">' +
+      (i===0?'<div class="rank-crown">&#127942;</div>':'') +
+      '<div class="rank-num '+['rn-1','rn-2','rn-3','rn-4'][i]+'">'+['1st','2nd','3rd','4th'][i]+'</div>' +
+      '<div class="mcard-mkt">'+r.m+'</div>' +
+      '<div class="mcard-mgr">'+marketManagerLabel(r.m)+'</div>' +
+      '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.t+' target</span></div>' +
+      '<div style="position:relative;margin-bottom:8px">' +
+        '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
+        (isMTD ? '<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>' : '') +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+        '<span class="mcard-status '+stCls+'">'+(pv >= 0 ? '+' : '')+pv+' daily pace</span>' +
+        '<span style="font-size:12px;color:#888780">'+pc(r.a, r.t)+'% to goal</span>' +
+      '</div>' +
+      (isMTD && r.t > 0 ? '<div style="font-size:11px;color:#888780;margin-top:5px">Paced target today: '+Math.round(r.t * pace)+'</div>' : '') +
+    '</div>';
+  }).join('');
+
+  document.getElementById('mtbl').innerHTML = ranked.map(function(r, i){
+    var ps = paceStatus(r.a, r.t, pace);
+    var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : null;
+    return '<tr class="dr '+ps.row+'">' +
+      '<td style="font-size:12px;color:#888780;font-weight:500">'+(i + 1)+'</td>' +
+      '<td style="font-weight:500">'+r.m+'</td>' +
+      '<td style="color:#888780;font-size:12px">'+marketManagerLabel(r.m)+'</td>' +
+      '<td class="tr">'+r.areas+'</td>' +
+      '<td class="tr">'+r.cnt+'</td>' +
+      '<td class="tr">'+r.t+'</td>' +
+      '<td class="tr">'+r.a+'</td>' +
+      '<td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td>' +
+      '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv + ' vs pace' : '—')+'</td>' +
+      '<td class="tr"><span class="b '+ps.badge+'">'+pc(r.a, r.t)+'%</span></td>' +
+    '</tr>';
+  }).join('');
+
+  buildSM();
 }
 
-function buildBiz(){
-  var roll=marketRollups(selMonthKey), totR=roll.reduce(function(s,r){return s+r.a;},0), totC=roll.reduce(function(s,r){return s+r.c;},0), tcv=totR?Math.round(totC/totR*100):0;
-  document.getElementById('biz-scorecards').innerHTML=makeScorecard('Total referrals',totR,'all markets','neutral')+makeScorecard('Completed repairs',totC,'from referrals','win')+makeScorecard('Conversion rate',tcv+'%','referral → repair',tcv>=30?'win':tcv>=20?'warn':'danger')+makeScorecard('Est. revenue','$'+Math.round(totC*AOV/1000)+'k','at $480 avg order','neutral');
-  document.getElementById('funnel-period').textContent=dateRangeLabel(selMonthKey);
-  var stages=[{label:'Referrals',n:totR,color:'#185FA5'},{label:'Completed',n:totC,color:'#639922'}];
-  document.getElementById('funnel-wrap').innerHTML=stages.map(function(s,i){var pct=totR?Math.round(s.n/totR*100):0;var prev=i>0?stages[i-1].n:null;var drop=prev?Math.round((prev-s.n)/prev*100):null;return(i>0?'<div class="funnel-arrow">▾</div>':'')+'<div class="funnel-row"><div class="funnel-label">'+s.label+'</div><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:'+pct+'%;background:'+s.color+'">'+s.n+'</div></div><div class="funnel-num">'+pct+'% of refs</div>'+(drop!==null?'<div class="funnel-drop">−'+drop+'% drop</div>':'<div class="funnel-drop"></div>')+'</div>';}).join('');
-  document.getElementById('biztbl').innerHTML=roll.map(function(r){var cvr=r.a?Math.round(r.c/r.a*100):0,rev=r.c*AOV,cc=cvr>=30?'bg':cvr>=20?'ba':'br';return'<tr class="dr '+(cvr>=30?'win-row':cvr>=20?'warn-row':'danger-row')+'"><td>'+r.m+'</td><td class="tr">'+r.a+'</td><td class="tr">'+r.c+'</td><td class="tr"><span class="b '+cc+'">'+cvr+'%</span></td><td class="tr">$'+Math.round(rev/1000)+'k</td></tr>';}).join('');
-  document.getElementById('biz-legend').innerHTML=MKTS.map(function(m){return'<div class="leg-item"><div class="leg-dot" style="background:'+(MKT_COLORS[m]||'#185FA5')+'"></div>'+m+'</div>';}).join('');
-  var ds=MKTS.map(function(m){return{label:m,data:MONTHS_META.map(function(mm){var rr=marketRollups(mm.key).find(function(x){return x.m===m;})||{a:0,c:0};return rr.a?Math.round(rr.c/rr.a*100):0;}),borderColor:MKT_COLORS[m]||'#185FA5',borderWidth:2.5,pointBackgroundColor:MKT_COLORS[m]||'#185FA5',pointRadius:5,pointHoverRadius:7,tension:.35,fill:false};});
-  if(bCI)bCI.destroy();
-  bCI=new Chart(document.getElementById('bizChart'),{type:'line',data:{labels:MONTHS_META.map(function(mm){return mm.label.substring(0,3);}),datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+'%';}}}},scales:{x:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'}},y:{grid:{color:'#F1EFE8'},min:0,suggestedMax:40,ticks:{font:{size:11},color:'#888780',callback:function(v){return v+'%';}},title:{display:true,text:'Conversion rate',font:{size:11},color:'#888780'}}}}});
+/* =========================
+   CHARTS
+========================= */
+function setCV(v) {
+  document.querySelectorAll('.tgbtn').forEach(function(b, i){
+    b.classList.toggle('on', (i === 0 && v === 'sm') || (i === 1 && v === 'cmp'));
+  });
+  document.getElementById('cv-sm').classList.toggle('on', v === 'sm');
+  document.getElementById('cv-cmp').classList.toggle('on', v === 'cmp');
+  if (v === 'sm') buildSM(); else buildCmp();
 }
 
-function pinPress(d){if(pinEntry.length>=4)return;pinEntry+=d;updatePinDots();if(pinEntry.length===4){if(pinEntry===PIN_CORRECT){bizUnlocked=true;document.getElementById('pin-overlay').style.display='none';document.getElementById('biz-content').style.display='block';buildBiz();}else{document.getElementById('pin-err').textContent='Incorrect PIN. Try again.';setTimeout(function(){pinEntry='';updatePinDots();document.getElementById('pin-err').textContent='';},800);}}}
-function pinDel(){pinEntry=pinEntry.slice(0,-1);updatePinDots();}
-function pinClear(){pinEntry='';updatePinDots();}
-function updatePinDots(){for(var i=0;i<4;i++){var d=document.getElementById('pd'+i);if(d)d.className='pin-dot'+(i<pinEntry.length?' filled':'');}}
-function lockBiz(){bizUnlocked=false;pinEntry='';updatePinDots();document.getElementById('pin-overlay').style.display='block';document.getElementById('biz-content').style.display='none';}
+function buildSM() {
+  var mk = selMonthKey;
+  var meta = getMeta(mk);
+  var isMTD = meta && meta.isMTD;
+  var pace = paceFraction(mk);
 
-function sw(t){var keys=['st','am','ov','biz'];document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('on',keys[i]===t);});keys.forEach(function(k){document.getElementById('pg-'+k).classList.toggle('on',k===t);});if(t==='am')renderAM(document.getElementById('am-mkt-sel').value||'all');if(t==='st')renderS();if(t==='ov')buildOv();if(t==='biz'&&bizUnlocked)buildBiz();}
+  var pn = document.getElementById('sm-pace-note');
+  if (pn) {
+    pn.textContent = isMTD
+      ? 'MTD: badge % shows actual vs paced target (' + Math.round(pace * 100) + '% of month elapsed). 100% = exactly on daily pace today.'
+      : 'Complete month: badge % shows actual vs full monthly target.';
+  }
 
-function initWithData(rows,source){
-  RAW=rows;dataSource=source;buildDerived();buildAllDDs();selectMonth(selMonthKey||CURRENT_MONTH_KEY);
-  document.getElementById('markets-sub').textContent=MKTS.join(' · ');
-  var latestDay=RAW.map(function(r){return r.day;}).sort().pop()||'';
-  document.getElementById('ulbl').textContent=latestDay?'Data through '+latestDay:'Data loaded';
-  var pill=document.getElementById('ds-pill');
-  if(source==='live'){pill.textContent='Live data';pill.className='data-source-pill ds-live';}else{pill.textContent='Fallback data';pill.className='data-source-pill ds-fallback';}
-  document.getElementById('udot').className='udot'+(source==='live'?'':' stale');
+  var grid = document.getElementById('sm-grid');
+  grid.innerHTML = MKTS.map(function(m){
+    return '<div class="sm-card">' +
+      '<div class="sm-title">' +
+        '<span style="font-size:12px;font-weight:500;color:'+safeColor(m)+'">'+m+'</span>' +
+        '<span id="sm-stat-'+m+'"></span>' +
+      '</div>' +
+      '<div style="position:relative;height:150px"><canvas id="sm-'+m+'"></canvas></div>' +
+    '</div>';
+  }).join('');
+
+  MKTS.forEach(function(m){
+    var actualMonths = MONTHS_META.slice();
+    var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
+    var actuals = actualMonths.map(function(mm){ return monthMarketTotals(mm.key, m).leads; });
+    var targets = actualMonths.map(function(mm){ return monthlyTarget(mm.key, m); });
+    var bp = targets.length && targets[actualMonths.findIndex(function(mm){ return mm.key === mk; })] > 0
+      ? (isMTD ? pc(monthMarketTotals(mk, m).leads, Math.round(monthlyTarget(mk, m) * pace)) : pc(monthMarketTotals(mk, m).leads, monthlyTarget(mk, m)))
+      : 0;
+
+    var bb = bp >= 90 ? '#639922' : bp >= 70 ? '#BA7517' : '#E24B4A';
+    var statEl = document.getElementById('sm-stat-' + m);
+    if (statEl) {
+      statEl.innerHTML = '<span style="font-weight:500;border-radius:20px;padding:2px 8px;font-size:11px;background:'+bb+';color:#fff">'+bp+'%'+(isMTD?' of pace':'')+'</span>';
+    }
+
+    var bgs = actualMonths.map(function(mm){
+      return mm.isMTD ? safeColor(m) + '55' : safeColor(m);
+    });
+
+    if (smCharts[m]) smCharts[m].destroy();
+
+    smCharts[m] = new Chart(document.getElementById('sm-' + m), {
+      type:'bar',
+      data:{
+        labels:labels,
+        datasets:[
+          {label:'Actual',data:actuals,backgroundColor:bgs,borderRadius:6,order:2},
+          {label:'Target',data:targets,type:'line',borderColor:safeColor(m),borderWidth:1.5,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:safeColor(m),pointBorderWidth:2,fill:false,tension:0,order:1}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            callbacks:{
+              label:function(ctx){
+                return ctx.dataset.label === 'Target'
+                  ? 'Target: ' + ctx.parsed.y
+                  : 'Actual: ' + ctx.parsed.y + (actualMonths[ctx.dataIndex].isMTD ? ' (MTD)' : '');
+              },
+              title:function(ctx){
+                return m + ' — ' + actualMonths[ctx[0].dataIndex].label;
+              }
+            }
+          }
+        },
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:10},color:'#888780'}},
+          y:{grid:{color:'#F1EFE8'},ticks:{font:{size:10},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals).concat([1])) * 1.15}
+        }
+      }
+    });
+  });
+}
+
+function buildCmp() {
+  var mk = (document.getElementById('cmp-sel') || {}).value || selMonthKey;
+  var meta = getMeta(mk);
+  if (!meta) return;
+
+  var actuals = MKTS.map(function(m){ return monthMarketTotals(mk, m).leads; });
+  var targets = MKTS.map(function(m){ return monthlyTarget(mk, m); });
+
+  document.getElementById('cmp-foot').textContent = meta.isMTD
+    ? meta.label + ' MTD — ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' days.'
+    : 'Complete month — final actuals vs target.';
+
+  if (cmpChart) cmpChart.destroy();
+
+  cmpChart = new Chart(document.getElementById('cmpChart'), {
+    type:'bar',
+    data:{
+      labels:MKTS,
+      datasets:[
+        {
+          label:'Actual',
+          data:actuals,
+          backgroundColor:MKTS.map(function(m){ return meta.isMTD ? safeColor(m) + '88' : safeColor(m); }),
+          borderRadius:8,
+          order:2
+        },
+        {
+          label:'Target',
+          data:targets,
+          type:'line',
+          borderColor:'#888780',
+          borderWidth:1.5,
+          borderDash:[5,4],
+          pointRadius:0,
+          fill:false,
+          tension:0,
+          order:1
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:function(ctx){
+              return ctx.dataset.label === 'Target'
+                ? 'Target: ' + ctx.parsed.y
+                : (meta.isMTD ? 'MTD: ' : 'Actual: ') + actuals[ctx.dataIndex];
+            },
+            title:function(ctx){
+              return ctx[0].label + ' — ' + meta.label;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:12},color:'#5F5E5A'}},
+        y:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'},suggestedMax:Math.max.apply(null,targets.concat(actuals).concat([1])) * 1.2,title:{display:true,text:'Total referrals',font:{size:11},color:'#888780'}}
+      }
+    }
+  });
+}
+
+/* =========================
+   BUSINESS OUTCOMES
+========================= */
+function buildBiz() {
+  var mk = selMonthKey;
+  document.getElementById('funnel-period').textContent = dateRangeLabel(mk);
+
+  var mktRows = MKTS.map(function(m){
+    var totals = monthMarketTotals(mk, m);
+    var cvr = totals.leads > 0 ? Math.round(totals.comp / totals.leads * 100) : 0;
+    return {
+      m: m,
+      leads: totals.leads,
+      comp: totals.comp,
+      cvr: cvr,
+      rev: totals.comp * AOV
+    };
+  });
+
+  var totR = mktRows.reduce(function(s,r){ return s + r.leads; }, 0);
+  var totC = mktRows.reduce(function(s,r){ return s + r.comp; }, 0);
+  var totCvr = totR > 0 ? Math.round(totC / totR * 100) : 0;
+
+  document.getElementById('biz-scorecards').innerHTML =
+    makeScorecard('Total referrals', totR, 'all markets', 'neutral') +
+    makeScorecard('Completed repairs', totC, 'from referrals', 'win') +
+    makeScorecard('Conversion rate', totCvr + '%', 'referral → repair', totCvr >= 30 ? 'win' : totCvr >= 20 ? 'warn' : 'danger') +
+    makeScorecard('Est. revenue', '$' + Math.round(totC * AOV / 1000) + 'k', 'at $480 avg order', 'neutral');
+
+  var totBooked = Math.round(totR * 0.47);
+  var stages = [
+    {label:'Referrals',n:totR,color:'#185FA5'},
+    {label:'Est. booked',n:totBooked,color:'#3B6D11'},
+    {label:'Completed',n:totC,color:'#639922'}
+  ];
+
+  document.getElementById('funnel-wrap').innerHTML = stages.map(function(s, i){
+    var pct = totR > 0 ? Math.round(s.n / totR * 100) : 0;
+    var prev = i > 0 ? stages[i-1].n : null;
+    var drop = prev && prev > 0 ? Math.round((prev - s.n) / prev * 100) : null;
+    return (i > 0 ? '<div class="funnel-arrow">▾</div>' : '') +
+      '<div class="funnel-row">' +
+        '<div class="funnel-label">'+s.label+'</div>' +
+        '<div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:'+pct+'%;background:'+s.color+'">'+s.n+'</div></div>' +
+        '<div class="funnel-num">'+pct+'% of refs</div>' +
+        (drop !== null ? '<div class="funnel-drop">−'+drop+'% drop</div>' : '<div class="funnel-drop"></div>') +
+      '</div>';
+  }).join('');
+
+  document.getElementById('biztbl').innerHTML = mktRows.map(function(r){
+    var cc = r.cvr >= 30 ? 'bg' : r.cvr >= 20 ? 'ba' : 'br';
+    return '<tr class="dr '+(r.cvr >= 30 ? 'win-row' : r.cvr >= 20 ? 'warn-row' : 'danger-row')+'">' +
+      '<td>'+r.m+'</td>' +
+      '<td class="tr">'+r.leads+'</td>' +
+      '<td class="tr">'+r.comp+'</td>' +
+      '<td class="tr"><span class="b '+cc+'">'+r.cvr+'%</span></td>' +
+      '<td class="tr">$'+Math.round(r.rev / 1000)+'k</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('biz-legend').innerHTML = MKTS.map(function(m){
+    return '<div class="leg-item"><div class="leg-dot" style="background:'+safeColor(m)+'"></div>'+m+'</div>';
+  }).join('');
+
+  var ds = MKTS.map(function(m){
+    return {
+      label:m,
+      data:MONTHS_META.map(function(mm){
+        var t = monthMarketTotals(mm.key, m);
+        return t.leads > 0 ? Math.round(t.comp / t.leads * 100) : 0;
+      }),
+      borderColor:safeColor(m),
+      borderWidth:2.5,
+      pointBackgroundColor:safeColor(m),
+      pointRadius:5,
+      pointHoverRadius:7,
+      tension:0.35,
+      fill:false
+    };
+  });
+
+  if (bCI) bCI.destroy();
+  bCI = new Chart(document.getElementById('bizChart'), {
+    type:'line',
+    data:{
+      labels:MONTHS_META.map(function(m){ return m.label.substring(0,3); }),
+      datasets:ds
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:function(ctx){
+              return ctx.dataset.label + ': ' + ctx.parsed.y + '%';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'}},
+        y:{grid:{color:'#F1EFE8'},min:0,suggestedMax:40,ticks:{font:{size:11},color:'#888780',callback:function(v){ return v + '%'; }},title:{display:true,text:'Conversion rate',font:{size:11},color:'#888780'}}
+      }
+    }
+  });
+}
+
+/* =========================
+   PIN LOCK
+========================= */
+function pinPress(d) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += d;
+  updatePinDots();
+
+  if (pinEntry.length === 4) {
+    if (pinEntry === PIN_CORRECT) {
+      bizUnlocked = true;
+      document.getElementById('pin-overlay').style.display = 'none';
+      document.getElementById('biz-content').style.display = 'block';
+      buildBiz();
+    } else {
+      document.getElementById('pin-err').textContent = 'Incorrect PIN. Try again.';
+      setTimeout(function(){
+        pinEntry = '';
+        updatePinDots();
+        document.getElementById('pin-err').textContent = '';
+      }, 800);
+    }
+  }
+}
+
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots();
+}
+
+function pinClear() {
+  pinEntry = '';
+  updatePinDots();
+}
+
+function updatePinDots() {
+  for (var i = 0; i < 4; i++) {
+    var d = document.getElementById('pd' + i);
+    if (d) d.className = 'pin-dot' + (i < pinEntry.length ? ' filled' : '');
+  }
+}
+
+function lockBiz() {
+  bizUnlocked = false;
+  pinEntry = '';
+  updatePinDots();
+  document.getElementById('pin-overlay').style.display = 'block';
+  document.getElementById('biz-content').style.display = 'none';
+}
+
+/* =========================
+   TAB SWITCH
+========================= */
+function sw(t) {
+  var keys = ['st','am','ov','biz'];
+  document.querySelectorAll('.tab').forEach(function(el, i){
+    el.classList.toggle('on', keys[i] === t);
+  });
+
+  keys.forEach(function(k){
+    document.getElementById('pg-' + k).classList.toggle('on', k === t);
+  });
+
+  if (t === 'am') renderAM(document.getElementById('am-mkt-sel').value || 'all');
+  if (t === 'st') renderS();
+  if (t === 'ov') buildOv();
+  if (t === 'biz' && bizUnlocked) buildBiz();
+}
+
+/* =========================
+   LOAD DATA
+========================= */
+function initWithData(rows, source) {
+  RAW = rows;
+  dataSource = source;
+
+  buildDerived();
+  buildAllDDs();
+  selectMonth(CURRENT_MONTH_KEY);
+
+  document.getElementById('markets-sub').textContent = MKTS.join(' · ');
+
+  var latestDay = RAW.map(function(r){ return r.day; }).sort().pop() || '';
+  document.getElementById('ulbl').textContent = latestDay ? 'Data through ' + latestDay : 'Data loaded';
+
+  var pill = document.getElementById('ds-pill');
+  var dot = document.getElementById('udot');
+  if (source === 'live') {
+    pill.textContent = 'Live data';
+    pill.className = 'data-source-pill ds-live';
+    dot.className = 'udot';
+  } else {
+    pill.textContent = 'Fallback data';
+    pill.className = 'data-source-pill ds-fallback';
+    dot.className = 'udot stale';
+  }
+
   filterMkt('all');
-  document.getElementById('loading-overlay').style.display='none';
+  document.getElementById('loading-overlay').style.display = 'none';
 }
 
-function loadData(){
-  document.getElementById('loading-text').textContent='Fetching live data…';
+function loadData() {
+  document.getElementById('loading-text').textContent = 'Fetching live data…';
+
   fetch(LIVE_URL)
-    .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
-    .then(function(json){document.getElementById('loading-text').textContent='Processing '+json.length+' records…';var rows=json.map(normaliseRow).filter(Boolean);if(!rows.length)throw new Error('No usable rows');initWithData(rows,'live');})
-    .catch(function(err){console.warn('Live data fetch failed, using fallback:',err.message);document.getElementById('loading-text').textContent='Using fallback data…';var rows=FALLBACK_DATA.map(normaliseRow).filter(Boolean);initWithData(rows,'fallback');});
+    .then(function(res){
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function(json){
+      document.getElementById('loading-text').textContent = 'Processing ' + json.length + ' records…';
+      var rows = json.map(normaliseRow).filter(Boolean);
+      if (!rows.length) throw new Error('No usable rows');
+      initWithData(rows, 'live');
+    })
+    .catch(function(err){
+      console.warn('Live data fetch failed, using fallback:', err.message);
+      document.getElementById('loading-text').textContent = 'Using fallback data…';
+      var rows = FALLBACK_DATA.map(normaliseFallbackRow).filter(Boolean);
+      initWithData(rows, 'fallback');
+    });
 }
 
 loadData();
