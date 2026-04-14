@@ -1136,7 +1136,7 @@ function renderAM(filterMarket) {
       '<td style="font-size:12px;color:#888780">'+r.market+'</td>' +
       '<td style="font-size:12px;color:#888780">'+r.regional+'</td>' +
       '<td class="tr">'+r.cnt+'</td>' +
-      '<td class="tr">'+r.t+'</td>' +
+      '<td class="tr">'+parseFloat(r.t.toFixed(1))+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv + ' vs pace' : '—')+'</td>' +
       '<td class="tr"><span class="b '+(r.t > 0 ? (pc(r.a, r.t) >= 75 ? 'bg' : pc(r.a, r.t) >= 60 ? 'ba' : 'br') : 'bt')+'">'+(r.t > 0 ? pc(r.a, r.t) + '%' : '—')+'</span></td>' +
