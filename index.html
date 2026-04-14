@@ -943,7 +943,7 @@ function renderS() {
               '<div class="tq-item-name">Store '+s.n+'</div>' +
               '<div class="tq-item-mkt">'+s.mgr+' · '+s.area+'</div>' +
               '<div class="tq-item-pct">'+s.pctToTarget+'%</div>' +
-              '<div class="tq-item-detail">'+s.a+' of '+s.t+' target</div>' +
+              '<div class="tq-item-detail">'+s.a+' of '+parseFloat(s.t.toFixed(1))+' target</div>' +
             '</div>';
           }).join('') +
         '</div>' +
