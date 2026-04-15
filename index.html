@@ -1815,38 +1815,42 @@ function renderAM(filterMarket) {
   });
 
   var data = Object.values(areas).map(function(r){
-    return {
-      name: r.area,
-      market: r.market,
-      regional: r.regional,
-      cnt: Object.keys(r.storeNums).length,
-      a: r.a,
-      t: r.t,
-      ps: paceStatus(r.a, r.t, pace)
-    };
+    var effectiveTgt = isMTD && r.t > 0 ? Math.round(r.t * pace) : r.t;
+var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+return {
+  name: r.area,
+  market: r.market,
+  regional: r.regional,
+  cnt: Object.keys(r.storeNums).length,
+  a: r.a,
+  t: r.t,
+  effectiveTgt: effectiveTgt,
+  pctToTarget: pctToTarget,
+  ps: paceStatus(r.a, r.t, pace)
+};
   }).sort(function(a,b){
-    var pa = a.t > 0 ? a.a / a.t : -1;
-    var pb = b.t > 0 ? b.a / b.t : -1;
-    return pa - pb;
-  });
+  var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
+  var pb = b.effectiveTgt > 0 ? b.a / b.effectiveTgt : -1;
+  return pa - pb;
+});
 
   var on = data.filter(function(x){ return x.ps.cls === 'cg'; }).length;
   var at = data.filter(function(x){ return x.ps.cls === 'ca'; }).length;
   var bh = data.filter(function(x){ return x.ps.cls === 'cr'; }).length;
   var wa = data.filter(function(x){ return x.t > 0; });
-  var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.a / x.t; }, 0) / wa.length * 100) + '%' : '—';
-
+var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / wa.length) + '%' : '—';
+  
   document.getElementById('am-scorecards').innerHTML =
     makeScorecard('On track', on, '≥ daily pace', 'win') +
     makeScorecard('At risk', at, 'within 10% of pace', 'warn') +
     makeScorecard('Behind', bh, '>10% behind pace', 'danger') +
-    makeScorecard('Avg attainment', avg, 'vs full-month target', 'neutral');
-
+makeScorecard('Avg % to target', avg, isMTD ? 'vs paced target' : 'vs full-month target', 'neutral');
+  
   var af = document.getElementById('am-foot');
   if (af) {
     af.textContent = isMTD
-      ? 'Daily pace = actual minus expected at ' + Math.round(pace * 100) + '% of month. % to goal = actual ÷ full month target.'
-      : 'Complete month — % to goal is final attainment.';
+  ? '% to target uses paced target (' + Math.round(pace * 100) + '% of month elapsed) — consistent with store table. Daily pace = actual minus expected referrals at current pace.'
+  : 'Complete month — % to goal is final attainment vs full monthly target.';
   }
 
   document.getElementById('amtbl').innerHTML = data.map(function(r){
@@ -1859,7 +1863,7 @@ function renderAM(filterMarket) {
       '<td class="tr">'+parseFloat(r.t.toFixed(1))+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv + ' vs pace' : '—')+'</td>' +
-      '<td class="tr"><span class="b '+(r.t > 0 ? (pc(r.a, r.t) >= 75 ? 'bg' : pc(r.a, r.t) >= 60 ? 'ba' : 'br') : 'bt')+'">'+(r.t > 0 ? pc(r.a, r.t) + '%' : '—')+'</span></td>' +
+      '<td class="tr"><span class="b '+(r.t > 0 ? (r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 70 ? 'ba' : 'br') : 'bt')+'">'+(r.t > 0 ? r.pctToTarget + '%' : '—')+'</span></td>' +
     '</tr>';
   }).join('');
 }
