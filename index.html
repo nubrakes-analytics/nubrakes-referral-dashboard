@@ -942,18 +942,18 @@ tr.dr:hover td{filter:brightness(.985)}
         </div>
         <table>
           <thead>
-            <tr>
-              <th style="width:11%">Store #</th>
-              <th style="width:12%">Manager</th>
-              <th style="width:13%">Area mgr</th>
-              <th style="width:11%">Market</th>
-              <th class="tr" style="width:9%">Target</th>
-              <th class="tr" style="width:9%">Actual</th>
-              <th class="tr" style="width:12%">% to target</th>
-              <th class="tr" style="width:15%" id="st-pace-col-hdr">vs pace (MTD)</th>
-              <th class="tr" style="width:8%">Top 25%</th>
-            </tr>
-          </thead>
+  <tr>
+    <th style="width:11%">Store #</th>
+    <th style="width:12%">Manager</th>
+    <th style="width:13%">Area mgr</th>
+    <th style="width:11%">Market</th>
+    <th class="tr" style="width:9%">Target</th>
+    <th class="tr" style="width:9%">Actual</th>
+    <th class="tr" style="width:12%" id="st-pct-col-hdr">% to target</th>
+    <th class="tr" style="width:15%" id="st-pace-col-hdr">vs pace (MTD)</th>
+    <th class="tr" style="width:8%">Top 25%</th>
+  </tr>
+</thead>
           <tbody id="stbl"></tbody>
         </table>
         <div class="foot" id="st-foot"></div>
@@ -1001,7 +1001,7 @@ tr.dr:hover td{filter:brightness(.985)}
               <th class="tr" style="width:11%">Target</th>
               <th class="tr" style="width:11%">Actual</th>
               <th class="tr" style="width:14%" id="am-pace-col-hdr">vs pace (MTD)</th>
-              <th class="tr" style="width:13%" id="am-attain-col-hdr">% to goal</th>
+              <th class="tr" style="width:13%" id="am-attain-col-hdr">% to target</th>
             </tr>
           </thead>
           <tbody id="amtbl"></tbody>
@@ -1515,8 +1515,11 @@ function updateDynamicHeaders(monthKey) {
   var paceHdr = isMTD ? 'vs pace (MTD)' : '% attained';
   var goalHdr = isMTD ? '% to paced target' : '% attained';
 
-  var stPace = document.getElementById('st-pace-col-hdr');
-  if (stPace) stPace.textContent = paceHdr;
+  var stPct = document.getElementById('st-pct-col-hdr');
+if (stPct) stPct.textContent = isMTD ? '% to target' : 'final % to target';
+
+var stPace = document.getElementById('st-pace-col-hdr');
+if (stPace) stPace.textContent = isMTD ? 'vs pace (MTD)' : '';
 
   var amPace = document.getElementById('am-pace-col-hdr');
   if (amPace) amPace.textContent = paceHdr;
@@ -1870,9 +1873,13 @@ function renderS() {
   }
 
   var sub = document.getElementById('st-tbl-sub');
+  var paceHdr = document.getElementById('st-pace-col-hdr');
+if (paceHdr) {
+  paceHdr.style.display = isMTD ? '' : 'none';
+}
   if (sub) sub.textContent = isMTD
-    ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed)'
-    : '% to full monthly target';
+  ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed) with separate vs pace column'
+  : 'Completed month — showing final % to target only';
 
   var noTarget = data.filter(function(s){ return s.t === 0; });
   var allSorted = sortedByPct.concat(noTarget);
@@ -1880,13 +1887,20 @@ function renderS() {
   document.getElementById('stbl').innerHTML = allSorted.map(function(s){
   var isTopQ = topQSet.has(s.n);
   var rowCls = isTopQ ? 'top-q dr' : (s.ps.row + ' dr');
+
   var pctBadge = s.t > 0
-  ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
-  : '—';
+    ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
+    : '—';
+
+  var finalPct = s.t > 0 ? Math.round((s.a / s.t) * 100) : null;
+
+  var pctCell = isMTD
+    ? '<td class="tr">'+pctBadge+'</td>'
+    : '<td class="tr"><span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+(finalPct !== null ? finalPct + '%' : '—')+'</span></td>';
 
   var paceCell = isMTD
-  ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
-  : '<td class="tr" style="font-size:12px;color:#374151">'+Math.round((s.a / s.t) * 100)+'%</td>';
+    ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
+    : '';
 
   return '<tr class="'+rowCls+'">' +
     '<td style="font-weight:500">'+s.n+'</td>' +
@@ -1895,16 +1909,40 @@ function renderS() {
     '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
     '<td class="tr">'+parseFloat(s.t.toFixed(1))+'</td>' +
     '<td class="tr">'+s.a+'</td>' +
-    '<td class="tr">'+pctBadge+'</td>' +
+    pctCell +
     paceCell +
     '<td class="tr">'+(isTopQ ? '<span class="b gold-b">&#127942;</span>' : '')+'</td>' +
   '</tr>';
 }).join('');
 
+
+  var stTable = document.querySelector('#stbl');
+if (stTable) {
+  var rows = stTable.querySelectorAll('tr');
+  rows.forEach(function(row){
+    var cells = row.querySelectorAll('td');
+    if (cells[7]) {
+      cells[7].style.display = isMTD ? '' : 'none';
+    }
+  });
+}
+  var stTable = document.querySelector('#stbl');
+if (stTable) {
+  var rows = stTable.querySelectorAll('tr');
+  rows.forEach(function(row){
+    var cells = row.querySelectorAll('td');
+    if (cells[7]) {
+      cells[7].style.display = isMTD ? '' : 'none';
+    }
+  });
+}
+  
   var stFoot = document.getElementById('st-foot');
-  if (stFoot) {
-    stFoot.textContent = 'Sorted highest to lowest % to ' + (isMTD ? 'paced' : 'full-month') + ' target. Gold rows = top 25%. Row color = daily pace status.';
-  }
+if (stFoot) {
+  stFoot.textContent = isMTD
+    ? 'Sorted highest to lowest % to paced target. Separate vs pace column shown for MTD months. Gold rows = top 25%.'
+    : 'Sorted highest to lowest final % to target. Only one attainment column is shown for completed months. Gold rows = top 25%.';
+}
 
   document.getElementById('coaching-period').textContent = dateRangeLabel(mk);
 
@@ -2051,7 +2089,7 @@ function renderAM(filterMarket) {
   if (af) {
     af.textContent = isMTD
       ? '% to target uses paced target (' + Math.round(pace * 100) + '% of month elapsed) — consistent with store table. Daily pace = actual minus expected referrals at current pace.'
-      : 'Complete month — % to goal is final attainment vs full monthly target.';
+      : 'Complete month — % to target is final attainment vs full monthly target.';
   }
 
   document.getElementById('amtbl').innerHTML = data.map(function(r){
