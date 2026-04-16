@@ -1157,7 +1157,7 @@ tr.dr:hover td{filter:brightness(.985)}
               <tr>
                 <th style="width:18%">Market</th>
                 <th class="tr" style="width:15%">Referrals</th>
-                <th class="tr" style="width:15%">Completed</th>
+                <th class="tr" style="width:15%">Completed Repair</th>
                 <th class="tr" style="width:18%">Conv. rate</th>
                 <th class="tr" style="width:18%">Revenue</th>
               </tr>
@@ -2288,8 +2288,8 @@ function buildBiz() {
 
   var stages = [
     {label:'Referral leads',n:totR,color:'#185FA5'},
-    {label:'Booked',n:totB,color:'#3B6D11'},
-    {label:'Completed',n:totC,color:'#639922'}
+    {label:'Inspections booked',n:totB,color:'#3B6D11'},
+    {label:'Completed repairs',n:totC,color:'#639922'}
   ];
 
   document.getElementById('funnel-wrap').innerHTML = stages.map(function(s, i){
