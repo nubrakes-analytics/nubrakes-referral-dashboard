@@ -1899,8 +1899,8 @@ if (paceHdr) {
     : '<td class="tr"><span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+(finalPct !== null ? finalPct + '%' : '—')+'</span></td>';
 
   var paceCell = isMTD
-    ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
-    : '';
+  ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
+  : '<td class="tr" style="display:none"></td>';
 
   return '<tr class="'+rowCls+'">' +
     '<td style="font-weight:500">'+s.n+'</td>' +
