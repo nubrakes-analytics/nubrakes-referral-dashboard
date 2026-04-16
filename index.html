@@ -1159,12 +1159,12 @@ tr.dr:hover td{filter:brightness(.985)}
                 <th class="tr" style="width:15%">Referrals</th>
                 <th class="tr" style="width:15%">Completed</th>
                 <th class="tr" style="width:18%">Conv. rate</th>
-                <th class="tr" style="width:18%">Revenue (est.)</th>
+                <th class="tr" style="width:18%">Revenue</th>
               </tr>
             </thead>
             <tbody id="biztbl"></tbody>
           </table>
-          <div class="foot">Revenue estimated at $480 avg order. Conversion = completed ÷ referrals.</div>
+          <div class="foot">Revenue uses actual referral-channel revenue from the KPI dataset. Conversion = completed ÷ referral leads.</div>
         </div>
 
         <div class="slbl">Conversion trend</div>
@@ -1176,7 +1176,7 @@ tr.dr:hover td{filter:brightness(.985)}
               <canvas id="bizChart"></canvas>
             </div>
           </div>
-          <div class="foot">Trend uses raw monthly referral and completed job totals from the dataset.</div>
+          <div class="foot">Trend uses monthly referral-channel leads and completed-job totals from the KPI dataset.</div>
         </div>
       </div>
     </div>
@@ -1190,6 +1190,8 @@ tr.dr:hover td{filter:brightness(.985)}
    DATA CONFIG
 ========================= */
 var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
+var BIZ_LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_channel_market_kpi_daily.json';
+
 var FALLBACK_DATA = [
   {Day:"2026-01-31",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
   {Day:"2026-01-31",StoreNumber:40041,Leads:4,CompletedJobs:0,Market:"Nashville",Regional:"M Popielarz",Area:"L Hejazi",StoreManager:"Jason",ReferralTarget:1.525,CompletedTarget:0.5},
@@ -1210,12 +1212,14 @@ var FALLBACK_DATA = [
    STATE
 ========================= */
 var RAW = [];
+var BIZ_RAW = [];
 var MKTS = [];
 var MONTHS_META = [];
 var CURRENT_MONTH_KEY = '';
 var selMonthKey = '';
 var AOV = 480;
 var dataSource = 'fallback';
+var bizDataSource = 'fallback';
 var MKT_COLORS = {Atlanta:'#185FA5',Nashville:'#3B6D11',Dallas:'#854F0B',Houston:'#A32D2D'};
 var smCharts = {}, cmpChart = null, bCI = null;
 
@@ -1282,6 +1286,55 @@ function normaliseFallbackRow(r) {
   };
 }
 
+function pickNum(v) {
+  var n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function pickFirst(obj, keys) {
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    if (obj[k] != null && obj[k] !== '') return obj[k];
+  }
+  return null;
+}
+
+function normaliseBizRow(r) {
+  var dayRaw = pickFirst(r, ['Day','day','date']);
+  var dayStr = String(dayRaw || '').substring(0,10);
+  if (!dayStr) return null;
+
+  var market = pickFirst(r, ['market','Market']);
+  if (!market || market === '#N/A') return null;
+
+  var channel = String(
+    pickFirst(r, [
+      'Channel Category',
+      'channel_category',
+      'channelCategory',
+      'cat',
+      'channel',
+      'Channel'
+    ]) || ''
+  ).trim();
+
+  return {
+    day: dayStr,
+    monthKey: dayStr.substring(0,7),
+    market: market,
+    channel: channel,
+    leads: pickNum(pickFirst(r, ['leads','Leads'])),
+    booked: pickNum(pickFirst(r, ['jobs_booked','Jobs Booked','booked'])),
+    completed: pickNum(pickFirst(r, ['jobs_completed','Completed Jobs','completed'])),
+    revenue: pickNum(pickFirst(r, ['revenue','Revenue','invoiced_customer_price']))
+  };
+}
+
+function isReferralChannel(channel) {
+  var c = String(channel || '').toLowerCase();
+  return c.indexOf('referral') >= 0;
+}
+
 /* =========================
    DERIVED META
 ========================= */
@@ -1289,7 +1342,14 @@ function buildDerived() {
   var monthSet = {};
   RAW.forEach(function(r){ monthSet[r.monthKey] = true; });
 
-  var monthOrder = Object.keys(monthSet).sort();
+  var bizMonthSet = {};
+  BIZ_RAW.forEach(function(r){
+    if (isReferralChannel(r.channel)) bizMonthSet[r.monthKey] = true;
+  });
+
+  var monthOrder = Object.keys(monthSet).concat(
+    Object.keys(bizMonthSet).filter(function(k){ return !monthSet[k]; })
+  ).sort();
 
   var latestWithData = '';
   monthOrder.forEach(function(mk){
@@ -1326,6 +1386,9 @@ function buildDerived() {
 
   var mktSet = {};
   RAW.forEach(function(r){
+    if (r.market) mktSet[r.market] = true;
+  });
+  BIZ_RAW.forEach(function(r){
     if (r.market) mktSet[r.market] = true;
   });
   MKTS = Object.keys(mktSet).sort();
@@ -1421,6 +1484,22 @@ function monthMarketTotals(monthKey, market) {
     comp: comp,
     storeCount: Object.keys(storeSet).length
   };
+}
+
+function bizMonthMarketTotals(monthKey, market) {
+  var rows = BIZ_RAW.filter(function(r){
+    return r.monthKey === monthKey &&
+           r.market === market &&
+           isReferralChannel(r.channel);
+  });
+
+  return rows.reduce(function(acc, r){
+    acc.leads += r.leads;
+    acc.booked += r.booked;
+    acc.completed += r.completed;
+    acc.revenue += r.revenue;
+    return acc;
+  }, {leads:0, booked:0, completed:0, revenue:0});
 }
 
 function monthlyTargetForStoreMonth(storeNum, monthKey) {
@@ -1816,41 +1895,41 @@ function renderAM(filterMarket) {
 
   var data = Object.values(areas).map(function(r){
     var effectiveTgt = isMTD && r.t > 0 ? Math.round(r.t * pace) : r.t;
-var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
-return {
-  name: r.area,
-  market: r.market,
-  regional: r.regional,
-  cnt: Object.keys(r.storeNums).length,
-  a: r.a,
-  t: r.t,
-  effectiveTgt: effectiveTgt,
-  pctToTarget: pctToTarget,
-  ps: paceStatus(r.a, r.t, pace)
-};
+    var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+    return {
+      name: r.area,
+      market: r.market,
+      regional: r.regional,
+      cnt: Object.keys(r.storeNums).length,
+      a: r.a,
+      t: r.t,
+      effectiveTgt: effectiveTgt,
+      pctToTarget: pctToTarget,
+      ps: paceStatus(r.a, r.t, pace)
+    };
   }).sort(function(a,b){
-  var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
-  var pb = b.effectiveTgt > 0 ? b.a / b.effectiveTgt : -1;
-  return pa - pb;
-});
+    var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
+    var pb = b.effectiveTgt > 0 ? b.a / b.effectiveTgt : -1;
+    return pa - pb;
+  });
 
   var on = data.filter(function(x){ return x.ps.cls === 'cg'; }).length;
   var at = data.filter(function(x){ return x.ps.cls === 'ca'; }).length;
   var bh = data.filter(function(x){ return x.ps.cls === 'cr'; }).length;
   var wa = data.filter(function(x){ return x.t > 0; });
-var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / wa.length) + '%' : '—';
-  
+  var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / wa.length) + '%' : '—';
+
   document.getElementById('am-scorecards').innerHTML =
     makeScorecard('On track', on, '≥ daily pace', 'win') +
     makeScorecard('At risk', at, 'within 10% of pace', 'warn') +
     makeScorecard('Behind', bh, '>10% behind pace', 'danger') +
-makeScorecard('Avg % to target', avg, isMTD ? 'vs paced target' : 'vs full-month target', 'neutral');
-  
+    makeScorecard('Avg % to target', avg, isMTD ? 'vs paced target' : 'vs full-month target', 'neutral');
+
   var af = document.getElementById('am-foot');
   if (af) {
     af.textContent = isMTD
-  ? '% to target uses paced target (' + Math.round(pace * 100) + '% of month elapsed) — consistent with store table. Daily pace = actual minus expected referrals at current pace.'
-  : 'Complete month — % to goal is final attainment vs full monthly target.';
+      ? '% to target uses paced target (' + Math.round(pace * 100) + '% of month elapsed) — consistent with store table. Daily pace = actual minus expected referrals at current pace.'
+      : 'Complete month — % to goal is final attainment vs full monthly target.';
   }
 
   document.getElementById('amtbl').innerHTML = data.map(function(r){
@@ -2143,31 +2222,32 @@ function buildBiz() {
   document.getElementById('funnel-period').textContent = dateRangeLabel(mk);
 
   var mktRows = MKTS.map(function(m){
-    var totals = monthMarketTotals(mk, m);
-    var cvr = totals.leads > 0 ? Math.round(totals.comp / totals.leads * 100) : 0;
+    var totals = bizMonthMarketTotals(mk, m);
+    var cvr = totals.leads > 0 ? Math.round(totals.completed / totals.leads * 100) : 0;
     return {
       m: m,
       leads: totals.leads,
-      comp: totals.comp,
+      booked: totals.booked,
+      comp: totals.completed,
       cvr: cvr,
-      rev: totals.comp * AOV
+      rev: totals.revenue
     };
   });
 
   var totR = mktRows.reduce(function(s,r){ return s + r.leads; }, 0);
+  var totB = mktRows.reduce(function(s,r){ return s + r.booked; }, 0);
   var totC = mktRows.reduce(function(s,r){ return s + r.comp; }, 0);
-  var totCvr = totR > 0 ? Math.round(totC / totR * 100) : 0;
+  var totRev = mktRows.reduce(function(s,r){ return s + r.rev; }, 0);
 
   document.getElementById('biz-scorecards').innerHTML =
-    makeScorecard('Total referrals', totR, 'all markets', 'neutral') +
-    makeScorecard('Completed repairs', totC, 'from referrals', 'win') +
-    makeScorecard('Conversion rate', totCvr + '%', 'referral → repair', totCvr >= 30 ? 'win' : totCvr >= 20 ? 'warn' : 'danger') +
-    makeScorecard('Est. revenue', '$' + Math.round(totC * AOV / 1000) + 'k', 'at $480 avg order', 'neutral');
+    makeScorecard('Referral leads', totR, 'channel = referral', 'neutral') +
+    makeScorecard('Jobs booked', totB, 'from referral leads', 'neutral') +
+    makeScorecard('Completed repairs', totC, 'from referral leads', 'win') +
+    makeScorecard('Referral revenue', '$' + Math.round(totRev / 1000) + 'k', 'actual revenue', 'neutral');
 
-  var totBooked = Math.round(totR * 0.47);
   var stages = [
-    {label:'Referrals',n:totR,color:'#185FA5'},
-    {label:'Est. booked',n:totBooked,color:'#3B6D11'},
+    {label:'Referral leads',n:totR,color:'#185FA5'},
+    {label:'Booked',n:totB,color:'#3B6D11'},
     {label:'Completed',n:totC,color:'#639922'}
   ];
 
@@ -2179,7 +2259,7 @@ function buildBiz() {
       '<div class="funnel-row">' +
         '<div class="funnel-label">'+s.label+'</div>' +
         '<div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:'+pct+'%;background:'+s.color+'">'+s.n+'</div></div>' +
-        '<div class="funnel-num">'+pct+'% of refs</div>' +
+        '<div class="funnel-num">'+pct+'% of leads</div>' +
         (drop !== null ? '<div class="funnel-drop">−'+drop+'% drop</div>' : '<div class="funnel-drop"></div>') +
       '</div>';
   }).join('');
@@ -2203,8 +2283,8 @@ function buildBiz() {
     return {
       label:m,
       data:MONTHS_META.map(function(mm){
-        var t = monthMarketTotals(mm.key, m);
-        return t.leads > 0 ? Math.round(t.comp / t.leads * 100) : 0;
+        var t = bizMonthMarketTotals(mm.key, m);
+        return t.leads > 0 ? Math.round(t.completed / t.leads * 100) : 0;
       }),
       borderColor:safeColor(m),
       borderWidth:2.5,
@@ -2239,7 +2319,7 @@ function buildBiz() {
       },
       scales:{
         x:{grid:{color:'#F1EFE8'},ticks:{font:{size:11},color:'#888780'}},
-        y:{grid:{color:'#F1EFE8'},min:0,suggestedMax:40,ticks:{font:{size:11},color:'#888780',callback:function(v){ return v + '%'; }},title:{display:true,text:'Conversion rate',font:{size:11},color:'#888780'}}
+        y:{grid:{color:'#F1EFE8'},min:0,suggestedMax:40,ticks:{font:{size:11},color:'#888780',callback:function(v){ return v + '%'; }},title:{display:true,text:'Referral conversion rate',font:{size:11},color:'#888780'}}
       }
     }
   });
@@ -2317,10 +2397,7 @@ function sw(t) {
 /* =========================
    LOAD DATA
 ========================= */
-function initWithData(rows, source) {
-  RAW = rows;
-  dataSource = source;
-
+function applyLoadedState(source) {
   buildDerived();
   buildAllDDs();
   selectMonth(CURRENT_MONTH_KEY);
@@ -2348,22 +2425,45 @@ function initWithData(rows, source) {
 function loadData() {
   document.getElementById('loading-text').textContent = 'Fetching live data…';
 
-  fetch(LIVE_URL)
-    .then(function(res){
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+  Promise.all([
+    fetch(LIVE_URL).then(function(res){
+      if (!res.ok) throw new Error('Referral dashboard HTTP ' + res.status);
+      return res.json();
+    }),
+    fetch(BIZ_LIVE_URL).then(function(res){
+      if (!res.ok) throw new Error('Business outcomes HTTP ' + res.status);
       return res.json();
     })
-    .then(function(json){
-      document.getElementById('loading-text').textContent = 'Processing ' + json.length + ' records…';
-      var rows = json.map(normaliseRow).filter(Boolean);
-      if (!rows.length) throw new Error('No usable rows');
-      initWithData(rows, 'live');
+  ])
+    .then(function(results){
+      var referralJson = results[0];
+      var bizJson = results[1];
+
+      document.getElementById('loading-text').textContent =
+        'Processing ' + referralJson.length + ' referral rows and ' + bizJson.length + ' KPI rows…';
+
+      var referralRows = referralJson.map(normaliseRow).filter(Boolean);
+      var bizRows = bizJson.map(normaliseBizRow).filter(Boolean);
+
+      if (!referralRows.length) throw new Error('No usable referral rows');
+
+      RAW = referralRows;
+      BIZ_RAW = bizRows;
+      dataSource = 'live';
+      bizDataSource = bizRows.length ? 'live' : 'fallback';
+
+      applyLoadedState('live');
     })
     .catch(function(err){
       console.warn('Live data fetch failed, using fallback:', err.message);
       document.getElementById('loading-text').textContent = 'Using fallback data…';
-      var rows = FALLBACK_DATA.map(normaliseFallbackRow).filter(Boolean);
-      initWithData(rows, 'fallback');
+
+      RAW = FALLBACK_DATA.map(normaliseFallbackRow).filter(Boolean);
+      BIZ_RAW = [];
+      dataSource = 'fallback';
+      bizDataSource = 'fallback';
+
+      applyLoadedState('fallback');
     });
 }
 
