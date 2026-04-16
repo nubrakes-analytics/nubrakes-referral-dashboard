@@ -2002,20 +2002,20 @@ function renderAM(filterMarket) {
   });
 
   var data = Object.values(areas).map(function(r){
-    var effectiveTgt = isMTD && r.t > 0 ? Math.round(r.t * pace) : r.t;
-    var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
-    return {
-      name: r.area,
-      market: r.market,
-      regional: r.regional,
-      cnt: Object.keys(r.storeNums).length,
-      a: r.a,
-      t: r.t,
-      effectiveTgt: effectiveTgt,
-      pctToTarget: pctToTarget,
-      ps: paceStatus(r.a, r.t, pace)
-    };
-  }).sort(function(a,b){
+  var effectiveTgt = isMTD && r.t > 0 ? (r.t * pace) : r.t;
+  var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+  return {
+    name: r.area,
+    market: r.market,
+    regional: r.regional,
+    cnt: Object.keys(r.storeNums).length,
+    a: r.a,
+    t: r.t,
+    effectiveTgt: effectiveTgt,
+    pctToTarget: pctToTarget,
+    ps: paceStatus(r.a, r.t, pace)
+  };
+}).sort(function(a,b){
     var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
     var pb = b.effectiveTgt > 0 ? b.a / b.effectiveTgt : -1;
     return pa - pb;
@@ -2041,7 +2041,7 @@ function renderAM(filterMarket) {
   }
 
   document.getElementById('amtbl').innerHTML = data.map(function(r){
-    var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : null;
+    var pv = r.t > 0 ? (r.a - (r.t * pace)) : null;
     return '<tr class="dr '+r.ps.row+'">' +
       '<td style="font-weight:500">'+r.name+'</td>' +
       '<td style="font-size:12px;color:#888780">'+r.market+'</td>' +
@@ -2049,7 +2049,7 @@ function renderAM(filterMarket) {
       '<td class="tr">'+r.cnt+'</td>' +
       '<td class="tr">'+parseFloat(r.t.toFixed(1))+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
-      '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv + ' vs pace' : '—')+'</td>' +
+      '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv > 0 ? '+' : '') + pv.toFixed(1) + ' vs pace' : '—')+'</td>' +
       '<td class="tr"><span class="b '+(r.t > 0 ? (r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 70 ? 'ba' : 'br') : 'bt')+'">'+(r.t > 0 ? r.pctToTarget + '%' : '—')+'</span></td>' +
     '</tr>';
   }).join('');
@@ -2105,7 +2105,8 @@ function buildOv() {
     makeScorecard(isMTD ? 'Days elapsed' : 'Month status', isMTD ? (meta.daysElapsed + ' / ' + meta.daysTotal) : 'Complete', isMTD ? Math.round(pace * 100) + '% of month done' : 'Full results', 'neutral');
 
   var ranked = rows.slice().map(function(r){
-  var effectiveTgt = isMTD && r.t > 0 ? Math.round(r.t * pace) : r.t;
+  var effectiveTgt = isMTD && r.t > 0 ? (r.t * pace) : r.t;
+  r.effectiveTgt = effectiveTgt;
   r.pctToPace = effectiveTgt > 0 ? r.a / effectiveTgt : 0;
   r.pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
   return r;
@@ -2119,7 +2120,7 @@ function buildOv() {
     var paceW = Math.min(Math.round(pace * 100), 100);
     var fc = ps.cls === 'cg' ? 'fg' : ps.cls === 'ca' ? 'fa' : 'fr';
     var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
-    var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : 0;
+    var pv = r.t > 0 ? (r.a - (r.t * pace)) : 0;
 
     function ordinal(n){
       var s = ["th","st","nd","rd"];
@@ -2141,8 +2142,8 @@ function buildOv() {
         (isMTD ? '<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>' : '') +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-        '<span class="mcard-status '+stCls+'">'+(pv >= 0 ? '+' : '')+pv+' daily pace</span>' +
-        '<span style="font-size:12px;color:#888780">'+pc(r.a, r.t)+'% to goal</span>' +
+        '<span class="mcard-status '+stCls+'">'+(pv >= 0 ? '+' : '')+pv.toFixed(1)+' daily pace</span>' +
+        '<span style="font-size:12px;color:#888780">'+(r.t > 0 ? r.pctToTarget : 0)+'% to '+(isMTD ? 'paced target' : 'goal')+'</span>' +
       '</div>' +
       (isMTD && r.t > 0 ? '<div style="font-size:11px;color:#888780;margin-top:5px">Paced target today: '+Math.round(r.t * pace)+'</div>' : '') +
     '</div>';
@@ -2160,8 +2161,8 @@ function buildOv() {
       '<td class="tr">'+r.t+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td>' +
-      '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv + ' vs pace' : '—')+'</td>' +
-      '<td class="tr"><span class="b '+ps.badge+'">'+pc(r.a, r.t)+'%</span></td>' +
+      '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv.toFixed(1) + ' vs pace' : '—')+'</td>' +
+      '<td class="tr"><span class="b '+ps.badge+'">'+(r.t > 0 ? r.pctToTarget + '%' : '—')+'</span></td>' +
     '</tr>';
   }).join('');
 
