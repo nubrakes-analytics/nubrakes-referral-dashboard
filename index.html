@@ -1485,6 +1485,20 @@ function attainOrPaceCell(a, t, pace, isMTD) {
   return vsPaceStr(a, t, pace);
 }
 
+function displayPctBadge(pct, hasTarget) {
+  if (!hasTarget) return '—';
+  if (pct >= 150) return '&gt;150%';
+  return pct + '%';
+}
+
+function displayPctBadgeMinimal(pct, hasTarget) {
+  if (!hasTarget) return '—';
+  if (pct >= 100) return '&#10003; On pace';
+  return pct + '%';
+}
+
+  
+
 function paceNoteText(monthKey) {
   var meta = getMeta(monthKey);
   if (!meta) return '';
@@ -1867,8 +1881,8 @@ function renderS() {
   var isTopQ = topQSet.has(s.n);
   var rowCls = isTopQ ? 'top-q dr' : (s.ps.row + ' dr');
   var pctBadge = s.t > 0
-    ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+s.pctToTarget+'%</span>'
-    : '—';
+  ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
+  : '—';
 
   var paceCell = isMTD
   ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
@@ -2050,7 +2064,7 @@ function renderAM(filterMarket) {
       '<td class="tr">'+parseFloat(r.t.toFixed(1))+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv > 0 ? '+' : '') + pv.toFixed(1) + ' vs pace' : '—')+'</td>' +
-      '<td class="tr"><span class="b '+(r.t > 0 ? (r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 70 ? 'ba' : 'br') : 'bt')+'">'+(r.t > 0 ? r.pctToTarget + '%' : '—')+'</span></td>' +
+      '<td class="tr"><span class="b '+(r.t > 0 ? (r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 70 ? 'ba' : 'br') : 'bt')+'">'+displayPctBadge(r.pctToTarget, r.t > 0)+'</span></td>' +
     '</tr>';
   }).join('');
 }
@@ -2162,7 +2176,7 @@ function buildOv() {
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td>' +
       '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv.toFixed(1) + ' vs pace' : '—')+'</td>' +
-      '<td class="tr"><span class="b '+ps.badge+'">'+(r.t > 0 ? r.pctToTarget + '%' : '—')+'</span></td>' +
+      '<td class="tr"><span class="b '+ps.badge+'">'+displayPctBadge(r.pctToTarget, r.t > 0)+'</span></td>' +
     '</tr>';
   }).join('');
 
