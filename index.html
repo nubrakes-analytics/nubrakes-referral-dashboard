@@ -1043,7 +1043,7 @@ tr.dr:hover td{filter:brightness(.985)}
               <th class="tr" style="width:10%">Actual</th>
               <th class="tr" style="width:9%">Avg/store</th>
               <th class="tr" style="width:14%" id="mkt-pace-col-hdr">vs pace (MTD)</th>
-              <th class="tr" style="width:12%" id="mkt-attain-col-hdr">% to target<</th>
+              <th class="tr" style="width:12%" id="mkt-attain-col-hdr">% to target</th>
             </tr>
           </thead>
           <tbody id="mtbl"></tbody>
@@ -1916,19 +1916,15 @@ if (paceHdr) {
 }).join('');
 
 
-  var stTable = document.querySelector('#stbl');
-if (stTable) {
-  var rows = stTable.querySelectorAll('tr');
-  rows.forEach(function(row){
-    var cells = row.querySelectorAll('td');
-    if (cells[7]) {
-      cells[7].style.display = isMTD ? '' : 'none';
-    }
-  });
+  var stHeadRow = document.querySelector('#pg-st thead tr');
+if (stHeadRow) {
+  var ths = stHeadRow.querySelectorAll('th');
+  if (ths[7]) ths[7].style.display = isMTD ? '' : 'none';
 }
-  var stTable = document.querySelector('#stbl');
-if (stTable) {
-  var rows = stTable.querySelectorAll('tr');
+
+var stBody = document.getElementById('stbl');
+if (stBody) {
+  var rows = stBody.querySelectorAll('tr');
   rows.forEach(function(row){
     var cells = row.querySelectorAll('td');
     if (cells[7]) {
