@@ -460,7 +460,6 @@ tr:last-child td{border-bottom:none}
 tr.win-row td{background:rgba(16,185,129,0.08)}
 tr.warn-row td{background:rgba(245,158,11,0.10)}
 tr.danger-row td{background:rgba(244,63,94,0.08)}
-tr.top-q td{background:#fffbeb}
 tr.dr:hover td{filter:brightness(.985)}
 
 /* badges */
@@ -475,7 +474,6 @@ tr.dr:hover td{filter:brightness(.985)}
 .ba{background:var(--bg-warning);color:#c2410c}
 .br{background:var(--bg-negative);color:#9f1239}
 .bt{background:var(--bg-muted);color:var(--text-main)}
-.gold-b{background:#f59e0b;color:#fff}
 
 /* panel foot / legend */
 .foot{
@@ -877,6 +875,28 @@ tr.dr:hover td{filter:brightness(.985)}
     margin-bottom:18px;
   }
 }
+
+/* ── Collapsible sections ── */
+.section-hdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  user-select:none;
+  padding:6px 0;
+}
+.section-hdr:hover .slbl{color:var(--text-strong)}
+.section-toggle{
+  font-size:13px;
+  color:var(--text-soft);
+  transition:transform .2s;
+  margin-left:8px;
+  flex-shrink:0;
+}
+.section-toggle.open{transform:rotate(0deg)}
+.section-toggle.closed{transform:rotate(-90deg)}
+.section-body{overflow:hidden;transition:max-height .25s ease}
+.section-body.collapsed{max-height:0 !important}
 </style>
 </head>
 <body>
@@ -931,10 +951,18 @@ tr.dr:hover td{filter:brightness(.985)}
         </select>
       </div>
 
-      <div class="mrow" id="st-scorecards"></div>
+      <div class="section-hdr" id="sh-st-scores" data-body="sb-st-scores">
+        <span class="slbl">Performance summary</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-st-scores">
+        <div class="mrow" id="st-scorecards"></div>
+        <div id="tq-callout-wrap"></div>
+      </div>
 
-      <div id="tq-callout-wrap"></div>
-
+      <div class="section-hdr" id="sh-st-tbl" data-body="sb-st-tbl">
+        <span class="slbl">Store attainment</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-st-tbl">
       <div class="panel">
         <div class="ph">
           <span class="pt">Store attainment — sorted by % to target</span>
@@ -958,8 +986,12 @@ tr.dr:hover td{filter:brightness(.985)}
         </table>
         <div class="foot" id="st-foot"></div>
       </div>
+      </div><!-- /sb-st-tbl -->
 
-      <div class="slbl">Coaching spotlight</div>
+      <div class="section-hdr" id="sh-st-coach" data-body="sb-st-coach">
+        <span class="slbl">Coaching spotlight</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-st-coach">
       <div class="panel">
         <div class="ph">
           <span class="pt">Action items for area managers</span>
@@ -967,6 +999,7 @@ tr.dr:hover td{filter:brightness(.985)}
         </div>
         <div class="coaching-wrap" id="coaching-wrap"></div>
       </div>
+      </div><!-- /sb-st-coach -->
     </div>
 
     <!-- AREA MANAGER VIEW -->
@@ -987,8 +1020,24 @@ tr.dr:hover td{filter:brightness(.985)}
         </select>
       </div>
 
-      <div class="mrow" id="am-scorecards"></div>
+      <div class="section-hdr" id="sh-am-scores" data-body="sb-am-scores">
+        <span class="slbl">Performance summary</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-am-scores">
+        <div class="mrow" id="am-scorecards"></div>
+      </div>
 
+      <div class="section-hdr" id="sh-am-ldr" data-body="sb-am-ldr">
+        <span class="slbl">Area manager leaderboard — ranked by % to paced target</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-am-ldr">
+        <div class="mgrid" id="am-mcards"></div>
+      </div>
+
+      <div class="section-hdr" id="sh-am-tbl" data-body="sb-am-tbl">
+        <span class="slbl">Area manager detail</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-am-tbl">
       <div class="panel">
         <div class="ph"><span class="pt">Area manager attainment — lowest to highest</span></div>
         <table>
@@ -1008,6 +1057,7 @@ tr.dr:hover td{filter:brightness(.985)}
         </table>
         <div class="foot" id="am-foot"></div>
       </div>
+      </div><!-- /sb-am-tbl -->
     </div>
 
     <!-- MARKET OVERVIEW -->
@@ -1021,16 +1071,26 @@ tr.dr:hover td{filter:brightness(.985)}
         <div class="dr-label" id="dr-lbl"></div>
       </div>
 
-      <div class="slbl">Month summary</div>
-      <div class="mrow" id="ov-scorecards"></div>
+      <div class="section-hdr" id="sh-ov-scores" data-body="sb-ov-scores">
+        <span class="slbl">Month summary</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-ov-scores">
+        <div class="mrow" id="ov-scorecards"></div>
+      </div>
 
-      <div class="slbl">Market leaderboard — ranked by % to paced target</div>
-      <div class="mgrid" id="mcards"></div>
+      <div class="section-hdr" id="sh-ov-ldr" data-body="sb-ov-ldr">
+        <span class="slbl">Market leaderboard — ranked by % to paced target</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-ov-ldr">
+        <div class="mgrid" id="mcards"></div>
+      </div>
 
-      <div class="slbl">Market summary</div>
+      <div class="section-hdr" id="sh-ov-tbl" data-body="sb-ov-tbl">
+        <span class="slbl">Market summary</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-ov-tbl">
       <div class="panel">
         <div class="ph"><span class="pt" id="mkt-tbl-title"></span></div>
-        <div class="metric-key" id="metric-key"></div>
         <table>
           <thead>
             <tr>
@@ -1049,9 +1109,14 @@ tr.dr:hover td{filter:brightness(.985)}
           <tbody id="mtbl"></tbody>
         </table>
         <div class="foot" id="mkt-foot"></div>
+        <div class="metric-key" id="metric-key"></div>
       </div>
+      </div><!-- /sb-ov-tbl -->
 
-      <div class="slbl">Referral performance by market</div>
+      <div class="section-hdr" id="sh-ov-charts" data-body="sb-ov-charts">
+        <span class="slbl">Referral performance by market</span><span class="section-toggle open">▾</span>
+      </div>
+      <div class="section-body" id="sb-ov-charts">
       <div class="panel">
         <div class="ph">
           <div>
@@ -1092,6 +1157,7 @@ tr.dr:hover td{filter:brightness(.985)}
           <div class="foot" id="cmp-foot"></div>
         </div>
       </div>
+      </div><!-- /sb-ov-charts -->
     </div>
 
     <!-- BUSINESS OUTCOMES -->
@@ -1139,7 +1205,10 @@ tr.dr:hover td{filter:brightness(.985)}
 
         <div class="mrow" id="biz-scorecards"></div>
 
-        <div class="slbl">Referral pipeline</div>
+        <div class="section-hdr" id="sh-biz-funnel" data-body="sb-biz-funnel">
+          <span class="slbl">Referral pipeline</span><span class="section-toggle open">▾</span>
+        </div>
+        <div class="section-body" id="sb-biz-funnel">
         <div class="panel">
           <div class="ph">
             <span class="pt">Referral → repair funnel</span>
@@ -1148,8 +1217,12 @@ tr.dr:hover td{filter:brightness(.985)}
           <div class="funnel-wrap" id="funnel-wrap"></div>
           <div class="foot">Drop-off = records lost at each stage vs previous stage.</div>
         </div>
+        </div><!-- /sb-biz-funnel -->
 
-        <div class="slbl">Conversion by market</div>
+        <div class="section-hdr" id="sh-biz-conv" data-body="sb-biz-conv">
+          <span class="slbl">Conversion by market</span><span class="section-toggle open">▾</span>
+        </div>
+        <div class="section-body" id="sb-biz-conv">
         <div class="panel">
           <div class="ph"><span class="pt">Referrals → completed repairs by market</span></div>
           <table>
@@ -1167,7 +1240,12 @@ tr.dr:hover td{filter:brightness(.985)}
           <div class="foot">Revenue uses actual referral-channel revenue from the KPI dataset. Conversion = completed ÷ referral leads.</div>
         </div>
 
-        <div class="slbl">Conversion trend</div>
+        </div><!-- /sb-biz-conv -->
+
+        <div class="section-hdr" id="sh-biz-trend" data-body="sb-biz-trend">
+          <span class="slbl">Conversion trend</span><span class="section-toggle open">▾</span>
+        </div>
+        <div class="section-body" id="sb-biz-trend">
         <div class="panel">
           <div class="ph"><span class="pt">Monthly conversion rate by market</span></div>
           <div class="legend" id="biz-legend"></div>
@@ -1178,6 +1256,7 @@ tr.dr:hover td{filter:brightness(.985)}
           </div>
           <div class="foot">Trend uses monthly referral-channel leads and completed-job totals from the KPI dataset.</div>
         </div>
+        </div><!-- /sb-biz-trend -->
       </div>
     </div>
 
@@ -1217,7 +1296,7 @@ var MKTS = [];
 var MONTHS_META = [];
 var CURRENT_MONTH_KEY = '';
 var selMonthKey = '';
-var AOV = 480;
+/* AOV removed — revenue now comes from actual biz data */
 var DATA_AGE_DAYS = 0;
 var dataSource = 'fallback';
 var bizDataSource = 'fallback';
@@ -1236,6 +1315,25 @@ var pinEntry = '';
 var bizUnlocked = false;
 
 var DASHBOARD_MARKETS = ['Nashville', 'Dallas', 'Atlanta', 'Louisville', 'Houston'];
+
+/* Launch months — first month each market went live (YYYY-MM).
+   Used only to label months before launch as "pre-launch" when no target
+   exists in the data. Targets are NOT pro-rated here — live data already
+   contains the correct (pre-adjusted) target values. */
+var MARKET_LAUNCH_MONTH = {
+  Nashville:  '2026-01',
+  Dallas:     '2026-02',
+  Atlanta:    '2026-02',
+  Houston:    '2026-03',
+  Louisville: '2026-04'
+};
+
+/* True if the market was live (at least partially) during monthKey ('YYYY-MM') */
+function marketWasLive(market, monthKey) {
+  var launch = MARKET_LAUNCH_MONTH[market];
+  if (!launch) return true; // unknown market — assume live
+  return monthKey >= launch;
+}
 
 /* =========================
    MARKET HELPERS
@@ -1461,21 +1559,13 @@ function paceStatus(a, t, pace) {
 }
 
 function vsPaceStr(a, t, pace) {
-  if (t <= 0) return '—';
-
-  var pacedTarget = t * pace;
-  var v = a - pacedTarget;
-
-  if (Math.abs(v) < 0.05) return 'on pace';
-
-  return v > 0
-    ? '+' + v.toFixed(1) + ' referrals ahead'
-    : v.toFixed(1) + ' referrals behind';
+  if (!hasValidTarget(t)) return '—';
+  var v = Math.round(a - t * pace);
+  if (v === 0) return 'on pace';
+  return v > 0 ? '+' + v + ' referrals ahead' : v + ' referrals behind';
 }
 
-  function paceColHeader(isMTD) {
-  return isMTD ? 'vs pace (MTD)' : '% attained';
-}
+
 
 function attainOrPaceCell(a, t, pace, isMTD) {
   if (!isMTD) {
@@ -1491,11 +1581,7 @@ function displayPctBadge(pct, hasTarget) {
   return pct + '%';
 }
 
-function displayPctBadgeMinimal(pct, hasTarget) {
-  if (!hasTarget) return '—';
-  if (pct >= 100) return '&#10003; On pace';
-  return pct + '%';
-}
+
 
   
 
@@ -1616,9 +1702,22 @@ function bizMonthMarketTotals(monthKey, market) {
   }, {leads:0, booked:0, completed:0, revenue:0});
 }
 
+/* Return value: positive number = valid target,
+   -1 = pre-launch (no target expected),
+   -2 = post-launch but no target found (flag as missing) */
+/* Return values:
+     positive  = valid monthly target from data
+     -1        = pre-launch (month is before market went live)
+     0         = no target found (post-launch, data present, but no target field) */
 function monthlyTargetForStoreMonth(storeNum, monthKey) {
-  var meta = getMeta(monthKey);
-  if (!meta) return 0;
+  // Find this store's market (look across all months)
+  var storeMarket = null;
+  for (var i = 0; i < RAW.length; i++) {
+    if (RAW[i].storeNum == storeNum) { storeMarket = RAW[i].market; break; }
+  }
+
+  // Pre-launch month — label as such, not a missing target
+  if (storeMarket && !marketWasLive(storeMarket, monthKey)) return -1;
 
   var rows = RAW.filter(function(r){
     return r.storeNum == storeNum && r.monthKey === monthKey;
@@ -1626,31 +1725,39 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
 
   if (!rows.length) return 0;
 
+  // Prefer explicit monthly target from data (already adjusted if needed)
   var monthlyRows = rows.filter(function(r){
-    return typeof r.monthlyRefTarget === 'number' && !isNaN(r.monthlyRefTarget);
+    return typeof r.monthlyRefTarget === 'number' && !isNaN(r.monthlyRefTarget) && r.monthlyRefTarget > 0;
   });
-
   if (monthlyRows.length > 0) {
     var sum = 0;
     monthlyRows.forEach(function(r){ sum += r.monthlyRefTarget; });
     return sum / monthlyRows.length;
   }
 
+  // Fallback: daily target × days in month (only if daily targets exist)
+  var meta = getMeta(monthKey);
   var seenDay = {};
   var sumDaily = 0;
+  var hasDaily = false;
   rows.forEach(function(r){
     if (!seenDay[r.day]) {
       seenDay[r.day] = true;
+      if (r.dailyRefTarget > 0) hasDaily = true;
       sumDaily += (r.dailyRefTarget || 0);
     }
   });
+  if (!hasDaily) return 0; // post-launch but genuinely no target in data
 
-  if (meta.isMTD && meta.daysElapsed > 0) {
+  if (meta && meta.isMTD && meta.daysElapsed > 0) {
     return sumDaily * meta.daysTotal / meta.daysElapsed;
   }
-
   return sumDaily;
 }
+
+/* Helpers to interpret monthlyTargetForStoreMonth return values */
+function isPreLaunch(t) { return t === -1; }
+function hasValidTarget(t) { return t > 0; }
 
 function monthlyTarget(monthKey, market) {
   var storeMap = {};
@@ -1661,7 +1768,8 @@ function monthlyTarget(monthKey, market) {
   });
 
   var total = Object.keys(storeMap).reduce(function(sum, storeNum){
-    return sum + monthlyTargetForStoreMonth(storeNum, monthKey);
+    var t = monthlyTargetForStoreMonth(storeNum, monthKey);
+    return sum + (hasValidTarget(t) ? t : 0); // exclude -1 (pre-launch) and 0
   }, 0);
 
   return Math.round(total);
@@ -1742,6 +1850,9 @@ function selectMonth(key) {
 
   buildOv();
   renderAM(document.getElementById('am-mkt-sel').value || 'all');
+  refreshCollapsible('sb-am-scores');
+  refreshCollapsible('sb-am-ldr');
+  refreshCollapsible('sb-am-tbl');
   renderS();
   if (bizUnlocked) buildBiz();
 }
@@ -1821,7 +1932,7 @@ function renderS() {
   };
 });
 
-  var withTarget = data.filter(function(s){ return s.t > 0; });
+  var withTarget = data.filter(function(s){ return hasValidTarget(s.t); });
   var sortedByPct = withTarget.slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
 
   var tqCount = Math.max(1, Math.ceil(sortedByPct.length * 0.25));
@@ -1848,7 +1959,7 @@ function renderS() {
   if (tqWrap && withTarget.length > 0) {
     tqWrap.innerHTML =
       '<div class="tq-callout">' +
-        '<div class="tq-title"><span>&#127942;</span> Top quartile spotlight — ranked by % to target</div>' +
+        '<div class="tq-title">Top quartile spotlight — ranked by % to target</div>' +
         '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:4px">' +
           '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Top 25% avg</div><div class="tq-stat">'+topQAvg+'%</div></div>' +
           '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Bottom 25% avg</div><div class="tq-stat" style="color:#A32D2D">'+bottomQAvg+'%</div></div>' +
@@ -1881,41 +1992,50 @@ if (paceHdr) {
   ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed) with separate vs pace column'
   : 'Completed month — showing final % to target only';
 
-  var noTarget = data.filter(function(s){ return s.t === 0; });
+  var noTarget = data.filter(function(s){ return !hasValidTarget(s.t); });
   var allSorted = sortedByPct.concat(noTarget);
 
   document.getElementById('stbl').innerHTML = allSorted.map(function(s){
   var isTopQ = topQSet.has(s.n);
-  var rowCls = isTopQ ? 'top-q dr' : (s.ps.row + ' dr');
+  var rowCls = s.ps.row + ' dr';
+  var hasT = hasValidTarget(s.t);
+  var preLaunch = isPreLaunch(s.t);
 
-  var pctBadge = s.t > 0
+  var tgtCell = preLaunch
+    ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
+    : '<td class="tr">'+(hasT ? parseFloat(s.t.toFixed(1)) : '—')+'</td>';
+
+  var pctBadge = hasT
     ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
     : '—';
 
-  var finalPct = s.t > 0 ? Math.round((s.a / s.t) * 100) : null;
+  var finalPct = hasT ? Math.round((s.a / s.t) * 100) : null;
 
   var pctCell = isMTD
     ? '<td class="tr">'+pctBadge+'</td>'
-    : '<td class="tr"><span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+(finalPct !== null ? finalPct + '%' : '—')+'</span></td>';
+    : '<td class="tr">'+(finalPct !== null ? '<span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+finalPct+'%</span>' : '—')+'</td>';
 
   var paceCell = isMTD
-  ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
-  : '<td class="tr" style="display:none"></td>';
+    ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
+    : '<td class="tr" style="display:none"></td>';
 
   return '<tr class="'+rowCls+'">' +
     '<td style="font-weight:500">'+s.n+'</td>' +
     '<td style="font-size:12px">'+s.mgr+'</td>' +
     '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
     '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
-    '<td class="tr">'+parseFloat(s.t.toFixed(1))+'</td>' +
+    tgtCell +
     '<td class="tr">'+s.a+'</td>' +
     pctCell +
     paceCell +
-    '<td class="tr">'+(isTopQ ? '<span class="b gold-b">&#127942;</span>' : '')+'</td>' +
+    '<td class="tr">'+(isTopQ ? '<span class="b bg" style="padding:2px 6px">&#127942;</span>' : '')+'</td>' +
   '</tr>';
 }).join('');
 
 
+  refreshCollapsible('sb-st-scores');
+  refreshCollapsible('sb-st-tbl');
+  refreshCollapsible('sb-st-coach');
   var stHeadRow = document.querySelector('#pg-st thead tr');
 if (stHeadRow) {
   var ths = stHeadRow.querySelectorAll('th');
@@ -1953,7 +2073,7 @@ if (stFoot) {
     });
   }
 
-  var zeros = data.filter(function(s){ return s.a === 0 && s.t > 0; });
+  var zeros = data.filter(function(s){ return s.a === 0 && hasValidTarget(s.t); });
   if (zeros.length > 0) {
     var zAreas = Array.from(new Set(zeros.map(function(s){ return s.area; })));
     items.push({
@@ -2050,7 +2170,7 @@ function renderAM(filterMarket) {
   });
 
   var data = Object.values(areas).map(function(r){
-  var effectiveTgt = isMTD && r.t > 0 ? (r.t * pace) : r.t;
+  var effectiveTgt = isMTD && hasValidTarget(r.t) ? (r.t * pace) : (hasValidTarget(r.t) ? r.t : 0);
   var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
   return {
     name: r.area,
@@ -2076,9 +2196,9 @@ function renderAM(filterMarket) {
   var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / wa.length) + '%' : '—';
 
   document.getElementById('am-scorecards').innerHTML =
-    makeScorecard('On track', on, '≥ daily pace', 'win') +
-    makeScorecard('At risk', at, 'within 10% of pace', 'warn') +
-    makeScorecard('Behind', bh, '>10% behind pace', 'danger') +
+    makeScorecard('On track', on, '≥100% of paced target', 'win') +
+    makeScorecard('At risk', at, '80–99% of paced target', 'warn') +
+    makeScorecard('Behind', bh, '<80% of paced target', 'danger') +
     makeScorecard('Avg % to target', avg, isMTD ? 'vs paced target' : 'vs full-month target', 'neutral');
 
   var af = document.getElementById('am-foot');
@@ -2089,18 +2209,70 @@ function renderAM(filterMarket) {
   }
 
   document.getElementById('amtbl').innerHTML = data.map(function(r){
-    var pv = r.t > 0 ? (r.a - (r.t * pace)) : null;
+    var tgt = r.t;
+    var tgtCell = isPreLaunch(tgt) ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
+                : !hasValidTarget(tgt) ? '<td class="tr" style="color:#9ca3af">—</td>'
+                : '<td class="tr">'+parseFloat(tgt.toFixed(1))+'</td>';
+    var hasT = hasValidTarget(tgt);
+    var paceCell = isMTD && hasT
+      ? '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+vsPaceStr(r.a, tgt, pace)+'</td>'
+      : isMTD ? '<td class="tr" style="color:#9ca3af">—</td>'
+      : '<td class="tr" style="color:#374151">'+attainOrPaceCell(r.a, tgt, pace, false)+'</td>';
+    var badge = hasT
+      ? '<span class="b '+(r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(r.pctToTarget, true)+'</span>'
+      : '—';
     return '<tr class="dr '+r.ps.row+'">' +
       '<td style="font-weight:500">'+r.name+'</td>' +
       '<td style="font-size:12px;color:#888780">'+r.market+'</td>' +
       '<td style="font-size:12px;color:#888780">'+r.regional+'</td>' +
       '<td class="tr">'+r.cnt+'</td>' +
-      '<td class="tr">'+parseFloat(r.t.toFixed(1))+'</td>' +
+      tgtCell +
       '<td class="tr">'+r.a+'</td>' +
-      '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv > 0 ? '+' : '') + pv.toFixed(1) + ' vs pace' : '—')+'</td>' +
-      '<td class="tr"><span class="b '+(r.t > 0 ? (r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 70 ? 'ba' : 'br') : 'bt')+'">'+displayPctBadge(r.pctToTarget, r.t > 0)+'</span></td>' +
+      paceCell +
+      '<td class="tr">'+badge+'</td>' +
     '</tr>';
   }).join('');
+
+  /* ── AM Leaderboard cards (ranked highest → lowest % to paced target) ── */
+  var ldrData = data.filter(function(r){ return hasValidTarget(r.t); })
+    .slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
+
+  var amCards = document.getElementById('am-mcards');
+  if (amCards) {
+    if (!ldrData.length) {
+      amCards.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:12px">No targets set for this period.</div>';
+    } else {
+      amCards.innerHTML = ldrData.map(function(r, i){
+        var ps = paceStatus(r.a, r.t, pace);
+        var fc = ps.cls === 'cg' ? 'fg' : ps.cls === 'ca' ? 'fa' : 'fr';
+        var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
+        var actualW = Math.min(r.pctToTarget, 100);
+        var paceW = Math.min(Math.round(pace * 100), 100);
+        function ordinal(n){
+          var s=["th","st","nd","rd"]; var v=n%100;
+          return n+(s[(v-20)%10]||s[v]||s[0]);
+        }
+        var cardCls = i===0?'rank-1-card':i===1?'rank-2-card':i===2?'rank-3-card':'rank-4-card';
+        var numCls  = i===0?'rn-1':i===1?'rn-2':i===2?'rn-3':'rn-4';
+        return '<div class="mcard '+cardCls+'" style="margin-top:'+(i===0?'14px':'0')+'">' +
+          (i===0?'<div class="rank-crown">&#127942;</div>':'') +
+          '<div class="rank-num '+numCls+'">'+ordinal(i+1)+'</div>' +
+          '<div class="mcard-mkt">'+r.name+'</div>' +
+          '<div class="mcard-mgr">'+r.market+' &middot; '+r.cnt+' store'+(r.cnt!==1?'s':'')+'</div>' +
+          '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+parseFloat(r.t.toFixed(1))+' target</span></div>' +
+          '<div style="position:relative;margin-bottom:8px">' +
+            '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
+            (isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'') +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.t, pace)+'</span>' +
+            '<span style="font-size:12px;color:#888780">'+r.pctToTarget+'% to '+(isMTD?'paced ':'')+'target</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+    refreshCollapsible('sb-am-ldr');
+  }
 }
 
 /* =========================
@@ -2146,10 +2318,12 @@ function buildOv() {
   var tt = rows.reduce(function(s,r){ return s + r.t; }, 0);
   var oPS = paceStatus(ta, tt, pace);
 
+  var effectiveTT = isMTD && tt > 0 ? Math.round(tt * pace) : tt;
+  var ovPct = effectiveTT > 0 ? Math.round(ta / effectiveTT * 100) : 0;
   document.getElementById('ov-scorecards').innerHTML =
     makeScorecard('Total referrals', ta, 'selected dashboard markets', 'neutral') +
-    makeScorecard('Total target', tt, meta ? meta.label : mk, 'neutral') +
-    makeScorecard('Overall attainment', tt > 0 ? pc(ta, tt) + '%' : '—', isMTD ? 'of full-month target' : 'attainment', oPS.sc) +
+    makeScorecard(isMTD ? 'Paced target' : 'Monthly target', isMTD ? effectiveTT : tt, isMTD ? 'day '+meta.daysElapsed+' of '+meta.daysTotal : meta ? meta.label : mk, 'neutral') +
+    makeScorecard('Overall attainment', (isMTD ? effectiveTT : tt) > 0 ? ovPct + '%' : '—', isMTD ? 'vs paced target' : 'final attainment', oPS.sc) +
     makeScorecard(isMTD ? 'Days elapsed' : 'Month status', isMTD ? (meta.daysElapsed + ' / ' + meta.daysTotal) : 'Complete', isMTD ? Math.round(pace * 100) + '% of month done' : 'Full results', 'neutral');
 
   var ranked = rows.slice().map(function(r){
@@ -2190,10 +2364,10 @@ function buildOv() {
         (isMTD ? '<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>' : '') +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-        '<span class="mcard-status '+stCls+'">'+(pv >= 0 ? '+' : '')+pv.toFixed(1)+' daily pace</span>' +
+        '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.t, pace)+'</span>' +
         '<span style="font-size:12px;color:#888780">'+(r.t > 0 ? r.pctToTarget : 0)+'% to '+(isMTD ? 'paced target' : 'goal')+'</span>' +
       '</div>' +
-      (isMTD && r.t > 0 ? '<div style="font-size:11px;color:#888780;margin-top:5px">Paced target today: '+Math.round(r.t * pace)+'</div>' : '') +
+
     '</div>';
   }).join('');
 
@@ -2209,12 +2383,16 @@ function buildOv() {
       '<td class="tr">'+r.t+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td>' +
-      '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? (pv >= 0 ? '+' : '') + pv.toFixed(1) + ' vs pace' : '—')+'</td>' +
+      '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? vsPaceStr(r.a, r.t, pace) : '—')+'</td>' +
       '<td class="tr"><span class="b '+ps.badge+'">'+displayPctBadge(r.pctToTarget, r.t > 0)+'</span></td>' +
     '</tr>';
   }).join('');
 
   buildSM();
+  refreshCollapsible('sb-ov-scores');
+  refreshCollapsible('sb-ov-ldr');
+  refreshCollapsible('sb-ov-tbl');
+  setTimeout(function(){ refreshCollapsible('sb-ov-charts'); }, 100);
 }
 
 /* =========================
@@ -2236,12 +2414,7 @@ function buildSM() {
   var pace = paceFraction(mk);
   var overviewMarkets = getOverviewMarkets();
 
-  var pn = document.getElementById('sm-pace-note');
-  if (pn) {
-    pn.textContent = isMTD
-      ? 'MTD: badge % shows actual vs paced target (' + Math.round(pace * 100) + '% of month elapsed). 100% = exactly on daily pace today.'
-      : 'Complete month: badge % shows actual vs full monthly target.';
-  }
+  /* sm-pace-note is set by updateDynamicHeaders on month change */
 
   var grid = document.getElementById('sm-grid');
   grid.innerHTML = overviewMarkets.map(function(m){
@@ -2255,7 +2428,7 @@ function buildSM() {
   }).join('');
 
   overviewMarkets.forEach(function(m){
-    var actualMonths = MONTHS_META.slice();
+    var actualMonths = MONTHS_META.slice(-6); // last 6 months only
     var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
     var actuals = actualMonths.map(function(mm){ return monthMarketTotals(mm.key, m).leads; });
     var targets = actualMonths.map(function(mm){ return monthlyTarget(mm.key, m); });
@@ -2273,6 +2446,7 @@ function buildSM() {
     var bgs = actualMonths.map(function(mm){
       return mm.isMTD ? safeColor(m) + '55' : safeColor(m);
     });
+    // suggestedMax based on last 6 months data
 
     if (smCharts[m]) smCharts[m].destroy();
 
@@ -2448,10 +2622,11 @@ function buildBiz() {
     return '<div class="leg-item"><div class="leg-dot" style="background:'+safeColor(m)+'"></div>'+m+'</div>';
   }).join('');
 
+  var last6 = MONTHS_META.slice(-6);
   var ds = bizMarkets.map(function(m){
     return {
       label:m,
-      data:MONTHS_META.map(function(mm){
+      data:last6.map(function(mm){
         var t = bizMonthMarketTotals(mm.key, m);
         return t.leads > 0 ? Math.round(t.completed / t.leads * 100) : 0;
       }),
@@ -2469,7 +2644,7 @@ function buildBiz() {
   bCI = new Chart(document.getElementById('bizChart'), {
     type:'line',
     data:{
-      labels:MONTHS_META.map(function(m){ return m.label.substring(0,3); }),
+      labels:last6.map(function(m){ return m.label.substring(0,3); }),
       datasets:ds
     },
     options:{
@@ -2604,6 +2779,29 @@ function applyLoadedState(source) {
 
   filterMkt('all');
   document.getElementById('loading-overlay').style.display = 'none';
+
+  /* Initialise all collapsible sections */
+  [
+    // Store tab
+    ['sh-st-scores','sb-st-scores',true],
+    ['sh-st-tbl','sb-st-tbl',true],
+    ['sh-st-coach','sb-st-coach',true],
+    // AM tab
+    ['sh-am-scores','sb-am-scores',true],
+    ['sh-am-ldr','sb-am-ldr',true],
+    ['sh-am-tbl','sb-am-tbl',true],
+    // Market overview tab
+    ['sh-ov-scores','sb-ov-scores',true],
+    ['sh-ov-ldr','sb-ov-ldr',true],
+    ['sh-ov-tbl','sb-ov-tbl',true],
+    ['sh-ov-charts','sb-ov-charts',true],
+    // Biz tab
+    ['sh-biz-funnel','sb-biz-funnel',true],
+    ['sh-biz-conv','sb-biz-conv',true],
+    ['sh-biz-trend','sb-biz-trend',true]
+  ].forEach(function(cfg){
+    initCollapsible(cfg[0], cfg[1], cfg[2]);
+  });
 }
 
 function loadData() {
@@ -2649,6 +2847,49 @@ function loadData() {
 
       applyLoadedState('fallback');
     });
+}
+
+
+/* ── Collapsible sections ── */
+function initCollapsible(headerId, bodyId, defaultOpen) {
+  var hdr = document.getElementById(headerId);
+  var body = document.getElementById(bodyId);
+  if (!hdr || !body) return;
+  var toggle = hdr.querySelector('.section-toggle');
+  var open = defaultOpen !== false;
+  body.style.maxHeight = open ? body.scrollHeight + 'px' : '0';
+  if (!open) body.classList.add('collapsed');
+  if (toggle) toggle.className = 'section-toggle ' + (open ? 'open' : 'closed');
+  hdr.addEventListener('click', function(){
+    open = !open;
+    if (open) {
+      body.classList.remove('collapsed');
+      body.style.maxHeight = body.scrollHeight + 'px';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      requestAnimationFrame(function(){
+        body.style.maxHeight = '0';
+        body.classList.add('collapsed');
+      });
+    }
+    if (toggle) toggle.className = 'section-toggle ' + (open ? 'open' : 'closed');
+  });
+}
+
+function expandSection(bodyId) {
+  var body = document.getElementById(bodyId);
+  if (!body) return;
+  body.classList.remove('collapsed');
+  body.style.maxHeight = body.scrollHeight + 'px';
+  var hdr = document.querySelector('[data-body="'+bodyId+'"] .section-toggle');
+  if (hdr) hdr.className = 'section-toggle open';
+}
+
+function refreshCollapsible(bodyId) {
+  // Call after dynamic content changes to update max-height
+  var body = document.getElementById(bodyId);
+  if (!body || body.classList.contains('collapsed')) return;
+  body.style.maxHeight = body.scrollHeight + 'px';
 }
 
 loadData();
