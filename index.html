@@ -2320,7 +2320,7 @@ function buildOv() {
   var effectiveTT = isMTD && tt > 0 ? Math.round(tt * pace) : tt;
   var ovPct = effectiveTT > 0 ? Math.round(ta / effectiveTT * 100) : 0;
   document.getElementById('ov-scorecards').innerHTML =
-    makeScorecard('Total referrals', ta, 'biz raw referral leads', 'neutral') +
+    makeScorecard('Total referrals', ta, 'referral leads', 'neutral') +
     makeScorecard(isMTD ? 'Paced target' : 'Monthly target', isMTD ? effectiveTT : tt, isMTD ? 'day '+meta.daysElapsed+' of '+meta.daysTotal : meta ? meta.label : mk, 'neutral') +
     makeScorecard('Overall attainment', (isMTD ? effectiveTT : tt) > 0 ? ovPct + '%' : '—', isMTD ? 'vs paced target' : 'final attainment', oPS.sc) +
     makeScorecard(isMTD ? 'Days elapsed' : 'Month status', isMTD ? (meta.daysElapsed + ' / ' + meta.daysTotal) : 'Complete', isMTD ? Math.round(pace * 100) + '% of month done' : 'Full results', 'neutral');
