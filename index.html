@@ -1309,7 +1309,6 @@ var MKT_COLORS = {
 };
 var smCharts = {}, cmpChart = null, bCI = null;
 
-
 var PIN_CORRECT = '1986';
 var pinEntry = '';
 var bizUnlocked = false;
@@ -1489,7 +1488,8 @@ function buildDerived() {
 
   var latestWithData = '';
   monthOrder.forEach(function(mk){
-    var hasLeads = RAW.some(function(r){ return r.monthKey === mk && r.leads > 0; });
+    var hasLeads = RAW.some(function(r){ return r.monthKey === mk && r.leads > 0; }) ||
+                   BIZ_RAW.some(function(r){ return r.monthKey === mk && isReferralChannel(r.channel) && r.leads > 0; });
     if (hasLeads) latestWithData = mk;
   });
   CURRENT_MONTH_KEY = latestWithData || monthOrder[monthOrder.length - 1] || '';
@@ -1503,9 +1503,11 @@ function buildDerived() {
     var daysElapsed = daysInMonth;
 
     if (isMTD) {
-      var days = RAW.filter(function(r){ return r.monthKey === mk; }).map(function(r){ return r.day; }).sort();
-      if (days.length) {
-        daysElapsed = parseInt(days[days.length - 1].split('-')[2], 10);
+      var days = RAW.filter(function(r){ return r.monthKey === mk; }).map(function(r){ return r.day; });
+      var bizDays = BIZ_RAW.filter(function(r){ return r.monthKey === mk && isReferralChannel(r.channel); }).map(function(r){ return r.day; });
+      var combinedDays = days.concat(bizDays).sort();
+      if (combinedDays.length) {
+        daysElapsed = parseInt(combinedDays[combinedDays.length - 1].split('-')[2], 10);
       }
     }
 
@@ -1543,8 +1545,6 @@ function paceFraction(monthKey) {
   return meta.daysElapsed / meta.daysTotal;
 }
 
-
-  
 function paceStatus(a, t, pace) {
   if (t <= 0) return {cls:'',label:'no target set',badge:'bt',row:'',sc:'neutral'};
 
@@ -1565,8 +1565,6 @@ function vsPaceStr(a, t, pace) {
   return v > 0 ? '+' + v + ' referrals ahead' : v + ' referrals behind';
 }
 
-
-
 function attainOrPaceCell(a, t, pace, isMTD) {
   if (!isMTD) {
     if (t <= 0) return '—';
@@ -1580,10 +1578,6 @@ function displayPctBadge(pct, hasTarget) {
   if (pct >= 150) return '&gt;150%';
   return pct + '%';
 }
-
-
-
-  
 
 function paceNoteText(monthKey) {
   var meta = getMeta(monthKey);
@@ -1602,10 +1596,10 @@ function updateDynamicHeaders(monthKey) {
   var goalHdr = isMTD ? '% to paced target' : '% attained';
 
   var stPct = document.getElementById('st-pct-col-hdr');
-if (stPct) stPct.textContent = isMTD ? '% to target' : 'final % to target';
+  if (stPct) stPct.textContent = isMTD ? '% to target' : 'final % to target';
 
-var stPace = document.getElementById('st-pace-col-hdr');
-if (stPace) stPace.textContent = isMTD ? 'vs pace (MTD)' : '';
+  var stPace = document.getElementById('st-pace-col-hdr');
+  if (stPace) stPace.textContent = isMTD ? 'vs pace (MTD)' : '';
 
   var amPace = document.getElementById('am-pace-col-hdr');
   if (amPace) amPace.textContent = paceHdr;
@@ -1624,7 +1618,6 @@ if (stPace) stPace.textContent = isMTD ? 'vs pace (MTD)' : '';
   });
 }
 
-  
 function makeScorecard(l, v, s, t) {
   var toneCls =
     t === 'win' ? 'bg' :
@@ -1702,21 +1695,28 @@ function bizMonthMarketTotals(monthKey, market) {
   }, {leads:0, booked:0, completed:0, revenue:0});
 }
 
+/* Market Overview actuals should use business outcomes raw data
+   for referral value only, while targets and naming/reference stay
+   from the referral target dataset. */
+function marketOverviewActuals(monthKey, market) {
+  var bizTotals = bizMonthMarketTotals(monthKey, market);
+
+  if (BIZ_RAW && BIZ_RAW.length) {
+    return bizTotals.leads || 0;
+  }
+
+  return monthMarketTotals(monthKey, market).leads;
+}
+
 /* Return value: positive number = valid target,
    -1 = pre-launch (no target expected),
-   -2 = post-launch but no target found (flag as missing) */
-/* Return values:
-     positive  = valid monthly target from data
-     -1        = pre-launch (month is before market went live)
-     0         = no target found (post-launch, data present, but no target field) */
+   0 = post-launch but no target found */
 function monthlyTargetForStoreMonth(storeNum, monthKey) {
-  // Find this store's market (look across all months)
   var storeMarket = null;
   for (var i = 0; i < RAW.length; i++) {
     if (RAW[i].storeNum == storeNum) { storeMarket = RAW[i].market; break; }
   }
 
-  // Pre-launch month — label as such, not a missing target
   if (storeMarket && !marketWasLive(storeMarket, monthKey)) return -1;
 
   var rows = RAW.filter(function(r){
@@ -1725,7 +1725,6 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
 
   if (!rows.length) return 0;
 
-  // Prefer explicit monthly target from data (already adjusted if needed)
   var monthlyRows = rows.filter(function(r){
     return typeof r.monthlyRefTarget === 'number' && !isNaN(r.monthlyRefTarget) && r.monthlyRefTarget > 0;
   });
@@ -1735,7 +1734,6 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
     return sum / monthlyRows.length;
   }
 
-  // Fallback: daily target × days in month (only if daily targets exist)
   var meta = getMeta(monthKey);
   var seenDay = {};
   var sumDaily = 0;
@@ -1747,7 +1745,7 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
       sumDaily += (r.dailyRefTarget || 0);
     }
   });
-  if (!hasDaily) return 0; // post-launch but genuinely no target in data
+  if (!hasDaily) return 0;
 
   if (meta && meta.isMTD && meta.daysElapsed > 0) {
     return sumDaily * meta.daysTotal / meta.daysElapsed;
@@ -1755,7 +1753,6 @@ function monthlyTargetForStoreMonth(storeNum, monthKey) {
   return sumDaily;
 }
 
-/* Helpers to interpret monthlyTargetForStoreMonth return values */
 function isPreLaunch(t) { return t === -1; }
 function hasValidTarget(t) { return t > 0; }
 
@@ -1769,7 +1766,7 @@ function monthlyTarget(monthKey, market) {
 
   var total = Object.keys(storeMap).reduce(function(sum, storeNum){
     var t = monthlyTargetForStoreMonth(storeNum, monthKey);
-    return sum + (hasValidTarget(t) ? t : 0); // exclude -1 (pre-launch) and 0
+    return sum + (hasValidTarget(t) ? t : 0);
   }, 0);
 
   return Math.round(total);
@@ -1834,6 +1831,7 @@ function buildAllDDs() {
 function selectMonth(key) {
   selMonthKey = key;
   buildAllDDs();
+  updateDynamicHeaders(key);
 
   var dl = dateRangeLabel(key);
   var ph = pillHTML(key);
@@ -1917,20 +1915,20 @@ function renderS() {
   });
 
   var data = Object.values(storeMap).map(function(s){
-  var effectiveTgt = isMTD && s.t > 0 ? (s.t * pace) : s.t;
-  var pctToTarget = effectiveTgt > 0 ? Math.round(s.a / effectiveTgt * 100) : 0;
-  return {
-    n: s.n,
-    mgr: s.mgr,
-    area: s.area,
-    mkt: s.mkt,
-    a: s.a,
-    t: s.t,
-    effectiveTgt: effectiveTgt,
-    pctToTarget: pctToTarget,
-    ps: paceStatus(s.a, s.t, pace)
-  };
-});
+    var effectiveTgt = isMTD && s.t > 0 ? (s.t * pace) : s.t;
+    var pctToTarget = effectiveTgt > 0 ? Math.round(s.a / effectiveTgt * 100) : 0;
+    return {
+      n: s.n,
+      mgr: s.mgr,
+      area: s.area,
+      mkt: s.mkt,
+      a: s.a,
+      t: s.t,
+      effectiveTgt: effectiveTgt,
+      pctToTarget: pctToTarget,
+      ps: paceStatus(s.a, s.t, pace)
+    };
+  });
 
   var withTarget = data.filter(function(s){ return hasValidTarget(s.t); });
   var sortedByPct = withTarget.slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
@@ -1950,10 +1948,10 @@ function renderS() {
   var avg = withTarget.length ? Math.round(withTarget.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / withTarget.length) + '%' : '—';
 
   document.getElementById('st-scorecards').innerHTML =
-  makeScorecard('On track', on, '≥ 100% of paced target', 'win') +
-  makeScorecard('At risk', at, '80–99% of paced target', 'warn') +
-  makeScorecard('Behind', bh, '< 80% of paced target', 'danger') +
-  makeScorecard('Avg % to target', avg, 'stores with targets', 'neutral');
+    makeScorecard('On track', on, '≥ 100% of paced target', 'win') +
+    makeScorecard('At risk', at, '80–99% of paced target', 'warn') +
+    makeScorecard('Behind', bh, '< 80% of paced target', 'danger') +
+    makeScorecard('Avg % to target', avg, 'stores with targets', 'neutral');
 
   var tqWrap = document.getElementById('tq-callout-wrap');
   if (tqWrap && withTarget.length > 0) {
@@ -1985,80 +1983,79 @@ function renderS() {
 
   var sub = document.getElementById('st-tbl-sub');
   var paceHdr = document.getElementById('st-pace-col-hdr');
-if (paceHdr) {
-  paceHdr.style.display = isMTD ? '' : 'none';
-}
+  if (paceHdr) {
+    paceHdr.style.display = isMTD ? '' : 'none';
+  }
   if (sub) sub.textContent = isMTD
-  ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed) with separate vs pace column'
-  : 'Completed month — showing final % to target only';
+    ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed) with separate vs pace column'
+    : 'Completed month — showing final % to target only';
 
   var noTarget = data.filter(function(s){ return !hasValidTarget(s.t); });
   var allSorted = sortedByPct.concat(noTarget);
 
   document.getElementById('stbl').innerHTML = allSorted.map(function(s){
-  var isTopQ = topQSet.has(s.n);
-  var rowCls = s.ps.row + ' dr';
-  var hasT = hasValidTarget(s.t);
-  var preLaunch = isPreLaunch(s.t);
+    var isTopQ = topQSet.has(s.n);
+    var rowCls = s.ps.row + ' dr';
+    var hasT = hasValidTarget(s.t);
+    var preLaunch = isPreLaunch(s.t);
 
-  var tgtCell = preLaunch
-    ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
-    : '<td class="tr">'+(hasT ? parseFloat(s.t.toFixed(1)) : '—')+'</td>';
+    var tgtCell = preLaunch
+      ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
+      : '<td class="tr">'+(hasT ? parseFloat(s.t.toFixed(1)) : '—')+'</td>';
 
-  var pctBadge = hasT
-    ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
-    : '—';
+    var pctBadge = hasT
+      ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
+      : '—';
 
-  var finalPct = hasT ? Math.round((s.a / s.t) * 100) : null;
+    var finalPct = hasT ? Math.round((s.a / s.t) * 100) : null;
 
-  var pctCell = isMTD
-    ? '<td class="tr">'+pctBadge+'</td>'
-    : '<td class="tr">'+(finalPct !== null ? '<span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+finalPct+'%</span>' : '—')+'</td>';
+    var pctCell = isMTD
+      ? '<td class="tr">'+pctBadge+'</td>'
+      : '<td class="tr">'+(finalPct !== null ? '<span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+finalPct+'%</span>' : '—')+'</td>';
 
-  var paceCell = isMTD
-    ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
-    : '<td class="tr" style="display:none"></td>';
+    var paceCell = isMTD
+      ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
+      : '<td class="tr" style="display:none"></td>';
 
-  return '<tr class="'+rowCls+'">' +
-    '<td style="font-weight:500">'+s.n+'</td>' +
-    '<td style="font-size:12px">'+s.mgr+'</td>' +
-    '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
-    '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
-    tgtCell +
-    '<td class="tr">'+s.a+'</td>' +
-    pctCell +
-    paceCell +
-    '<td class="tr">'+(isTopQ ? '<span class="b bg" style="padding:2px 6px">&#127942;</span>' : '')+'</td>' +
-  '</tr>';
-}).join('');
-
+    return '<tr class="'+rowCls+'">' +
+      '<td style="font-weight:500">'+s.n+'</td>' +
+      '<td style="font-size:12px">'+s.mgr+'</td>' +
+      '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
+      '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
+      tgtCell +
+      '<td class="tr">'+s.a+'</td>' +
+      pctCell +
+      paceCell +
+      '<td class="tr">'+(isTopQ ? '<span class="b bg" style="padding:2px 6px">&#127942;</span>' : '')+'</td>' +
+    '</tr>';
+  }).join('');
 
   refreshCollapsible('sb-st-scores');
   refreshCollapsible('sb-st-tbl');
   refreshCollapsible('sb-st-coach');
   var stHeadRow = document.querySelector('#pg-st thead tr');
-if (stHeadRow) {
-  var ths = stHeadRow.querySelectorAll('th');
-  if (ths[7]) ths[7].style.display = isMTD ? '' : 'none';
-}
+  if (stHeadRow) {
+    var ths = stHeadRow.querySelectorAll('th');
+    if (ths[7]) ths[7].style.display = isMTD ? '' : 'none';
+  }
 
-var stBody = document.getElementById('stbl');
-if (stBody) {
-  var rows = stBody.querySelectorAll('tr');
-  rows.forEach(function(row){
-    var cells = row.querySelectorAll('td');
-    if (cells[7]) {
-      cells[7].style.display = isMTD ? '' : 'none';
-    }
-  });
-}
-  
+  var stBody = document.getElementById('stbl');
+  if (stBody) {
+    var rows = stBody.querySelectorAll('tr');
+    rows.forEach(function(row){
+      var cells = row.querySelectorAll('td');
+      if (cells[7]) {
+        cells[7].style.display = isMTD ? '' : 'none';
+      }
+    });
+  }
+
   var stFoot = document.getElementById('st-foot');
-if (stFoot) {
-  stFoot.textContent = isMTD
-    ? 'Sorted highest to lowest % to paced target. Separate vs pace column shown for MTD months. Gold rows = top 25%.'
-    : 'Sorted highest to lowest final % to target. Only one attainment column is shown for completed months. Gold rows = top 25%.';
-}
+  if (stFoot) {
+    stFoot.textContent = isMTD
+      ? 'Sorted highest to lowest % to paced target. Separate vs pace column shown for MTD months. Gold rows = top 25%.'
+      : 'Sorted highest to lowest final % to target. Only one attainment column is shown for completed months. Gold rows = top 25%.';
+  }
 
   document.getElementById('coaching-period').textContent = dateRangeLabel(mk);
 
@@ -2165,25 +2162,26 @@ function renderAM(filterMarket) {
   Object.keys(areas).forEach(function(k){
     var storeNums = Object.keys(areas[k].storeNums);
     areas[k].t = storeNums.reduce(function(sum, sn){
-      return sum + monthlyTargetForStoreMonth(sn, mk);
+      var t = monthlyTargetForStoreMonth(sn, mk);
+      return sum + (hasValidTarget(t) ? t : 0);
     }, 0);
   });
 
   var data = Object.values(areas).map(function(r){
-  var effectiveTgt = isMTD && hasValidTarget(r.t) ? (r.t * pace) : (hasValidTarget(r.t) ? r.t : 0);
-  var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
-  return {
-    name: r.area,
-    market: r.market,
-    regional: r.regional,
-    cnt: Object.keys(r.storeNums).length,
-    a: r.a,
-    t: r.t,
-    effectiveTgt: effectiveTgt,
-    pctToTarget: pctToTarget,
-    ps: paceStatus(r.a, r.t, pace)
-  };
-}).sort(function(a,b){
+    var effectiveTgt = isMTD && hasValidTarget(r.t) ? (r.t * pace) : (hasValidTarget(r.t) ? r.t : 0);
+    var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+    return {
+      name: r.area,
+      market: r.market,
+      regional: r.regional,
+      cnt: Object.keys(r.storeNums).length,
+      a: r.a,
+      t: r.t,
+      effectiveTgt: effectiveTgt,
+      pctToTarget: pctToTarget,
+      ps: paceStatus(r.a, r.t, pace)
+    };
+  }).sort(function(a,b){
     var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
     var pb = b.effectiveTgt > 0 ? b.a / b.effectiveTgt : -1;
     return pa - pb;
@@ -2233,7 +2231,6 @@ function renderAM(filterMarket) {
     '</tr>';
   }).join('');
 
-  /* ── AM Leaderboard cards (ranked highest → lowest % to paced target) ── */
   var ldrData = data.filter(function(r){ return hasValidTarget(r.t); })
     .slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
 
@@ -2280,14 +2277,15 @@ function renderAM(filterMarket) {
 ========================= */
 function getMktRollup(monthKey) {
   return getOverviewMarkets().map(function(m){
-    var totals = monthMarketTotals(monthKey, m);
+    var actualLeads = marketOverviewActuals(monthKey, m);
+
     return {
       m: m,
       cnt: uniqueStores(monthKey, m),
       areas: uniqueAreasCount(monthKey, m),
-      a: totals.leads,
+      a: actualLeads,
       t: monthlyTarget(monthKey, m),
-      avgS: uniqueStores(monthKey, m) > 0 ? totals.leads / uniqueStores(monthKey, m) : 0
+      avgS: uniqueStores(monthKey, m) > 0 ? actualLeads / uniqueStores(monthKey, m) : 0
     };
   });
 }
@@ -2300,18 +2298,19 @@ function buildOv() {
 
   document.getElementById('mkt-tbl-title').textContent = 'Market summary — ' + (meta ? meta.label : mk);
   document.getElementById('mkt-foot').textContent = isMTD
-  ? '"vs pace (MTD)" = actual minus paced target (monthly target × ' + meta.daysElapsed + '/' + meta.daysTotal + ' days elapsed). ≥100% on track, 80–99% at risk, <80% behind.'
-  : 'Complete month — "% attained" is final actuals vs full monthly target.';
+    ? '"Actual" uses referral leads from business outcomes raw data. "vs pace (MTD)" = actual minus paced target (monthly target × ' + meta.daysElapsed + '/' + meta.daysTotal + ' days elapsed). ≥100% on track, 80–99% at risk, <80% behind.'
+    : 'Complete month — actuals use business outcomes raw data, while targets and org reference remain from the referral target dataset.';
 
   var mkEl = document.getElementById('metric-key');
   if (isMTD) {
-  mkEl.innerHTML =
-    '<div class="mk-item"><span class="mk-label">Paced target</span><span class="mk-desc">Monthly target × (days elapsed ÷ days in month). Day ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' = ' + Math.round(pace*100) + '% of month.</span></div>' +
-    '<div class="mk-item"><span class="mk-label">vs pace (MTD)</span><span class="mk-desc">Actual minus paced target. Positive = ahead, negative = behind. Colors: green ≥100%, amber 80–99%, red &lt;80%.</span></div>';
-  mkEl.style.display = 'flex';
-} else {
-  mkEl.style.display = 'none';
-}
+    mkEl.innerHTML =
+      '<div class="mk-item"><span class="mk-label">Paced target</span><span class="mk-desc">Monthly target × (days elapsed ÷ days in month). Day ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' = ' + Math.round(pace*100) + '% of month.</span></div>' +
+      '<div class="mk-item"><span class="mk-label">vs pace (MTD)</span><span class="mk-desc">Actual minus paced target. Positive = ahead, negative = behind. Colors: green ≥100%, amber 80–99%, red &lt;80%.</span></div>' +
+      '<div class="mk-item"><span class="mk-label">Actual source</span><span class="mk-desc">Referral values come from business outcomes raw data only. Targets, manager labels, area counts, and store counts remain from the referral target dataset.</span></div>';
+    mkEl.style.display = 'flex';
+  } else {
+    mkEl.style.display = 'none';
+  }
 
   var rows = getMktRollup(mk);
   var ta = rows.reduce(function(s,r){ return s + r.a; }, 0);
@@ -2321,20 +2320,18 @@ function buildOv() {
   var effectiveTT = isMTD && tt > 0 ? Math.round(tt * pace) : tt;
   var ovPct = effectiveTT > 0 ? Math.round(ta / effectiveTT * 100) : 0;
   document.getElementById('ov-scorecards').innerHTML =
-    makeScorecard('Total referrals', ta, 'selected dashboard markets', 'neutral') +
+    makeScorecard('Total referrals', ta, 'biz raw referral leads', 'neutral') +
     makeScorecard(isMTD ? 'Paced target' : 'Monthly target', isMTD ? effectiveTT : tt, isMTD ? 'day '+meta.daysElapsed+' of '+meta.daysTotal : meta ? meta.label : mk, 'neutral') +
     makeScorecard('Overall attainment', (isMTD ? effectiveTT : tt) > 0 ? ovPct + '%' : '—', isMTD ? 'vs paced target' : 'final attainment', oPS.sc) +
     makeScorecard(isMTD ? 'Days elapsed' : 'Month status', isMTD ? (meta.daysElapsed + ' / ' + meta.daysTotal) : 'Complete', isMTD ? Math.round(pace * 100) + '% of month done' : 'Full results', 'neutral');
 
   var ranked = rows.slice().map(function(r){
-  var effectiveTgt = isMTD && r.t > 0 ? (r.t * pace) : r.t;
-  r.effectiveTgt = effectiveTgt;
-  r.pctToPace = effectiveTgt > 0 ? r.a / effectiveTgt : 0;
-  r.pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
-  return r;
-}).sort(function(a,b){ return b.pctToPace - a.pctToPace; });
-
-  
+    var effectiveTgt = isMTD && r.t > 0 ? (r.t * pace) : r.t;
+    r.effectiveTgt = effectiveTgt;
+    r.pctToPace = effectiveTgt > 0 ? r.a / effectiveTgt : 0;
+    r.pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+    return r;
+  }).sort(function(a,b){ return b.pctToPace - a.pctToPace; });
 
   document.getElementById('mcards').innerHTML = ranked.map(function(r, i){
     var ps = paceStatus(r.a, r.t, pace);
@@ -2342,7 +2339,6 @@ function buildOv() {
     var paceW = Math.min(Math.round(pace * 100), 100);
     var fc = ps.cls === 'cg' ? 'fg' : ps.cls === 'ca' ? 'fa' : 'fr';
     var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
-    var pv = r.t > 0 ? (r.a - (r.t * pace)) : 0;
 
     function ordinal(n){
       var s = ["th","st","nd","rd"];
@@ -2367,7 +2363,6 @@ function buildOv() {
         '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.t, pace)+'</span>' +
         '<span style="font-size:12px;color:#888780">'+(r.t > 0 ? r.pctToTarget : 0)+'% to '+(isMTD ? 'paced target' : 'goal')+'</span>' +
       '</div>' +
-
     '</div>';
   }).join('');
 
@@ -2414,8 +2409,6 @@ function buildSM() {
   var pace = paceFraction(mk);
   var overviewMarkets = getOverviewMarkets();
 
-  /* sm-pace-note is set by updateDynamicHeaders on month change */
-
   var grid = document.getElementById('sm-grid');
   grid.innerHTML = overviewMarkets.map(function(m){
     return '<div class="sm-card">' +
@@ -2428,13 +2421,13 @@ function buildSM() {
   }).join('');
 
   overviewMarkets.forEach(function(m){
-    var actualMonths = MONTHS_META.slice(-6); // last 6 months only
+    var actualMonths = MONTHS_META.slice(-6);
     var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
-    var actuals = actualMonths.map(function(mm){ return monthMarketTotals(mm.key, m).leads; });
+    var actuals = actualMonths.map(function(mm){ return marketOverviewActuals(mm.key, m); });
     var targets = actualMonths.map(function(mm){ return monthlyTarget(mm.key, m); });
     var idx = actualMonths.findIndex(function(mm){ return mm.key === mk; });
     var bp = (idx >= 0 && targets[idx] > 0)
-      ? (isMTD ? pc(monthMarketTotals(mk, m).leads, Math.round(monthlyTarget(mk, m) * pace)) : pc(monthMarketTotals(mk, m).leads, monthlyTarget(mk, m)))
+      ? (isMTD ? pc(marketOverviewActuals(mk, m), Math.round(monthlyTarget(mk, m) * pace)) : pc(marketOverviewActuals(mk, m), monthlyTarget(mk, m)))
       : 0;
 
     var bb = bp >= 100 ? '#1d9e75' : bp >= 80 ? '#ba7517' : '#a32d2d';
@@ -2446,7 +2439,6 @@ function buildSM() {
     var bgs = actualMonths.map(function(mm){
       return mm.isMTD ? safeColor(m) + '55' : safeColor(m);
     });
-    // suggestedMax based on last 6 months data
 
     if (smCharts[m]) smCharts[m].destroy();
 
@@ -2493,7 +2485,7 @@ function buildCmp() {
   var overviewMarkets = getOverviewMarkets();
   if (!meta) return;
 
-  var actuals = overviewMarkets.map(function(m){ return monthMarketTotals(mk, m).leads; });
+  var actuals = overviewMarkets.map(function(m){ return marketOverviewActuals(mk, m); });
   var targets = overviewMarkets.map(function(m){ return monthlyTarget(mk, m); });
 
   document.getElementById('cmp-foot').textContent = meta.isMTD
@@ -2759,11 +2751,14 @@ function sw(t) {
 function applyLoadedState(source) {
   buildDerived();
   buildAllDDs();
+  updateDynamicHeaders(CURRENT_MONTH_KEY);
   selectMonth(CURRENT_MONTH_KEY);
 
   document.getElementById('markets-sub').textContent = MKTS.join(' · ');
 
-  var latestDay = RAW.map(function(r){ return r.day; }).sort().pop() || '';
+  var latestReferralDay = RAW.map(function(r){ return r.day; }).sort().pop() || '';
+  var latestBizDay = BIZ_RAW.filter(function(r){ return isReferralChannel(r.channel); }).map(function(r){ return r.day; }).sort().pop() || '';
+  var latestDay = [latestReferralDay, latestBizDay].filter(Boolean).sort().pop() || '';
   document.getElementById('ulbl').textContent = latestDay ? 'Data through ' + latestDay : 'Data loaded';
 
   var pill = document.getElementById('status-pill');
@@ -2780,22 +2775,17 @@ function applyLoadedState(source) {
   filterMkt('all');
   document.getElementById('loading-overlay').style.display = 'none';
 
-  /* Initialise all collapsible sections */
   [
-    // Store tab
     ['sh-st-scores','sb-st-scores',true],
     ['sh-st-tbl','sb-st-tbl',true],
     ['sh-st-coach','sb-st-coach',true],
-    // AM tab
     ['sh-am-scores','sb-am-scores',true],
     ['sh-am-ldr','sb-am-ldr',true],
     ['sh-am-tbl','sb-am-tbl',true],
-    // Market overview tab
     ['sh-ov-scores','sb-ov-scores',true],
     ['sh-ov-ldr','sb-ov-ldr',true],
     ['sh-ov-tbl','sb-ov-tbl',true],
     ['sh-ov-charts','sb-ov-charts',true],
-    // Biz tab
     ['sh-biz-funnel','sb-biz-funnel',true],
     ['sh-biz-conv','sb-biz-conv',true],
     ['sh-biz-trend','sb-biz-trend',true]
@@ -2849,7 +2839,6 @@ function loadData() {
     });
 }
 
-
 /* ── Collapsible sections ── */
 function initCollapsible(headerId, bodyId, defaultOpen) {
   var hdr = document.getElementById(headerId);
@@ -2886,7 +2875,6 @@ function expandSection(bodyId) {
 }
 
 function refreshCollapsible(bodyId) {
-  // Call after dynamic content changes to update max-height
   var body = document.getElementById(bodyId);
   if (!body || body.classList.contains('collapsed')) return;
   body.style.maxHeight = body.scrollHeight + 'px';
