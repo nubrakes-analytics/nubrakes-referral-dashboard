@@ -694,62 +694,6 @@ tr.dr:hover td{filter:brightness(.985)}
   color:#a16207;
 }
 
-/* coaching */
-.coaching-wrap{
-  padding:14px 16px;
-}
-.coaching-item{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  padding:10px 0;
-  border-bottom:1px solid var(--border-soft);
-}
-.coaching-item:last-child{
-  border-bottom:none;
-}
-.coaching-icon{
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-  font-size:13px;
-  font-weight:700;
-}
-.ci-red{
-  background:var(--bg-negative);
-  color:#be123c;
-}
-.ci-amber{
-  background:var(--bg-warning);
-  color:#c2410c;
-}
-.ci-blue{
-  background:#eff6ff;
-  color:#2563eb;
-}
-.coaching-text{flex:1}
-.coaching-headline{
-  font-size:13px;
-  font-weight:700;
-  color:var(--text-strong);
-  margin-bottom:2px;
-}
-.coaching-sub{
-  font-size:12px;
-  color:var(--text-muted);
-  line-height:1.45;
-}
-.coaching-action{
-  font-size:11px;
-  color:#2563eb;
-  font-weight:700;
-  margin-top:4px;
-}
-
 /* pin overlay */
 .pin-overlay{
   padding:48px 24px;
@@ -897,6 +841,74 @@ tr.dr:hover td{filter:brightness(.985)}
 .section-toggle.closed{transform:rotate(-90deg)}
 .section-body{overflow:hidden;transition:max-height .25s ease}
 .section-body.collapsed{max-height:0 !important}
+
+/* ── My store highlight ── */
+tr.my-store-row td {
+  background: rgba(59,130,246,0.10) !important;
+  border-top: 1.5px solid #3b82f6;
+  border-bottom: 1.5px solid #3b82f6;
+}
+.my-store-badge {
+  display:inline-flex;align-items:center;gap:4px;
+  background:#1d4ed8;color:#fff;
+  font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:20px;
+  margin-left:6px;vertical-align:middle;
+}
+.gap-to-next {
+  font-size:11px;color:#1d4ed8;font-weight:600;margin-left:4px;
+}
+
+/* ── View mode toggle ── */
+.view-mode-wrap{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+.mode-toggle{
+  display:flex;
+  background:var(--bg-muted);
+  border-radius:var(--radius-pill);
+  padding:3px;
+  gap:2px;
+  flex-shrink:0;
+}
+.mode-btn{
+  padding:5px 16px;
+  border-radius:var(--radius-pill);
+  border:none;
+  background:transparent;
+  font-size:12px;
+  font-weight:600;
+  color:var(--text-muted);
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.mode-btn.active{
+  background:var(--bg-card);
+  color:var(--text-strong);
+  box-shadow:0 1px 3px rgba(0,0,0,0.10);
+}
+.mode-btn.active.my-store-active{
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+.mode-filters{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  flex:1;
+}
+.mode-hint{
+  font-size:11px;
+  color:var(--text-soft);
+  margin-top:4px;
+}
 </style>
 </head>
 <body>
@@ -940,19 +952,35 @@ tr.dr:hover td{filter:brightness(.985)}
         <div class="dr-label" id="st-dr"></div>
       </div>
 
-      <div class="frow">
-        <span class="fl">Market</span>
-        <select id="mkt-sel" onchange="filterMkt(this.value)">
-          <option value="all">All markets</option>
-        </select>
-        <span class="fl">Area manager</span>
-        <select id="am-sel" onchange="renderS()">
-          <option value="all">All areas</option>
-        </select>
+      <div class="view-mode-wrap">
+        <div>
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="mode-fleet-btn" onclick="setStoreMode('fleet')">Fleet view</button>
+            <button class="mode-btn" id="mode-mystore-btn" onclick="setStoreMode('mystore')">My store</button>
+          </div>
+        </div>
+        <div class="mode-filters" id="fleet-filters">
+          <span class="fl">Market</span>
+          <select id="mkt-sel" onchange="filterMkt(this.value)">
+            <option value="all">All markets</option>
+          </select>
+          <span class="fl">Area manager</span>
+          <select id="am-sel" onchange="renderS()">
+            <option value="all">All areas</option>
+          </select>
+          <div class="mode-hint" style="width:100%;margin-top:2px">Filters narrow which stores appear in the table and leaderboard.</div>
+        </div>
+        <div class="mode-filters" id="mystore-filters" style="display:none">
+          <span class="fl">Store number</span>
+          <select id="my-store-sel" onchange="renderS()">
+            <option value="">— select your store —</option>
+          </select>
+          <div class="mode-hint" style="width:100%;margin-top:2px">Shows your snapshot. Full ranked table still visible below.</div>
+        </div>
       </div>
 
       <div class="section-hdr" id="sh-st-scores" data-body="sb-st-scores">
-        <span class="slbl">Performance summary</span><span class="section-toggle open">▾</span>
+        <span class="slbl">Leaderboard &amp; summary</span><span class="section-toggle open">▾</span>
       </div>
       <div class="section-body" id="sb-st-scores">
         <div class="mrow" id="st-scorecards"></div>
@@ -988,18 +1016,6 @@ tr.dr:hover td{filter:brightness(.985)}
       </div>
       </div><!-- /sb-st-tbl -->
 
-      <div class="section-hdr" id="sh-st-coach" data-body="sb-st-coach">
-        <span class="slbl">Coaching spotlight</span><span class="section-toggle open">▾</span>
-      </div>
-      <div class="section-body" id="sb-st-coach">
-      <div class="panel">
-        <div class="ph">
-          <span class="pt">Action items for area managers</span>
-          <span style="font-size:11px;color:#888780" id="coaching-period"></span>
-        </div>
-        <div class="coaching-wrap" id="coaching-wrap"></div>
-      </div>
-      </div><!-- /sb-st-coach -->
     </div>
 
     <!-- AREA MANAGER VIEW -->
@@ -1015,7 +1031,7 @@ tr.dr:hover td{filter:brightness(.985)}
 
       <div class="frow">
         <span class="fl">Market</span>
-        <select id="am-mkt-sel" onchange="renderAM(this.value)">
+        <select id="am-mkt-sel" onchange="selMarketKey=this.value; var s=document.getElementById('mkt-sel'); if(s&&s.value!==this.value)s.value=this.value; filterMkt(this.value);">
           <option value="all">All markets</option>
         </select>
       </div>
@@ -1135,7 +1151,12 @@ tr.dr:hover td{filter:brightness(.985)}
             <div class="leg-item"><div class="leg-dot" style="background:#378ADD;opacity:.35"></div>Actual (MTD)</div>
             <div class="leg-item"><div class="leg-dash"></div>Monthly target</div>
           </div>
-          <div style="padding:8px 16px 0"><div class="pace-note" id="sm-pace-note"></div></div>
+          <div style="padding:8px 16px 0;display:flex;align-items:center;gap:6px">
+            <span id="sm-pace-note-label" style="font-size:12px;color:#6b7280"></span>
+            <span id="pace-info-btn" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid #9ca3af;font-size:10px;color:#6b7280;cursor:pointer;flex-shrink:0;position:relative" title="">&#x24D8;
+              <span id="pace-tooltip" style="display:none;position:absolute;left:22px;top:-4px;background:#1f2937;color:#f9fafb;font-size:11px;line-height:1.5;padding:8px 10px;border-radius:6px;width:260px;z-index:100;white-space:normal;pointer-events:none"></span>
+            </span>
+          </div>
           <div class="sm-grid" id="sm-grid"></div>
           <div class="foot">Badge % = actual vs paced target for MTD months. On complete months it shows actual vs full target.</div>
         </div>
@@ -1296,6 +1317,7 @@ var MKTS = [];
 var MONTHS_META = [];
 var CURRENT_MONTH_KEY = '';
 var selMonthKey = '';
+var selMarketKey = 'all'; // shared across store and AM tabs
 /* AOV removed — revenue now comes from actual biz data */
 var DATA_AGE_DAYS = 0;
 var dataSource = 'fallback';
@@ -1612,10 +1634,26 @@ function updateDynamicHeaders(monthKey) {
   if (mktAttain) mktAttain.textContent = goalHdr;
 
   var note = paceNoteText(monthKey);
-  ['st-pace-note','am-pace-note','ov-pace-note','sm-pace-note'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (el) el.textContent = note;
-  });
+  /* Set chart section pace note label + tooltip */
+  var smLabel = document.getElementById('sm-pace-note-label');
+  var smTooltip = document.getElementById('pace-tooltip');
+  var paceBtn = document.getElementById('pace-info-btn');
+  if (smLabel) {
+    if (note) {
+      var meta2 = getMeta(monthKey);
+      smLabel.textContent = meta2 && meta2.isMTD
+        ? 'Paced target: ' + Math.round(meta2.daysElapsed / meta2.daysTotal * 100) + '% of month elapsed'
+        : 'Complete month';
+    } else {
+      smLabel.textContent = '';
+    }
+  }
+  if (smTooltip) smTooltip.textContent = note;
+  if (paceBtn && smTooltip) {
+    paceBtn.style.display = note ? 'inline-flex' : 'none';
+    paceBtn.onmouseenter = function(){ smTooltip.style.display = 'block'; };
+    paceBtn.onmouseleave = function(){ smTooltip.style.display = 'none'; };
+  }
 }
 
 function makeScorecard(l, v, s, t) {
@@ -1817,6 +1855,21 @@ function buildAllDDs() {
     }).join('');
   }
 
+  /* Populate my-store selector with all stores that have data */
+  var myStoreSel = document.getElementById('my-store-sel');
+  if (myStoreSel) {
+    var currentMyStore = myStoreSel.value;
+    var allStoreNums = [];
+    RAW.forEach(function(r){
+      if (allStoreNums.indexOf(r.storeNum) < 0) allStoreNums.push(r.storeNum);
+    });
+    allStoreNums.sort(function(a,b){ return a - b; });
+    myStoreSel.innerHTML = '<option value="">— select —</option>' +
+      allStoreNums.map(function(n){
+        return '<option value="'+n+'"'+(String(n)===currentMyStore?' selected':'')+'>Store '+n+'</option>';
+      }).join('');
+  }
+
   ['am-mkt-sel','mkt-sel'].forEach(function(id){
     var el = document.getElementById(id);
     if (!el) return;
@@ -1859,6 +1912,12 @@ function selectMonth(key) {
    STORE DRILLDOWN
 ========================= */
 function filterMkt(mkt) {
+  selMarketKey = mkt;
+
+  /* Sync AM tab market select */
+  var amMktSel = document.getElementById('am-mkt-sel');
+  if (amMktSel && amMktSel.value !== mkt) amMktSel.value = mkt;
+
   var sel = document.getElementById('am-sel');
   sel.innerHTML = '<option value="all">All areas</option>';
 
@@ -1891,8 +1950,11 @@ function renderS() {
   var storeMap = {};
   RAW.forEach(function(r){
     if (!isAllowedDashboardMarket(r.market)) return;
-    if (mktF !== 'all' && r.market !== mktF) return;
-    if (amF !== 'all' && r.area !== amF) return;
+    /* In mystore mode show all stores so ranking is across the full fleet */
+    if (storeViewMode === 'fleet') {
+      if (mktF !== 'all' && r.market !== mktF) return;
+      if (amF !== 'all' && r.area !== amF) return;
+    }
 
     if (!storeMap[r.storeNum]) {
       storeMap[r.storeNum] = {
@@ -1947,38 +2009,165 @@ function renderS() {
   var bh = data.filter(function(s){ return s.ps.cls === 'cr'; }).length;
   var avg = withTarget.length ? Math.round(withTarget.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / withTarget.length) + '%' : '—';
 
-  document.getElementById('st-scorecards').innerHTML =
-    makeScorecard('On track', on, '≥ 100% of paced target', 'win') +
-    makeScorecard('At risk', at, '80–99% of paced target', 'warn') +
-    makeScorecard('Behind', bh, '< 80% of paced target', 'danger') +
-    makeScorecard('Avg % to target', avg, 'stores with targets', 'neutral');
+  /* Determine store selection — only active in mystore mode */
+  var myStoreSelEl2 = document.getElementById('my-store-sel');
+  var myStoreNum2 = (storeViewMode === 'mystore' && myStoreSelEl2 && myStoreSelEl2.value)
+    ? Number(myStoreSelEl2.value) : 0;
+  var myStoreData = myStoreNum2 ? data.find(function(s){ return s.n === myStoreNum2; }) : null;
+
+  /* ── 1. Scorecard row — fleet view only, hidden when a store is selected ── */
+  var scorecardsEl = document.getElementById('st-scorecards');
+  if (scorecardsEl) {
+    if (myStoreData) {
+      scorecardsEl.innerHTML = '';
+      scorecardsEl.style.display = 'none';
+    } else {
+      scorecardsEl.style.display = '';
+      scorecardsEl.innerHTML =
+        makeScorecard('On track', on, '≥ 100% of paced target', 'win') +
+        makeScorecard('At risk', at, '80–99% of paced target', 'warn') +
+        makeScorecard('Behind', bh, '< 80% of paced target', 'danger') +
+        makeScorecard('Avg % to target', avg, 'stores with targets', 'neutral');
+    }
+  }
+
+  /* ── 2. My store snapshot OR fleet leaderboard — never both ── */
 
   var tqWrap = document.getElementById('tq-callout-wrap');
-  if (tqWrap && withTarget.length > 0) {
-    tqWrap.innerHTML =
-      '<div class="tq-callout">' +
-        '<div class="tq-title">Top quartile spotlight — ranked by % to target</div>' +
-        '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:4px">' +
-          '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Top 25% avg</div><div class="tq-stat">'+topQAvg+'%</div></div>' +
-          '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Bottom 25% avg</div><div class="tq-stat" style="color:#A32D2D">'+bottomQAvg+'%</div></div>' +
-          '<div><div style="font-size:11px;color:#854F0B;margin-bottom:2px">Attainment gap</div><div class="tq-stat" style="color:#633806">'+gap+' pts</div></div>' +
-        '</div>' +
-        '<div class="tq-body" style="margin-top:8px">Top '+topQ.length+' stores averaging '+topQAvg+'% to target vs bottom '+bottomQ.length+' at '+bottomQAvg+'%. ' +
-          (gap > 30 ? 'Large gap — significant coaching opportunity.' : 'Moderate gap — focus on lifting bottom quartile performance.') +
-        '</div>' +
-        '<div class="tq-grid">' +
-          topQ.slice(0,6).map(function(s){
-            return '<div class="tq-item">' +
-              '<div class="tq-item-name">Store '+s.n+'</div>' +
-              '<div class="tq-item-mkt">'+s.mgr+' · '+s.area+'</div>' +
-              '<div class="tq-item-pct">'+s.pctToTarget+'%</div>' +
-              '<div class="tq-item-detail">'+s.a+' of '+parseFloat(s.t.toFixed(1))+' target</div>' +
-            '</div>';
-          }).join('') +
-        '</div>' +
-      '</div>';
-  } else {
-    tqWrap.innerHTML = '';
+  if (tqWrap) {
+    if (storeViewMode === 'mystore' && !myStoreData) {
+      /* No store selected yet in mystore mode — show prompt */
+      tqWrap.innerHTML =
+        '<div style="padding:20px;text-align:center;color:#9ca3af;font-size:13px">' +
+          'Select your store number above to see your snapshot.' +
+        '</div>';
+
+    } else if (myStoreData) {
+      /* ── MY STORE SNAPSHOT ── */
+      var ms = myStoreData;
+      var hasT = hasValidTarget(ms.t);
+      var myRank = sortedByPct.findIndex(function(s){ return s.n === myStoreNum2; });
+      var rankLabel = myRank >= 0 ? (myRank + 1) + ' of ' + sortedByPct.length : '—';
+      var storeAbove = myRank > 0 ? sortedByPct[myRank - 1] : null;
+      var storeBelowS = myRank >= 0 && myRank < sortedByPct.length - 1 ? sortedByPct[myRank + 1] : null;
+      var gapAbove = storeAbove && hasT ? storeAbove.a - ms.a : null;
+      var gapBelow = storeBelowS && hasT ? ms.a - storeBelowS.a : null;
+
+      var pacedTgt = hasT ? (isMTD ? Math.round(ms.t * pace) : ms.t) : null;
+      var paceBarW = pacedTgt > 0 ? Math.min(Math.round(ms.a / pacedTgt * 100), 100) : 0;
+      var paceBarColor = ms.ps.cls === 'cg' ? '#1d9e75' : ms.ps.cls === 'ca' ? '#ba7517' : '#a32d2d';
+
+      tqWrap.innerHTML =
+        '<div style="background:#eff6ff;border:1.5px solid #3b82f6;border-radius:10px;padding:16px 20px;margin-bottom:16px">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">' +
+            '<div style="font-size:14px;font-weight:700;color:#1e40af">Store '+ms.n+' — '+ms.mgr+'</div>' +
+            '<div style="font-size:12px;color:#3b82f6;font-weight:600">Ranked '+rankLabel+' this period</div>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:14px">' +
+            '<div style="background:#fff;border-radius:8px;padding:10px 12px;border:0.5px solid #bfdbfe">' +
+              '<div style="font-size:11px;color:#6b7280;margin-bottom:3px">Referrals</div>' +
+              '<div style="font-size:22px;font-weight:700;color:#1e3a8a">'+ms.a+'</div>' +
+            '</div>' +
+            (hasT ? '<div style="background:#fff;border-radius:8px;padding:10px 12px;border:0.5px solid #bfdbfe">' +
+              '<div style="font-size:11px;color:#6b7280;margin-bottom:3px">'+(isMTD?'Paced target':'Target')+'</div>' +
+              '<div style="font-size:22px;font-weight:700;color:#1e3a8a">'+pacedTgt+'</div>' +
+            '</div>' : '') +
+            (hasT ? '<div style="background:#fff;border-radius:8px;padding:10px 12px;border:0.5px solid #bfdbfe">' +
+              '<div style="font-size:11px;color:#6b7280;margin-bottom:3px">% to target</div>' +
+              '<div style="font-size:22px;font-weight:700;color:'+(ms.pctToTarget>=100?'#065f46':ms.pctToTarget>=80?'#92400e':'#9f1239')+'">'+displayPctBadge(ms.pctToTarget,true)+'</div>' +
+            '</div>' : '') +
+          '</div>' +
+          (hasT ? '<div style="margin-bottom:10px">' +
+            '<div style="height:8px;background:#dbeafe;border-radius:4px;overflow:hidden">' +
+              '<div style="height:100%;width:'+paceBarW+'%;background:'+paceBarColor+';border-radius:4px;transition:width .3s"></div>' +
+            '</div>' +
+          '</div>' : '') +
+          '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px">' +
+            (gapAbove !== null && gapAbove > 0 ? '<span style="color:#1d4ed8"><strong>'+gapAbove+'</strong> referrals to pass #'+(myRank)+'</span>' : '') +
+            (gapAbove !== null && gapAbove <= 0 ? '<span style="color:#059669">Ahead of #'+(myRank)+(gapAbove < 0 ? ' by '+Math.abs(gapAbove) : ' (tied)')+'</span>' : '') +
+            (gapBelow !== null ? '<span style="color:#9ca3af">#'+(myRank+2)+' is '+gapBelow+' behind you</span>' : '') +
+            (isMTD ? '<span style="color:#6b7280">'+vsPaceStr(ms.a, ms.t, pace)+'</span>' : '') +
+          '</div>' +
+        '</div>';
+
+    } else if (!sortedByPct.length) {
+      tqWrap.innerHTML = '';
+
+    } else {
+      /* ── FLEET LEADERBOARD (no store selected) ── */
+      function stOrdinal(n){
+        var s=["th","st","nd","rd"]; var v=n%100;
+        return n+(s[(v-20)%10]||s[v]||s[0]);
+      }
+
+      var topQLeads = topQ.reduce(function(s,x){ return s + x.a; }, 0);
+      var bottomQLeads = bottomQ.reduce(function(s,x){ return s + x.a; }, 0);
+      var totalLeads = withTarget.reduce(function(s,x){ return s + x.a; }, 0);
+      var topQShare = totalLeads > 0 ? Math.round(topQLeads / totalLeads * 100) : 0;
+      var mktSelEl = document.getElementById('mkt-sel');
+      var amSelEl = document.getElementById('am-sel');
+      var filterLabel = (mktSelEl && mktSelEl.value !== 'all')
+        ? mktSelEl.value
+        : (amSelEl && amSelEl.value !== 'all') ? amSelEl.value : '';
+
+      var insightBar = (withTarget.length >= 4)
+        ? '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 0 14px">' +
+            '<span style="font-size:12px;color:#6b7280">Top 25%</span>' +
+            '<span style="font-size:12px;color:#6b7280">('+topQ.length+' store'+(topQ.length!==1?'s':'')+'):</span>' +
+            '<span style="font-weight:700;font-size:13px;color:#065f46">'+topQLeads+' referrals</span>' +
+            '<span style="font-size:12px;color:#9ca3af;padding:0 4px">·</span>' +
+            '<span style="font-size:12px;color:#6b7280">Bottom 25%</span>' +
+            '<span style="font-size:12px;color:#6b7280">('+bottomQ.length+' store'+(bottomQ.length!==1?'s':'')+'):</span>' +
+            '<span style="font-weight:700;font-size:13px;color:#9f1239">'+bottomQLeads+' referrals</span>' +
+            (topQShare > 0 ? '<span style="font-size:11px;color:#9ca3af;margin-left:6px">— top 25% producing '+topQShare+'% of all referrals'+(filterLabel ? ' in '+filterLabel : '')+' this period</span>' : '') +
+          '</div>'
+        : '';
+
+      var top3 = sortedByPct.slice(0, 3);
+      var cardsHTML =
+        '<div class="slbl" style="margin-bottom:8px">Top stores this period</div>' +
+        '<div class="mgrid">' +
+        top3.map(function(s, i){
+          var ps = paceStatus(s.a, s.t, pace);
+          var fc = ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr';
+          var stCls = ps.cls==='cg'?'st-win':ps.cls==='ca'?'st-warn':'st-danger';
+          var actualW = Math.min(s.pctToTarget, 100);
+          var paceW = Math.min(Math.round(pace*100), 100);
+          var cardCls = i===0?'rank-1-card':i===1?'rank-2-card':'rank-3-card';
+          var numCls  = i===0?'rn-1':i===1?'rn-2':'rn-3';
+          return '<div class="mcard '+cardCls+'" style="margin-top:'+(i===0?'14px':'0')+'">' +
+            (i===0?'<div class="rank-crown">&#127942;</div>':'') +
+            '<div class="rank-num '+numCls+'">'+stOrdinal(i+1)+'</div>' +
+            '<div class="mcard-mkt">Store '+s.n+'</div>' +
+            '<div class="mcard-mgr">'+s.mgr+' &middot; '+s.area+'</div>' +
+            '<div class="mcard-nums"><span class="mcard-actual">'+s.a+'</span><span class="mcard-tgt">of '+parseFloat(s.t.toFixed(1))+' target</span></div>' +
+            '<div style="position:relative;margin-bottom:8px">' +
+              '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
+              (isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'') +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+              '<span class="mcard-status '+stCls+'">'+vsPaceStr(s.a, s.t, pace)+'</span>' +
+              '<span style="font-size:12px;color:#888780">'+s.pctToTarget+'% to '+(isMTD?'paced ':'')+'target</span>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+        '</div>';
+
+      tqWrap.innerHTML = insightBar + cardsHTML;
+    }
+    refreshCollapsible('sb-st-scores');
+  }
+
+  /* Update section header label */
+  var scoresHdr = document.querySelector('#sh-st-scores .slbl');
+  if (scoresHdr) {
+    if (storeViewMode === 'mystore' && myStoreData) {
+      scoresHdr.textContent = 'My store — Store ' + myStoreNum2;
+    } else if (storeViewMode === 'mystore') {
+      scoresHdr.textContent = 'My store';
+    } else {
+      scoresHdr.textContent = 'Leaderboard & summary';
+    }
   }
 
   var sub = document.getElementById('st-tbl-sub');
@@ -1993,9 +2182,13 @@ function renderS() {
   var noTarget = data.filter(function(s){ return !hasValidTarget(s.t); });
   var allSorted = sortedByPct.concat(noTarget);
 
-  document.getElementById('stbl').innerHTML = allSorted.map(function(s){
+  document.getElementById('stbl').innerHTML = (function(){
+  var myStoreSelEl = document.getElementById('my-store-sel');
+  var myStoreNum = (storeViewMode === 'mystore' && myStoreSelEl && myStoreSelEl.value) ? Number(myStoreSelEl.value) : 0;
+  return allSorted.map(function(s, idx){
     var isTopQ = topQSet.has(s.n);
-    var rowCls = s.ps.row + ' dr';
+    var isMyStore = myStoreNum && s.n === myStoreNum;
+    var rowCls = (isMyStore ? 'my-store-row' : s.ps.row) + ' dr';
     var hasT = hasValidTarget(s.t);
     var preLaunch = isPreLaunch(s.t);
 
@@ -2007,18 +2200,33 @@ function renderS() {
       ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
       : '—';
 
-    var finalPct = hasT ? Math.round((s.a / s.t) * 100) : null;
-
-    var pctCell = isMTD
-      ? '<td class="tr">'+pctBadge+'</td>'
-      : '<td class="tr">'+(finalPct !== null ? '<span class="b '+(finalPct >= 100 ? 'bg' : finalPct >= 80 ? 'ba' : 'br')+'">'+finalPct+'%</span>' : '—')+'</td>';
+    var pctCell = '<td class="tr">'+pctBadge+'</td>';
 
     var paceCell = isMTD
       ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
       : '<td class="tr" style="display:none"></td>';
 
+    var storeNumCell;
+    if (isMyStore) {
+      var storeAbove = idx > 0 ? allSorted[idx - 1] : null;
+      var gapStr = '';
+      if (storeAbove && hasValidTarget(storeAbove.t) && hasT) {
+        var gapToAbove = storeAbove.a - s.a;
+        if (gapToAbove > 0) {
+          gapStr = '<span class="gap-to-next">'+gapToAbove+' behind #'+idx+'</span>';
+        } else if (gapToAbove < 0) {
+          gapStr = '<span class="gap-to-next" style="color:#059669">'+Math.abs(gapToAbove)+' ahead</span>';
+        } else {
+          gapStr = '<span class="gap-to-next">tied</span>';
+        }
+      }
+      storeNumCell = '<td style="font-weight:700">'+s.n+'<span class="my-store-badge">You</span>'+gapStr+'</td>';
+    } else {
+      storeNumCell = '<td style="font-weight:500">'+s.n+'</td>';
+    }
+
     return '<tr class="'+rowCls+'">' +
-      '<td style="font-weight:500">'+s.n+'</td>' +
+      storeNumCell +
       '<td style="font-size:12px">'+s.mgr+'</td>' +
       '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
       '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
@@ -2029,10 +2237,10 @@ function renderS() {
       '<td class="tr">'+(isTopQ ? '<span class="b bg" style="padding:2px 6px">&#127942;</span>' : '')+'</td>' +
     '</tr>';
   }).join('');
+})();
 
   refreshCollapsible('sb-st-scores');
   refreshCollapsible('sb-st-tbl');
-  refreshCollapsible('sb-st-coach');
   var stHeadRow = document.querySelector('#pg-st thead tr');
   if (stHeadRow) {
     var ths = stHeadRow.querySelectorAll('th');
@@ -2057,74 +2265,6 @@ function renderS() {
       : 'Sorted highest to lowest final % to target. Only one attainment column is shown for completed months. Gold rows = top 25%.';
   }
 
-  document.getElementById('coaching-period').textContent = dateRangeLabel(mk);
-
-  var items = [];
-  if (gap > 25 && withTarget.length >= 8) {
-    items.push({
-      icon:'ci-amber',
-      lbl:'&#9888;',
-      head:'Top quartile outperforming bottom by '+gap+' percentage points',
-      sub:'Top 25% averaging '+topQAvg+'% to target vs bottom 25% at '+bottomQAvg+'%.',
-      act:'Coaching action: pair bottom-quartile store managers with top performers for knowledge sharing.'
-    });
-  }
-
-  var zeros = data.filter(function(s){ return s.a === 0 && hasValidTarget(s.t); });
-  if (zeros.length > 0) {
-    var zAreas = Array.from(new Set(zeros.map(function(s){ return s.area; })));
-    items.push({
-      icon:'ci-red',
-      lbl:'&#128683;',
-      head:zeros.length+' store'+(zeros.length > 1 ? 's have' : ' has')+' submitted zero referrals',
-      sub:'Stores in '+zAreas.join(', ')+' have not participated at all this period.',
-      act:'Coaching action: area manager outreach within 24 hours. Verify referral workflow adoption.'
-    });
-  }
-
-  var bqUnder50 = bottomQ.filter(function(s){ return s.pctToTarget < 50; });
-  if (bqUnder50.length > 0) {
-    items.push({
-      icon:'ci-red',
-      lbl:'&#9650;',
-      head:bqUnder50.length+' bottom-quartile store'+(bqUnder50.length > 1 ? 's are' : ' is')+' below 50% of target',
-      sub:bqUnder50.slice(0,3).map(function(s){ return 'Store '+s.n+' ('+s.pctToTarget+'% — '+s.a+' of '+s.t+')'; }).join(', ') + '.',
-      act:'Coaching action: review operational blockers and manager-level referral process adherence.'
-    });
-  }
-
-  var atOrAbove = withTarget.filter(function(s){ return s.pctToTarget >= 100; });
-  if (atOrAbove.length > 0) {
-    var best = atOrAbove[0];
-    items.push({
-      icon:'ci-blue',
-      lbl:'&#11088;',
-      head:atOrAbove.length+' store'+(atOrAbove.length > 1 ? 's are' : ' is')+' at or above 100% of '+(isMTD ? 'paced ' : '')+'target',
-      sub:'Store '+best.n+' ('+best.mgr+', '+best.area+') leading at '+best.pctToTarget+'% — '+best.a+' referrals vs '+best.t+' target.',
-      act:'Coaching action: recognize these stores and replicate what is working.'
-    });
-  }
-
-  if (items.length === 0) {
-    items.push({
-      icon:'ci-blue',
-      lbl:'&#10003;',
-      head:'No urgent coaching items',
-      sub:'All stores are within acceptable range.',
-      act:''
-    });
-  }
-
-  document.getElementById('coaching-wrap').innerHTML = items.map(function(it){
-    return '<div class="coaching-item">' +
-      '<div class="coaching-icon '+it.icon+'">'+it.lbl+'</div>' +
-      '<div class="coaching-text">' +
-        '<div class="coaching-headline">'+it.head+'</div>' +
-        '<div class="coaching-sub">'+it.sub+'</div>' +
-        (it.act ? '<div class="coaching-action">'+it.act+'</div>' : '') +
-      '</div>' +
-    '</div>';
-  }).join('');
 }
 
 /* =========================
@@ -2231,8 +2371,10 @@ function renderAM(filterMarket) {
     '</tr>';
   }).join('');
 
+  /* Top 3 only — shows however many exist if fewer than 3 */
   var ldrData = data.filter(function(r){ return hasValidTarget(r.t); })
-    .slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
+    .slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; })
+    .slice(0, 3);
 
   var amCards = document.getElementById('am-mcards');
   if (amCards) {
@@ -2739,8 +2881,16 @@ function sw(t) {
     document.getElementById('pg-' + k).classList.toggle('on', k === t);
   });
 
-  if (t === 'am') renderAM(document.getElementById('am-mkt-sel').value || 'all');
-  if (t === 'st') renderS();
+  /* Sync market filter to shared state when switching tabs */
+  if (t === 'am') {
+    var amSel = document.getElementById('am-mkt-sel');
+    if (amSel && amSel.value !== selMarketKey) amSel.value = selMarketKey;
+    renderAM(selMarketKey);
+  }
+  if (t === 'st') {
+    var stSel = document.getElementById('mkt-sel');
+    if (stSel && stSel.value !== selMarketKey) { stSel.value = selMarketKey; filterMkt(selMarketKey); } else { renderS(); }
+  }
   if (t === 'ov') buildOv();
   if (t === 'biz' && bizUnlocked) buildBiz();
 }
@@ -2778,7 +2928,6 @@ function applyLoadedState(source) {
   [
     ['sh-st-scores','sb-st-scores',true],
     ['sh-st-tbl','sb-st-tbl',true],
-    ['sh-st-coach','sb-st-coach',true],
     ['sh-am-scores','sb-am-scores',true],
     ['sh-am-ldr','sb-am-ldr',true],
     ['sh-am-tbl','sb-am-tbl',true],
@@ -2846,19 +2995,31 @@ function initCollapsible(headerId, bodyId, defaultOpen) {
   if (!hdr || !body) return;
   var toggle = hdr.querySelector('.section-toggle');
   var open = defaultOpen !== false;
-  body.style.maxHeight = open ? body.scrollHeight + 'px' : '0';
-  if (!open) body.classList.add('collapsed');
+
+  if (open) {
+    body.style.maxHeight = 'none'; // unconstrained — content always visible
+    body.classList.remove('collapsed');
+  } else {
+    body.style.maxHeight = '0';
+    body.classList.add('collapsed');
+  }
   if (toggle) toggle.className = 'section-toggle ' + (open ? 'open' : 'closed');
+
   hdr.addEventListener('click', function(){
     open = !open;
     if (open) {
       body.classList.remove('collapsed');
       body.style.maxHeight = body.scrollHeight + 'px';
+      // After animation completes, remove constraint so dynamic content can grow
+      setTimeout(function(){ if (open) body.style.maxHeight = 'none'; }, 260);
     } else {
+      // Must set a px value before animating to 0
       body.style.maxHeight = body.scrollHeight + 'px';
       requestAnimationFrame(function(){
-        body.style.maxHeight = '0';
-        body.classList.add('collapsed');
+        requestAnimationFrame(function(){
+          body.style.maxHeight = '0';
+          body.classList.add('collapsed');
+        });
       });
     }
     if (toggle) toggle.className = 'section-toggle ' + (open ? 'open' : 'closed');
@@ -2877,7 +3038,40 @@ function expandSection(bodyId) {
 function refreshCollapsible(bodyId) {
   var body = document.getElementById(bodyId);
   if (!body || body.classList.contains('collapsed')) return;
-  body.style.maxHeight = body.scrollHeight + 'px';
+  body.style.maxHeight = 'none';
+}
+
+/* ── Store tab view mode ── */
+var storeViewMode = 'fleet'; // 'fleet' | 'mystore'
+
+function setStoreMode(mode) {
+  storeViewMode = mode;
+
+  var fleetBtn = document.getElementById('mode-fleet-btn');
+  var myBtn    = document.getElementById('mode-mystore-btn');
+  var fleetF   = document.getElementById('fleet-filters');
+  var myF      = document.getElementById('mystore-filters');
+
+  if (mode === 'fleet') {
+    fleetBtn.className = 'mode-btn active';
+    myBtn.className    = 'mode-btn';
+    fleetF.style.display = '';
+    myF.style.display    = 'none';
+    /* Clear store selection so renderS shows fleet view */
+    var mySel = document.getElementById('my-store-sel');
+    if (mySel) mySel.value = '';
+  } else {
+    fleetBtn.className = 'mode-btn';
+    myBtn.className    = 'mode-btn active my-store-active';
+    fleetF.style.display = 'none';
+    myF.style.display    = '';
+    /* Reset market/area filters so fleet filters don't bleed into store view */
+    var mktSel = document.getElementById('mkt-sel');
+    var amSel  = document.getElementById('am-sel');
+    if (mktSel) { mktSel.value = 'all'; selMarketKey = 'all'; }
+    if (amSel)  amSel.value = 'all';
+  }
+  renderS();
 }
 
 loadData();
