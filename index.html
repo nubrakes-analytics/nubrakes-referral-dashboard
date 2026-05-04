@@ -1956,7 +1956,7 @@ function renderS() {
   var storeMap = {};
   RAW.forEach(function(r){
     if (!isAllowedDashboardMarket(r.market)) return;
-    /* In mystore mode show all stores so ranking is across the full fleet */
+
     if (storeViewMode === 'fleet') {
       if (mktF !== 'all' && r.market !== mktF) return;
       if (amF !== 'all' && r.area !== amF) return;
@@ -1983,8 +1983,15 @@ function renderS() {
   });
 
   var data = Object.values(storeMap).map(function(s){
-    var effectiveTgt = isMTD && s.t > 0 ? (s.t * pace) : s.t;
-    var pctToTarget = effectiveTgt > 0 ? Math.round(s.a / effectiveTgt * 100) : 0;
+    var roundedTarget = whole(s.t);
+    var effectiveTgt = isMTD && roundedTarget > 0
+      ? whole(roundedTarget * pace)
+      : roundedTarget;
+
+    var pctToTarget = effectiveTgt > 0
+      ? Math.round(s.a / effectiveTgt * 100)
+      : 0;
+
     return {
       n: s.n,
       mgr: s.mgr,
@@ -1992,13 +1999,14 @@ function renderS() {
       mkt: s.mkt,
       a: s.a,
       t: s.t,
+      roundedTarget: roundedTarget,
       effectiveTgt: effectiveTgt,
       pctToTarget: pctToTarget,
-      ps: paceStatus(s.a, s.t, pace)
+      ps: paceStatus(s.a, roundedTarget, pace)
     };
   });
 
-  var withTarget = data.filter(function(s){ return hasValidTarget(s.t); });
+  var withTarget = data.filter(function(s){ return hasValidTarget(s.roundedTarget); });
   var sortedByPct = withTarget.slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; });
 
   var tqCount = Math.max(1, Math.ceil(sortedByPct.length * 0.25));
@@ -2006,22 +2014,22 @@ function renderS() {
   var bottomQ = sortedByPct.slice(Math.max(0, sortedByPct.length - tqCount));
   var topQSet = new Set(topQ.map(function(s){ return s.n; }));
 
-  var topQAvg = topQ.length ? Math.round(topQ.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / topQ.length) : 0;
-  var bottomQAvg = bottomQ.length ? Math.round(bottomQ.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / bottomQ.length) : 0;
-  var gap = topQAvg - bottomQAvg;
-
   var on = data.filter(function(s){ return s.ps.cls === 'cg'; }).length;
   var at = data.filter(function(s){ return s.ps.cls === 'ca'; }).length;
   var bh = data.filter(function(s){ return s.ps.cls === 'cr'; }).length;
-  var avg = withTarget.length ? Math.round(withTarget.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / withTarget.length) + '%' : '—';
+  var avg = withTarget.length
+    ? Math.round(withTarget.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / withTarget.length) + '%'
+    : '—';
 
-  /* Determine store selection — only active in mystore mode */
   var myStoreSelEl2 = document.getElementById('my-store-sel');
   var myStoreNum2 = (storeViewMode === 'mystore' && myStoreSelEl2 && myStoreSelEl2.value)
-    ? Number(myStoreSelEl2.value) : 0;
-  var myStoreData = myStoreNum2 ? data.find(function(s){ return s.n === myStoreNum2; }) : null;
+    ? Number(myStoreSelEl2.value)
+    : 0;
 
-  /* ── 1. Scorecard row — fleet view only, hidden when a store is selected ── */
+  var myStoreData = myStoreNum2
+    ? data.find(function(s){ return s.n === myStoreNum2; })
+    : null;
+
   var scorecardsEl = document.getElementById('st-scorecards');
   if (scorecardsEl) {
     if (myStoreData) {
@@ -2037,21 +2045,17 @@ function renderS() {
     }
   }
 
-  /* ── 2. My store snapshot OR fleet leaderboard — never both ── */
-
   var tqWrap = document.getElementById('tq-callout-wrap');
   if (tqWrap) {
     if (storeViewMode === 'mystore' && !myStoreData) {
-      /* No store selected yet in mystore mode — show prompt */
       tqWrap.innerHTML =
         '<div style="padding:20px;text-align:center;color:#9ca3af;font-size:13px">' +
           'Select your store number above to see your snapshot.' +
         '</div>';
 
     } else if (myStoreData) {
-      /* ── MY STORE SNAPSHOT ── */
       var ms = myStoreData;
-      var hasT = hasValidTarget(ms.t);
+      var hasT = hasValidTarget(ms.roundedTarget);
       var myRank = sortedByPct.findIndex(function(s){ return s.n === myStoreNum2; });
       var rankLabel = myRank >= 0 ? (myRank + 1) + ' of ' + sortedByPct.length : '—';
       var storeAbove = myRank > 0 ? sortedByPct[myRank - 1] : null;
@@ -2059,7 +2063,7 @@ function renderS() {
       var gapAbove = storeAbove && hasT ? storeAbove.a - ms.a : null;
       var gapBelow = storeBelowS && hasT ? ms.a - storeBelowS.a : null;
 
-      var pacedTgt = hasT ? whole(isMTD ? ms.t * pace : ms.t) : null;
+      var pacedTgt = hasT ? ms.effectiveTgt : null;
       var paceBarW = pacedTgt > 0 ? Math.min(Math.round(ms.a / pacedTgt * 100), 100) : 0;
       var paceBarColor = ms.ps.cls === 'cg' ? '#1d9e75' : ms.ps.cls === 'ca' ? '#ba7517' : '#a32d2d';
 
@@ -2092,7 +2096,7 @@ function renderS() {
             (gapAbove !== null && gapAbove > 0 ? '<span style="color:#1d4ed8"><strong>'+gapAbove+'</strong> referrals to pass #'+(myRank)+'</span>' : '') +
             (gapAbove !== null && gapAbove <= 0 ? '<span style="color:#059669">Ahead of #'+(myRank)+(gapAbove < 0 ? ' by '+Math.abs(gapAbove) : ' (tied)')+'</span>' : '') +
             (gapBelow !== null ? '<span style="color:#9ca3af">#'+(myRank+2)+' is '+gapBelow+' behind you</span>' : '') +
-            (isMTD ? '<span style="color:#6b7280">'+vsPaceStr(ms.a, ms.t, pace)+'</span>' : '') +
+            (isMTD ? '<span style="color:#6b7280">'+vsPaceStr(ms.a, ms.roundedTarget, pace)+'</span>' : '') +
           '</div>' +
         '</div>';
 
@@ -2100,7 +2104,6 @@ function renderS() {
       tqWrap.innerHTML = '';
 
     } else {
-      /* ── FLEET LEADERBOARD (no store selected) ── */
       function stOrdinal(n){
         var s=["th","st","nd","rd"]; var v=n%100;
         return n+(s[(v-20)%10]||s[v]||s[0]);
@@ -2134,7 +2137,7 @@ function renderS() {
         '<div class="slbl" style="margin-bottom:8px">Top stores this period</div>' +
         '<div class="mgrid">' +
         top3.map(function(s, i){
-          var ps = paceStatus(s.a, s.t, pace);
+          var ps = paceStatus(s.a, s.roundedTarget, pace);
           var fc = ps.cls==='cg'?'fg':ps.cls==='ca'?'fa':'fr';
           var stCls = ps.cls==='cg'?'st-win':ps.cls==='ca'?'st-warn':'st-danger';
           var actualW = Math.min(s.pctToTarget, 100);
@@ -2146,13 +2149,13 @@ function renderS() {
             '<div class="rank-num '+numCls+'">'+stOrdinal(i+1)+'</div>' +
             '<div class="mcard-mkt">Store '+s.n+'</div>' +
             '<div class="mcard-mgr">'+s.mgr+' &middot; '+s.area+'</div>' +
-            '<div class="mcard-nums"><span class="mcard-actual">'+s.a+'</span><span class="mcard-tgt">of '+whole(s.t)+' target</span></div>' +
+            '<div class="mcard-nums"><span class="mcard-actual">'+s.a+'</span><span class="mcard-tgt">of '+s.roundedTarget+' target</span></div>' +
             '<div style="position:relative;margin-bottom:8px">' +
               '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
               (isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'') +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-              '<span class="mcard-status '+stCls+'">'+vsPaceStr(s.a, s.t, pace)+'</span>' +
+              '<span class="mcard-status '+stCls+'">'+vsPaceStr(s.a, s.roundedTarget, pace)+'</span>' +
               '<span style="font-size:12px;color:#888780">'+s.pctToTarget+'% to '+(isMTD?'paced ':'')+'target</span>' +
             '</div>' +
           '</div>';
@@ -2161,10 +2164,10 @@ function renderS() {
 
       tqWrap.innerHTML = insightBar + cardsHTML;
     }
+
     refreshCollapsible('sb-st-scores');
   }
 
-  /* Update section header label */
   var scoresHdr = document.querySelector('#sh-st-scores .slbl');
   if (scoresHdr) {
     if (storeViewMode === 'mystore' && myStoreData) {
@@ -2178,75 +2181,80 @@ function renderS() {
 
   var sub = document.getElementById('st-tbl-sub');
   var paceHdr = document.getElementById('st-pace-col-hdr');
-  if (paceHdr) {
-    paceHdr.style.display = isMTD ? '' : 'none';
-  }
-  if (sub) sub.textContent = isMTD
-    ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed) with separate vs pace column'
-    : 'Completed month — showing final % to target only';
+  if (paceHdr) paceHdr.style.display = isMTD ? '' : 'none';
 
-  var noTarget = data.filter(function(s){ return !hasValidTarget(s.t); });
+  if (sub) {
+    sub.textContent = isMTD
+      ? '% to paced target (' + Math.round(pace * 100) + '% of month elapsed) with separate vs pace column'
+      : 'Completed month — showing final % to target only';
+  }
+
+  var noTarget = data.filter(function(s){ return !hasValidTarget(s.roundedTarget); });
   var allSorted = sortedByPct.concat(noTarget);
 
   document.getElementById('stbl').innerHTML = (function(){
-  var myStoreSelEl = document.getElementById('my-store-sel');
-  var myStoreNum = (storeViewMode === 'mystore' && myStoreSelEl && myStoreSelEl.value) ? Number(myStoreSelEl.value) : 0;
-  return allSorted.map(function(s, idx){
-    var isTopQ = topQSet.has(s.n);
-    var isMyStore = myStoreNum && s.n === myStoreNum;
-    var rowCls = (isMyStore ? 'my-store-row' : s.ps.row) + ' dr';
-    var hasT = hasValidTarget(s.t);
-    var preLaunch = isPreLaunch(s.t);
+    var myStoreSelEl = document.getElementById('my-store-sel');
+    var myStoreNum = (storeViewMode === 'mystore' && myStoreSelEl && myStoreSelEl.value)
+      ? Number(myStoreSelEl.value)
+      : 0;
 
-    var tgtCell = preLaunch
-      ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
-      : '<td class="tr">'+(hasT ? whole(s.t) : '—')+'</td>';
+    return allSorted.map(function(s, idx){
+      var isTopQ = topQSet.has(s.n);
+      var isMyStore = myStoreNum && s.n === myStoreNum;
+      var rowCls = (isMyStore ? 'my-store-row' : s.ps.row) + ' dr';
+      var hasT = hasValidTarget(s.roundedTarget);
+      var preLaunch = isPreLaunch(s.t);
 
-    var pctBadge = hasT
-      ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
-      : '—';
+      var tgtCell = preLaunch
+        ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
+        : '<td class="tr">'+(hasT ? s.roundedTarget : '—')+'</td>';
 
-    var pctCell = '<td class="tr">'+pctBadge+'</td>';
+      var pctBadge = hasT
+        ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
+        : '—';
 
-    var paceCell = isMTD
-      ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.t, pace)+'</td>'
-      : '<td class="tr" style="display:none"></td>';
+      var pctCell = '<td class="tr">'+pctBadge+'</td>';
 
-    var storeNumCell;
-    if (isMyStore) {
-      var storeAbove = idx > 0 ? allSorted[idx - 1] : null;
-      var gapStr = '';
-      if (storeAbove && hasValidTarget(storeAbove.t) && hasT) {
-        var gapToAbove = storeAbove.a - s.a;
-        if (gapToAbove > 0) {
-          gapStr = '<span class="gap-to-next">'+gapToAbove+' behind #'+idx+'</span>';
-        } else if (gapToAbove < 0) {
-          gapStr = '<span class="gap-to-next" style="color:#059669">'+Math.abs(gapToAbove)+' ahead</span>';
-        } else {
-          gapStr = '<span class="gap-to-next">tied</span>';
+      var paceCell = isMTD
+        ? '<td class="tr '+s.ps.cls+'" style="font-size:12px">'+vsPaceStr(s.a, s.roundedTarget, pace)+'</td>'
+        : '<td class="tr" style="display:none"></td>';
+
+      var storeNumCell;
+      if (isMyStore) {
+        var storeAbove = idx > 0 ? allSorted[idx - 1] : null;
+        var gapStr = '';
+        if (storeAbove && hasValidTarget(storeAbove.roundedTarget) && hasT) {
+          var gapToAbove = storeAbove.a - s.a;
+          if (gapToAbove > 0) {
+            gapStr = '<span class="gap-to-next">'+gapToAbove+' behind #'+idx+'</span>';
+          } else if (gapToAbove < 0) {
+            gapStr = '<span class="gap-to-next" style="color:#059669">'+Math.abs(gapToAbove)+' ahead</span>';
+          } else {
+            gapStr = '<span class="gap-to-next">tied</span>';
+          }
         }
+        storeNumCell = '<td style="font-weight:700">'+s.n+'<span class="my-store-badge">You</span>'+gapStr+'</td>';
+      } else {
+        storeNumCell = '<td style="font-weight:500">'+s.n+'</td>';
       }
-      storeNumCell = '<td style="font-weight:700">'+s.n+'<span class="my-store-badge">You</span>'+gapStr+'</td>';
-    } else {
-      storeNumCell = '<td style="font-weight:500">'+s.n+'</td>';
-    }
 
-    return '<tr class="'+rowCls+'">' +
-      storeNumCell +
-      '<td style="font-size:12px">'+s.mgr+'</td>' +
-      '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
-      '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
-      tgtCell +
-      '<td class="tr">'+s.a+'</td>' +
-      pctCell +
-      paceCell +
-      '<td class="tr">'+(isTopQ ? '<span class="b bg" style="padding:2px 6px">&#127942;</span>' : '')+'</td>' +
-    '</tr>';
-  }).join('');
-})();
+      return '<tr class="'+rowCls+'">' +
+        storeNumCell +
+        '<td style="font-size:12px">'+s.mgr+'</td>' +
+        '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
+        '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
+        tgtCell +
+        '<td class="tr">'+s.a+'</td>' +
+        pctCell +
+        paceCell +
+        '<td class="tr">'+(isTopQ ? '<span class="b bg" style="padding:2px 6px">&#127942;</span>' : '')+'</td>' +
+      '</tr>';
+    }).join('');
+  })();
 
   refreshCollapsible('sb-st-scores');
   refreshCollapsible('sb-st-tbl');
+
   var stHeadRow = document.querySelector('#pg-st thead tr');
   if (stHeadRow) {
     var ths = stHeadRow.querySelectorAll('th');
@@ -2258,19 +2266,16 @@ function renderS() {
     var rows = stBody.querySelectorAll('tr');
     rows.forEach(function(row){
       var cells = row.querySelectorAll('td');
-      if (cells[7]) {
-        cells[7].style.display = isMTD ? '' : 'none';
-      }
+      if (cells[7]) cells[7].style.display = isMTD ? '' : 'none';
     });
   }
 
   var stFoot = document.getElementById('st-foot');
   if (stFoot) {
     stFoot.textContent = isMTD
-      ? 'Sorted highest to lowest % to paced target. Separate vs pace column shown for MTD months. Gold rows = top 25%.'
-      : 'Sorted highest to lowest final % to target. Only one attainment column is shown for completed months. Gold rows = top 25%.';
+      ? 'Sorted highest to lowest % to rounded paced target. Separate vs pace column shown for MTD months. Gold rows = top 25%.'
+      : 'Sorted highest to lowest final % to rounded target. Only one attainment column is shown for completed months. Gold rows = top 25%.';
   }
-
 }
 
 /* =========================
@@ -2300,6 +2305,7 @@ function renderAM(filterMarket) {
     }
 
     areas[k].storeNums[r.storeNum] = true;
+
     if (r.monthKey === mk) {
       areas[k].a += r.leads;
     }
@@ -2314,8 +2320,15 @@ function renderAM(filterMarket) {
   });
 
   var data = Object.values(areas).map(function(r){
-    var effectiveTgt = isMTD && hasValidTarget(r.t) ? (r.t * pace) : (hasValidTarget(r.t) ? r.t : 0);
-    var pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+    var roundedTarget = whole(r.t);
+    var effectiveTgt = isMTD && roundedTarget > 0
+      ? whole(roundedTarget * pace)
+      : roundedTarget;
+
+    var pctToTarget = effectiveTgt > 0
+      ? Math.round(r.a / effectiveTgt * 100)
+      : 0;
+
     return {
       name: r.area,
       market: r.market,
@@ -2323,9 +2336,10 @@ function renderAM(filterMarket) {
       cnt: Object.keys(r.storeNums).length,
       a: r.a,
       t: r.t,
+      roundedTarget: roundedTarget,
       effectiveTgt: effectiveTgt,
       pctToTarget: pctToTarget,
-      ps: paceStatus(r.a, r.t, pace)
+      ps: paceStatus(r.a, roundedTarget, pace)
     };
   }).sort(function(a,b){
     var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
@@ -2336,35 +2350,45 @@ function renderAM(filterMarket) {
   var on = data.filter(function(x){ return x.ps.cls === 'cg'; }).length;
   var at = data.filter(function(x){ return x.ps.cls === 'ca'; }).length;
   var bh = data.filter(function(x){ return x.ps.cls === 'cr'; }).length;
-  var wa = data.filter(function(x){ return x.t > 0; });
-  var avg = wa.length ? Math.round(wa.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / wa.length) + '%' : '—';
+  var wa = data.filter(function(x){ return x.roundedTarget > 0; });
+
+  var avg = wa.length
+    ? Math.round(wa.reduce(function(s,x){ return s + x.pctToTarget; }, 0) / wa.length) + '%'
+    : '—';
 
   document.getElementById('am-scorecards').innerHTML =
-    makeScorecard('On track', on, '≥100% of paced target', 'win') +
-    makeScorecard('At risk', at, '80–99% of paced target', 'warn') +
-    makeScorecard('Behind', bh, '<80% of paced target', 'danger') +
-    makeScorecard('Avg % to target', avg, isMTD ? 'vs paced target' : 'vs full-month target', 'neutral');
+    makeScorecard('On track', on, '≥100% of rounded paced target', 'win') +
+    makeScorecard('At risk', at, '80–99% of rounded paced target', 'warn') +
+    makeScorecard('Behind', bh, '<80% of rounded paced target', 'danger') +
+    makeScorecard('Avg % to target', avg, isMTD ? 'vs rounded paced target' : 'vs rounded full-month target', 'neutral');
 
   var af = document.getElementById('am-foot');
   if (af) {
     af.textContent = isMTD
-      ? '% to target uses paced target (' + Math.round(pace * 100) + '% of month elapsed) — consistent with store table. Daily pace = actual minus expected referrals at current pace.'
-      : 'Complete month — % to target is final attainment vs full monthly target.';
+      ? '% to target uses rounded paced target. Daily pace = actual minus expected referrals at current pace.'
+      : 'Complete month — % to target is final attainment vs rounded monthly target.';
   }
 
   document.getElementById('amtbl').innerHTML = data.map(function(r){
     var tgt = r.t;
-    var tgtCell = isPreLaunch(tgt) ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
-                : !hasValidTarget(tgt) ? '<td class="tr" style="color:#9ca3af">—</td>'
-                : '<td class="tr">'+whole(tgt)+'</td>';
-    var hasT = hasValidTarget(tgt);
+    var hasT = hasValidTarget(r.roundedTarget);
+
+    var tgtCell = isPreLaunch(tgt)
+      ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
+      : !hasT
+        ? '<td class="tr" style="color:#9ca3af">—</td>'
+        : '<td class="tr">'+r.roundedTarget+'</td>';
+
     var paceCell = isMTD && hasT
-      ? '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+vsPaceStr(r.a, tgt, pace)+'</td>'
-      : isMTD ? '<td class="tr" style="color:#9ca3af">—</td>'
-      : '<td class="tr" style="color:#374151">'+attainOrPaceCell(r.a, tgt, pace, false)+'</td>';
+      ? '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+vsPaceStr(r.a, r.roundedTarget, pace)+'</td>'
+      : isMTD
+        ? '<td class="tr" style="color:#9ca3af">—</td>'
+        : '<td class="tr" style="color:#374151">'+attainOrPaceCell(r.a, r.roundedTarget, pace, false)+'</td>';
+
     var badge = hasT
       ? '<span class="b '+(r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(r.pctToTarget, true)+'</span>'
       : '—';
+
     return '<tr class="dr '+r.ps.row+'">' +
       '<td style="font-weight:500">'+r.name+'</td>' +
       '<td style="font-size:12px;color:#888780">'+r.market+'</td>' +
@@ -2377,9 +2401,9 @@ function renderAM(filterMarket) {
     '</tr>';
   }).join('');
 
-  /* Top 3 only — shows however many exist if fewer than 3 */
-  var ldrData = data.filter(function(r){ return hasValidTarget(r.t); })
-    .slice().sort(function(a,b){ return b.pctToTarget - a.pctToTarget; })
+  var ldrData = data.filter(function(r){ return hasValidTarget(r.roundedTarget); })
+    .slice()
+    .sort(function(a,b){ return b.pctToTarget - a.pctToTarget; })
     .slice(0, 3);
 
   var amCards = document.getElementById('am-mcards');
@@ -2388,34 +2412,38 @@ function renderAM(filterMarket) {
       amCards.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:12px">No targets set for this period.</div>';
     } else {
       amCards.innerHTML = ldrData.map(function(r, i){
-        var ps = paceStatus(r.a, r.t, pace);
+        var ps = paceStatus(r.a, r.roundedTarget, pace);
         var fc = ps.cls === 'cg' ? 'fg' : ps.cls === 'ca' ? 'fa' : 'fr';
         var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
         var actualW = Math.min(r.pctToTarget, 100);
         var paceW = Math.min(Math.round(pace * 100), 100);
+
         function ordinal(n){
           var s=["th","st","nd","rd"]; var v=n%100;
           return n+(s[(v-20)%10]||s[v]||s[0]);
         }
+
         var cardCls = i===0?'rank-1-card':i===1?'rank-2-card':i===2?'rank-3-card':'rank-4-card';
         var numCls  = i===0?'rn-1':i===1?'rn-2':i===2?'rn-3':'rn-4';
+
         return '<div class="mcard '+cardCls+'" style="margin-top:'+(i===0?'14px':'0')+'">' +
           (i===0?'<div class="rank-crown">&#127942;</div>':'') +
           '<div class="rank-num '+numCls+'">'+ordinal(i+1)+'</div>' +
           '<div class="mcard-mkt">'+r.name+'</div>' +
           '<div class="mcard-mgr">'+r.market+' &middot; '+r.cnt+' store'+(r.cnt!==1?'s':'')+'</div>' +
-          '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+whole(r.t)+' target</span></div>' +
+          '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.roundedTarget+' target</span></div>' +
           '<div style="position:relative;margin-bottom:8px">' +
             '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
             (isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'') +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-            '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.t, pace)+'</span>' +
+            '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.roundedTarget, pace)+'</span>' +
             '<span style="font-size:12px;color:#888780">'+r.pctToTarget+'% to '+(isMTD?'paced ':'')+'target</span>' +
           '</div>' +
         '</div>';
       }).join('');
     }
+
     refreshCollapsible('sb-am-ldr');
   }
 }
@@ -2445,15 +2473,16 @@ function buildOv() {
   var isMTD = meta && meta.isMTD;
 
   document.getElementById('mkt-tbl-title').textContent = 'Market summary — ' + (meta ? meta.label : mk);
+
   document.getElementById('mkt-foot').textContent = isMTD
-    ? '"Actual" uses referral leads from business outcomes raw data. "vs pace (MTD)" = actual minus paced target (monthly target × ' + meta.daysElapsed + '/' + meta.daysTotal + ' days elapsed). ≥100% on track, 80–99% at risk, <80% behind.'
-    : 'Complete month — actuals use business outcomes raw data, while targets and org reference remain from the referral target dataset.';
+    ? '"Actual" uses referral leads from business outcomes raw data. "vs pace (MTD)" and % to target use rounded targets.'
+    : 'Complete month — actuals use business outcomes raw data, while targets and org reference remain from the referral target dataset. % to target uses rounded targets.';
 
   var mkEl = document.getElementById('metric-key');
   if (isMTD) {
     mkEl.innerHTML =
-      '<div class="mk-item"><span class="mk-label">Paced target</span><span class="mk-desc">Monthly target × (days elapsed ÷ days in month). Day ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' = ' + Math.round(pace*100) + '% of month.</span></div>' +
-      '<div class="mk-item"><span class="mk-label">vs pace (MTD)</span><span class="mk-desc">Actual minus paced target. Positive = ahead, negative = behind. Colors: green ≥100%, amber 80–99%, red &lt;80%.</span></div>' +
+      '<div class="mk-item"><span class="mk-label">Rounded target</span><span class="mk-desc">Monthly targets are rounded to the nearest whole number before calculating % to target.</span></div>' +
+      '<div class="mk-item"><span class="mk-label">Paced target</span><span class="mk-desc">Rounded monthly target × (days elapsed ÷ days in month), then rounded again for display and % calculation.</span></div>' +
       '<div class="mk-item"><span class="mk-label">Actual source</span><span class="mk-desc">Referral values come from business outcomes raw data only. Targets, manager labels, area counts, and store counts remain from the referral target dataset.</span></div>';
     mkEl.style.display = 'flex';
   } else {
@@ -2462,28 +2491,35 @@ function buildOv() {
 
   var rows = getMktRollup(mk);
   var ta = rows.reduce(function(s,r){ return s + r.a; }, 0);
-  var tt = rows.reduce(function(s,r){ return s + r.t; }, 0);
-  var oPS = paceStatus(ta, tt, pace);
+  var tt = rows.reduce(function(s,r){ return s + whole(r.t); }, 0);
 
   var effectiveTT = isMTD && tt > 0 ? whole(tt * pace) : whole(tt);
   var ovPct = effectiveTT > 0 ? Math.round(ta / effectiveTT * 100) : 0;
+  var oPS = paceStatus(ta, tt, pace);
+
   document.getElementById('ov-scorecards').innerHTML =
     makeScorecard('Total referrals', ta, 'referral leads', 'neutral') +
-    makeScorecard(isMTD ? 'Paced target' : 'Monthly target', isMTD ? effectiveTT : tt, isMTD ? 'day '+meta.daysElapsed+' of '+meta.daysTotal : meta ? meta.label : mk, 'neutral') +
-    makeScorecard('Overall attainment', (isMTD ? effectiveTT : tt) > 0 ? ovPct + '%' : '—', isMTD ? 'vs paced target' : 'final attainment', oPS.sc) +
+    makeScorecard(isMTD ? 'Paced target' : 'Monthly target', isMTD ? effectiveTT : tt, isMTD ? 'rounded target basis' : meta ? meta.label : mk, 'neutral') +
+    makeScorecard('Overall attainment', effectiveTT > 0 ? ovPct + '%' : '—', isMTD ? 'vs rounded paced target' : 'vs rounded target', oPS.sc) +
     makeScorecard(isMTD ? 'Days elapsed' : 'Month status', isMTD ? (meta.daysElapsed + ' / ' + meta.daysTotal) : 'Complete', isMTD ? Math.round(pace * 100) + '% of month done' : 'Full results', 'neutral');
 
   var ranked = rows.slice().map(function(r){
-    var effectiveTgt = isMTD && r.t > 0 ? (r.t * pace) : r.t;
+    var roundedTarget = whole(r.t);
+    var effectiveTgt = isMTD && roundedTarget > 0
+      ? whole(roundedTarget * pace)
+      : roundedTarget;
+
+    r.roundedTarget = roundedTarget;
     r.effectiveTgt = effectiveTgt;
     r.pctToPace = effectiveTgt > 0 ? r.a / effectiveTgt : 0;
     r.pctToTarget = effectiveTgt > 0 ? Math.round(r.a / effectiveTgt * 100) : 0;
+
     return r;
   }).sort(function(a,b){ return b.pctToPace - a.pctToPace; });
 
   document.getElementById('mcards').innerHTML = ranked.map(function(r, i){
-    var ps = paceStatus(r.a, r.t, pace);
-    var actualW = r.t > 0 ? Math.min(Math.round(r.a / r.t * 100), 100) : 0;
+    var ps = paceStatus(r.a, r.roundedTarget, pace);
+    var actualW = r.effectiveTgt > 0 ? Math.min(Math.round(r.a / r.effectiveTgt * 100), 100) : 0;
     var paceW = Math.min(Math.round(pace * 100), 100);
     var fc = ps.cls === 'cg' ? 'fg' : ps.cls === 'ca' ? 'fa' : 'fr';
     var stCls = ps.cls === 'cg' ? 'st-win' : ps.cls === 'ca' ? 'st-warn' : 'st-danger';
@@ -2502,32 +2538,32 @@ function buildOv() {
       '<div class="rank-num '+numCls+'">'+ordinal(i + 1)+'</div>' +
       '<div class="mcard-mkt">'+r.m+'</div>' +
       '<div class="mcard-mgr">'+marketManagerLabel(r.m)+'</div>' +
-      '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+whole(r.t)+' target</span></div>' +
+      '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.roundedTarget+' target</span></div>' +
       '<div style="position:relative;margin-bottom:8px">' +
         '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
         (isMTD ? '<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>' : '') +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-        '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.t, pace)+'</span>' +
-        '<span style="font-size:12px;color:#888780">'+(r.t > 0 ? r.pctToTarget : 0)+'% to '+(isMTD ? 'paced target' : 'goal')+'</span>' +
+        '<span class="mcard-status '+stCls+'">'+vsPaceStr(r.a, r.roundedTarget, pace)+'</span>' +
+        '<span style="font-size:12px;color:#888780">'+(r.roundedTarget > 0 ? r.pctToTarget : 0)+'% to '+(isMTD ? 'rounded paced target' : 'rounded target')+'</span>' +
       '</div>' +
     '</div>';
   }).join('');
 
   document.getElementById('mtbl').innerHTML = ranked.map(function(r, i){
-    var ps = paceStatus(r.a, r.t, pace);
-    var pv = r.t > 0 ? r.a - Math.round(r.t * pace) : null;
+    var ps = paceStatus(r.a, r.roundedTarget, pace);
+
     return '<tr class="dr '+ps.row+'">' +
       '<td style="font-size:12px;color:#888780;font-weight:500">'+(i + 1)+'</td>' +
       '<td style="font-weight:500">'+r.m+'</td>' +
       '<td style="color:#888780;font-size:12px">'+marketManagerLabel(r.m)+'</td>' +
       '<td class="tr">'+r.areas+'</td>' +
       '<td class="tr">'+r.cnt+'</td>' +
-      '<td class="tr">'+whole(r.t)+'</td>' +
+      '<td class="tr">'+r.roundedTarget+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td>' +
-      '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? vsPaceStr(r.a, r.t, pace) : '—')+'</td>' +
-      '<td class="tr"><span class="b '+ps.badge+'">'+displayPctBadge(r.pctToTarget, r.t > 0)+'</span></td>' +
+      '<td class="tr '+ps.cls+'" style="font-size:12px">'+vsPaceStr(r.a, r.roundedTarget, pace)+'</td>' +
+      '<td class="tr"><span class="b '+ps.badge+'">'+displayPctBadge(r.pctToTarget, r.roundedTarget > 0)+'</span></td>' +
     '</tr>';
   }).join('');
 
@@ -2574,9 +2610,17 @@ function buildSM() {
     var actuals = actualMonths.map(function(mm){ return marketOverviewActuals(mm.key, m); });
     var targets = actualMonths.map(function(mm){ return whole(monthlyTarget(mm.key, m)); });
     var idx = actualMonths.findIndex(function(mm){ return mm.key === mk; });
-    var bp = (idx >= 0 && targets[idx] > 0)
-      ? (isMTD ? pc(marketOverviewActuals(mk, m), Math.round(monthlyTarget(mk, m) * pace)) : pc(marketOverviewActuals(mk, m), monthlyTarget(mk, m)))
-      : 0;
+    var bpTarget = idx >= 0 && targets[idx] > 0
+
+  ? (isMTD ? whole(targets[idx] * pace) : targets[idx])
+
+  : 0;
+
+var bp = bpTarget > 0
+
+  ? pc(marketOverviewActuals(mk, m), bpTarget)
+
+  : 0;
 
     var bb = bp >= 100 ? '#1d9e75' : bp >= 80 ? '#ba7517' : '#a32d2d';
     var statEl = document.getElementById('sm-stat-' + m);
