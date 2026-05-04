@@ -1359,6 +1359,12 @@ function marketWasLive(market, monthKey) {
 /* =========================
    MARKET HELPERS
 ========================= */
+
+function whole(n) {
+
+  return Math.round(Number(n) || 0);
+
+}  
 function getAllowedDashboardMarkets() {
   return DASHBOARD_MARKETS.slice();
 }
@@ -2053,7 +2059,7 @@ function renderS() {
       var gapAbove = storeAbove && hasT ? storeAbove.a - ms.a : null;
       var gapBelow = storeBelowS && hasT ? ms.a - storeBelowS.a : null;
 
-      var pacedTgt = hasT ? (isMTD ? Math.round(ms.t * pace) : ms.t) : null;
+      var pacedTgt = hasT ? whole(isMTD ? ms.t * pace : ms.t) : null;
       var paceBarW = pacedTgt > 0 ? Math.min(Math.round(ms.a / pacedTgt * 100), 100) : 0;
       var paceBarColor = ms.ps.cls === 'cg' ? '#1d9e75' : ms.ps.cls === 'ca' ? '#ba7517' : '#a32d2d';
 
@@ -2140,7 +2146,7 @@ function renderS() {
             '<div class="rank-num '+numCls+'">'+stOrdinal(i+1)+'</div>' +
             '<div class="mcard-mkt">Store '+s.n+'</div>' +
             '<div class="mcard-mgr">'+s.mgr+' &middot; '+s.area+'</div>' +
-            '<div class="mcard-nums"><span class="mcard-actual">'+s.a+'</span><span class="mcard-tgt">of '+parseFloat(s.t.toFixed(1))+' target</span></div>' +
+            '<div class="mcard-nums"><span class="mcard-actual">'+s.a+'</span><span class="mcard-tgt">of '+whole(s.t)+' target</span></div>' +
             '<div style="position:relative;margin-bottom:8px">' +
               '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
               (isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'') +
@@ -2194,7 +2200,7 @@ function renderS() {
 
     var tgtCell = preLaunch
       ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
-      : '<td class="tr">'+(hasT ? parseFloat(s.t.toFixed(1)) : '—')+'</td>';
+      : '<td class="tr">'+(hasT ? whole(s.t) : '—')+'</td>';
 
     var pctBadge = hasT
       ? '<span class="b '+(s.pctToTarget >= 100 ? 'bg' : s.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(s.pctToTarget, true)+'</span>'
@@ -2350,7 +2356,7 @@ function renderAM(filterMarket) {
     var tgt = r.t;
     var tgtCell = isPreLaunch(tgt) ? '<td class="tr" style="color:#9ca3af;font-size:11px">pre-launch</td>'
                 : !hasValidTarget(tgt) ? '<td class="tr" style="color:#9ca3af">—</td>'
-                : '<td class="tr">'+parseFloat(tgt.toFixed(1))+'</td>';
+                : '<td class="tr">'+whole(tgt)+'</td>';
     var hasT = hasValidTarget(tgt);
     var paceCell = isMTD && hasT
       ? '<td class="tr '+r.ps.cls+'" style="font-size:12px">'+vsPaceStr(r.a, tgt, pace)+'</td>'
@@ -2398,7 +2404,7 @@ function renderAM(filterMarket) {
           '<div class="rank-num '+numCls+'">'+ordinal(i+1)+'</div>' +
           '<div class="mcard-mkt">'+r.name+'</div>' +
           '<div class="mcard-mgr">'+r.market+' &middot; '+r.cnt+' store'+(r.cnt!==1?'s':'')+'</div>' +
-          '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+parseFloat(r.t.toFixed(1))+' target</span></div>' +
+          '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+whole(r.t)+' target</span></div>' +
           '<div style="position:relative;margin-bottom:8px">' +
             '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
             (isMTD?'<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>':'') +
@@ -2426,7 +2432,7 @@ function getMktRollup(monthKey) {
       cnt: uniqueStores(monthKey, m),
       areas: uniqueAreasCount(monthKey, m),
       a: actualLeads,
-      t: monthlyTarget(monthKey, m),
+      t: whole(monthlyTarget(monthKey, m)),
       avgS: uniqueStores(monthKey, m) > 0 ? actualLeads / uniqueStores(monthKey, m) : 0
     };
   });
@@ -2459,7 +2465,7 @@ function buildOv() {
   var tt = rows.reduce(function(s,r){ return s + r.t; }, 0);
   var oPS = paceStatus(ta, tt, pace);
 
-  var effectiveTT = isMTD && tt > 0 ? Math.round(tt * pace) : tt;
+  var effectiveTT = isMTD && tt > 0 ? whole(tt * pace) : whole(tt);
   var ovPct = effectiveTT > 0 ? Math.round(ta / effectiveTT * 100) : 0;
   document.getElementById('ov-scorecards').innerHTML =
     makeScorecard('Total referrals', ta, 'referral leads', 'neutral') +
@@ -2496,7 +2502,7 @@ function buildOv() {
       '<div class="rank-num '+numCls+'">'+ordinal(i + 1)+'</div>' +
       '<div class="mcard-mkt">'+r.m+'</div>' +
       '<div class="mcard-mgr">'+marketManagerLabel(r.m)+'</div>' +
-      '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.t+' target</span></div>' +
+      '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+whole(r.t)+' target</span></div>' +
       '<div style="position:relative;margin-bottom:8px">' +
         '<div class="pbb"><div class="pbf '+fc+'" style="width:'+actualW+'%"></div></div>' +
         (isMTD ? '<div style="position:relative;height:8px;margin-top:-1px"><div style="position:absolute;left:'+paceW+'%;top:0;width:2.5px;height:8px;background:#444;border-radius:2px"></div></div>' : '') +
@@ -2517,7 +2523,7 @@ function buildOv() {
       '<td style="color:#888780;font-size:12px">'+marketManagerLabel(r.m)+'</td>' +
       '<td class="tr">'+r.areas+'</td>' +
       '<td class="tr">'+r.cnt+'</td>' +
-      '<td class="tr">'+r.t+'</td>' +
+      '<td class="tr">'+whole(r.t)+'</td>' +
       '<td class="tr">'+r.a+'</td>' +
       '<td class="tr" style="font-weight:500">'+r.avgS.toFixed(1)+'</td>' +
       '<td class="tr '+ps.cls+'" style="font-size:12px">'+(pv !== null ? vsPaceStr(r.a, r.t, pace) : '—')+'</td>' +
@@ -2566,7 +2572,7 @@ function buildSM() {
     var actualMonths = MONTHS_META.slice(-6);
     var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
     var actuals = actualMonths.map(function(mm){ return marketOverviewActuals(mm.key, m); });
-    var targets = actualMonths.map(function(mm){ return monthlyTarget(mm.key, m); });
+    var targets = actualMonths.map(function(mm){ return whole(monthlyTarget(mm.key, m)); });
     var idx = actualMonths.findIndex(function(mm){ return mm.key === mk; });
     var bp = (idx >= 0 && targets[idx] > 0)
       ? (isMTD ? pc(marketOverviewActuals(mk, m), Math.round(monthlyTarget(mk, m) * pace)) : pc(marketOverviewActuals(mk, m), monthlyTarget(mk, m)))
@@ -2628,7 +2634,7 @@ function buildCmp() {
   if (!meta) return;
 
   var actuals = overviewMarkets.map(function(m){ return marketOverviewActuals(mk, m); });
-  var targets = overviewMarkets.map(function(m){ return monthlyTarget(mk, m); });
+  var targets = overviewMarkets.map(function(m){ return whole(monthlyTarget(mk, m)); });
 
   document.getElementById('cmp-foot').textContent = meta.isMTD
     ? meta.label + ' MTD — ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' days.'
