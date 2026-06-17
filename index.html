@@ -1291,6 +1291,7 @@ tr.my-store-row td {
 ========================= */
 var LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_daily.json';
 var BIZ_LIVE_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_channel_market_kpi_daily.json';
+var TARGET_URL = 'https://raw.githubusercontent.com/nubrakes-analytics/NuBrakes-Copilot/main/data/fact_nubrakes_vioc_referral_target.json';
 
 var FALLBACK_DATA = [
   {Day:"2026-01-31",StoreNumber:40040,Leads:5,CompletedJobs:1,Market:"Nashville",Regional:"M Popielarz",Area:"K Rea",StoreManager:"Tristan",ReferralTarget:1.525,CompletedTarget:0.5},
@@ -1313,6 +1314,7 @@ var FALLBACK_DATA = [
 ========================= */
 var RAW = [];
 var BIZ_RAW = [];
+var TARGET_RAW = [];
 var MKTS = [];
 var MONTHS_META = [];
 var CURRENT_MONTH_KEY = '';
@@ -1490,6 +1492,22 @@ function normaliseBizRow(r) {
     booked: pickNum(pickFirst(r, ['jobs_booked','Jobs Booked','booked'])),
     completed: pickNum(pickFirst(r, ['jobs_completed','Completed Jobs','completed'])),
     revenue: pickNum(pickFirst(r, ['revenue','Revenue','invoiced_customer_price']))
+  };
+}
+
+function normaliseTargetRow(r) {
+  var sn = Number(r['Store Number'] || 0);
+  if (!Number.isFinite(sn) || sn === 0) return null;
+  var mkt = r['Market'] || '';
+  if (!mkt || mkt === '#N/A' || !isAllowedDashboardMarket(mkt)) return null;
+  var monthKey = String(r['Month'] || '').trim().substring(0, 7);
+  if (!monthKey) return null;
+  var mrt = Number(r['Monthly Referral Target'] || 0);
+  return {
+    storeNum: sn,
+    market: mkt,
+    monthKey: monthKey,
+    monthlyRefTarget: Number.isFinite(mrt) ? mrt : 0
   };
 }
 
@@ -1814,6 +1832,26 @@ function monthlyTarget(monthKey, market) {
   }, 0);
 
   return Math.round(total);
+}
+
+function marketOverviewTarget(monthKey, market) {
+  if (TARGET_RAW.length) {
+    var byStore = {};
+    TARGET_RAW.forEach(function(r){
+      if (r.monthKey === monthKey && r.market === market && r.monthlyRefTarget > 0) {
+        if (!byStore[r.storeNum]) byStore[r.storeNum] = {sum:0, count:0};
+        byStore[r.storeNum].sum += r.monthlyRefTarget;
+        byStore[r.storeNum].count += 1;
+      }
+    });
+
+    var total = Object.keys(byStore).reduce(function(sum, storeNum){
+      var t = byStore[storeNum];
+      return sum + (t.count ? t.sum / t.count : 0);
+    }, 0);
+    if (total > 0) return Math.round(total);
+  }
+  return monthlyTarget(monthKey, market);
 }
 
 function uniqueStores(monthKey, market) {
@@ -2460,7 +2498,7 @@ function getMktRollup(monthKey) {
       cnt: uniqueStores(monthKey, m),
       areas: uniqueAreasCount(monthKey, m),
       a: actualLeads,
-      t: whole(monthlyTarget(monthKey, m)),
+      t: whole(marketOverviewTarget(monthKey, m)),
       avgS: uniqueStores(monthKey, m) > 0 ? actualLeads / uniqueStores(monthKey, m) : 0
     };
   });
@@ -2608,7 +2646,7 @@ function buildSM() {
     var actualMonths = MONTHS_META.slice(-6);
     var labels = actualMonths.map(function(mm){ return mm.label.substring(0,3); });
     var actuals = actualMonths.map(function(mm){ return marketOverviewActuals(mm.key, m); });
-    var targets = actualMonths.map(function(mm){ return whole(monthlyTarget(mm.key, m)); });
+    var targets = actualMonths.map(function(mm){ return whole(marketOverviewTarget(mm.key, m)); });
     var idx = actualMonths.findIndex(function(mm){ return mm.key === mk; });
     var bpTarget = idx >= 0 && targets[idx] > 0
 
@@ -2678,7 +2716,7 @@ function buildCmp() {
   if (!meta) return;
 
   var actuals = overviewMarkets.map(function(m){ return marketOverviewActuals(mk, m); });
-  var targets = overviewMarkets.map(function(m){ return whole(monthlyTarget(mk, m)); });
+  var targets = overviewMarkets.map(function(m){ return whole(marketOverviewTarget(mk, m)); });
 
   document.getElementById('cmp-foot').textContent = meta.isMTD
     ? meta.label + ' MTD — ' + meta.daysElapsed + ' of ' + meta.daysTotal + ' days.'
@@ -3004,22 +3042,29 @@ function loadData() {
     fetch(BIZ_LIVE_URL).then(function(res){
       if (!res.ok) throw new Error('Business outcomes HTTP ' + res.status);
       return res.json();
-    })
+    }),
+    fetch(TARGET_URL).then(function(res){
+      if (!res.ok) throw new Error('Target data HTTP ' + res.status);
+      return res.json();
+    }).catch(function(){ return []; })
   ])
     .then(function(results){
       var referralJson = results[0];
       var bizJson = results[1];
+      var targetJson = results[2];
 
       document.getElementById('loading-text').textContent =
-        'Processing ' + referralJson.length + ' referral rows and ' + bizJson.length + ' KPI rows…';
+        'Processing ' + referralJson.length + ' referral rows, ' + bizJson.length + ' KPI rows, ' + targetJson.length + ' target rows…';
 
       var referralRows = referralJson.map(normaliseRow).filter(Boolean);
       var bizRows = bizJson.map(normaliseBizRow).filter(Boolean);
+      var targetRows = targetJson.map(normaliseTargetRow).filter(Boolean);
 
       if (!referralRows.length) throw new Error('No usable referral rows');
 
       RAW = referralRows;
       BIZ_RAW = bizRows;
+      TARGET_RAW = targetRows;
       dataSource = 'live';
       bizDataSource = bizRows.length ? 'live' : 'fallback';
 
@@ -3031,6 +3076,7 @@ function loadData() {
 
       RAW = FALLBACK_DATA.map(normaliseFallbackRow).filter(Boolean);
       BIZ_RAW = [];
+      TARGET_RAW = [];
       dataSource = 'fallback';
       bizDataSource = 'fallback';
 
