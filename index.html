@@ -999,15 +999,14 @@ tr.my-store-row td {
         <table>
           <thead>
   <tr>
-    <th style="width:11%">Store #</th>
-    <th style="width:12%">Manager</th>
-    <th style="width:13%">Area mgr</th>
-    <th style="width:11%">Market</th>
-    <th class="tr" style="width:9%">Target</th>
-    <th class="tr" style="width:9%">Actual</th>
-    <th class="tr" style="width:12%" id="st-pct-col-hdr">% to target</th>
-    <th class="tr" style="width:15%" id="st-pace-col-hdr">vs pace (MTD)</th>
-    <th class="tr" style="width:8%">Top 25%</th>
+    <th style="width:12%">Store #</th>
+    <th style="width:15%">Area mgr</th>
+    <th style="width:13%">Market</th>
+    <th class="tr" style="width:10%">Target</th>
+    <th class="tr" style="width:10%">Actual</th>
+    <th class="tr" style="width:14%" id="st-pct-col-hdr">% to target</th>
+    <th class="tr" style="width:17%" id="st-pace-col-hdr">vs pace (MTD)</th>
+    <th class="tr" style="width:9%">Top 25%</th>
   </tr>
 </thead>
           <tbody id="stbl"></tbody>
@@ -2278,7 +2277,6 @@ function renderS() {
 
       return '<tr class="'+rowCls+'">' +
         storeNumCell +
-        '<td style="font-size:12px">'+s.mgr+'</td>' +
         '<td style="font-size:12px;color:#5F5E5A">'+s.area+'</td>' +
         '<td style="font-size:12px;color:#888780">'+s.mkt+'</td>' +
         tgtCell +
