@@ -1055,7 +1055,7 @@ tr.my-store-row td {
       </div>
       <div class="section-body" id="sb-am-tbl">
       <div class="panel">
-        <div class="ph"><span class="pt">Area manager attainment — lowest to highest</span></div>
+        <div class="ph"><span class="pt">Area manager attainment — highest to lowest</span></div>
         <table>
           <thead>
             <tr>
@@ -2382,7 +2382,7 @@ function renderAM(filterMarket) {
   }).sort(function(a,b){
     var pa = a.effectiveTgt > 0 ? a.a / a.effectiveTgt : -1;
     var pb = b.effectiveTgt > 0 ? b.a / b.effectiveTgt : -1;
-    return pa - pb;
+    return pb - pa;
   });
 
   var on = data.filter(function(x){ return x.ps.cls === 'cg'; }).length;
