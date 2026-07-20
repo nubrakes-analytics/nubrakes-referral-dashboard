@@ -1030,7 +1030,8 @@ tr.my-store-row td {
 
       <div class="frow">
         <span class="fl">Market</span>
-        <select id="am-mkt-sel" onchange="selMarketKey=this.value; var s=document.getElementById('mkt-sel'); if(s&&s.value!==this.value)s.value=this.value; filterMkt(this.value);">
+        <select id="am-mkt-sel"
+  onchange="selMarketKey=this.value; var s=document.getElementById('mkt-sel'); if(s&&s.value!==this.value)s.value=this.value; filterMkt(this.value); renderAM(this.value);">
           <option value="all">All markets</option>
         </select>
       </div>
