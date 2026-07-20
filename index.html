@@ -340,6 +340,29 @@ select{
   color:var(--text-muted);
   margin-bottom:10px;
 }
+.mcard-reporting{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:5px 0 4px;
+  min-width:0;
+}
+.mcard-reporting-label{
+  flex-shrink:0;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+}
+.mcard-reporting-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:700;
+  color:#0E2468;
+}
 .mcard-nums{
   display:flex;
   justify-content:space-between;
@@ -461,6 +484,85 @@ tr.win-row td{background:rgba(16,185,129,0.08)}
 tr.warn-row td{background:rgba(245,158,11,0.10)}
 tr.danger-row td{background:rgba(244,63,94,0.08)}
 tr.dr:hover td{filter:brightness(.985)}
+
+.am-role-pair{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+  white-space:normal;
+}
+.am-role-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-weight:700;
+  color:var(--text-strong);
+}
+.am-role-reports{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+  color:var(--text-muted);
+}
+.market-manager-pill{
+  display:inline-block;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding:3px 8px;
+  border:1px solid #c7d2fe;
+  border-radius:var(--radius-pill);
+  background:#eef2ff;
+  color:#3730a3;
+  font-size:11px;
+  font-weight:700;
+  vertical-align:middle;
+}
+.mm-group-header td{
+  padding:9px 16px;
+  border-top:2px solid #c7d2fe;
+  border-bottom:1px solid #c7d2fe;
+  background:#f5f7ff;
+  color:#3730a3;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.02em;
+}
+.mm-group-label{
+  margin-right:6px;
+  color:var(--text-muted);
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.mm-group-meta{
+  margin-left:8px;
+  color:var(--text-muted);
+  font-weight:500;
+}
+.mm-subtotal-row td{
+  border-top:1px solid #a5b4fc;
+  border-bottom:2px solid #c7d2fe;
+  background:#eef2ff;
+  color:#312e81;
+  font-weight:700;
+}
+.mm-subtotal-label{
+  display:block;
+  font-size:11px;
+  font-weight:800;
+}
+.mm-subtotal-meta{
+  display:block;
+  margin-top:2px;
+  color:#6366f1;
+  font-size:10px;
+  font-weight:600;
+}
 
 /* badges */
 .b{
@@ -1030,8 +1132,7 @@ tr.my-store-row td {
 
       <div class="frow">
         <span class="fl">Market</span>
-        <select id="am-mkt-sel"
-  onchange="selMarketKey=this.value; var s=document.getElementById('mkt-sel'); if(s&&s.value!==this.value)s.value=this.value; filterMkt(this.value); renderAM(this.value);">
+        <select id="am-mkt-sel" onchange="selMarketKey=this.value; var s=document.getElementById('mkt-sel'); if(s&&s.value!==this.value)s.value=this.value; filterMkt(this.value); renderAM(this.value);">
           <option value="all">All markets</option>
         </select>
       </div>
@@ -1055,13 +1156,13 @@ tr.my-store-row td {
       </div>
       <div class="section-body" id="sb-am-tbl">
       <div class="panel">
-        <div class="ph"><span class="pt">Area manager attainment — highest to lowest</span></div>
+        <div class="ph"><span class="pt" id="am-detail-title">Area manager attainment — highest to lowest</span></div>
         <table>
           <thead>
             <tr>
-              <th style="width:20%">Area manager</th>
-              <th style="width:14%">Market</th>
-              <th style="width:14%">Mkt manager</th>
+              <th style="width:19%">Area manager</th>
+              <th style="width:16%">Market manager</th>
+              <th style="width:13%">Market</th>
               <th class="tr" style="width:9%">Stores</th>
               <th class="tr" style="width:11%">Target</th>
               <th class="tr" style="width:11%">Actual</th>
@@ -1725,6 +1826,27 @@ function marketManagerLabel(market) {
   return Object.keys(seen).join(' / ') || '—';
 }
 
+/* Resolve the Market Manager who owns a specific Area Manager assignment.
+   Prefer the latest assignment in the selected month; if that month has no
+   rows for the area, fall back to the latest assignment in the full dataset. */
+function areaMarketManagerLabel(area, market, monthKey) {
+  var matching = RAW.filter(function(r){
+    return r.area === area && r.market === market && r.regional;
+  });
+  var monthMatching = matching.filter(function(r){ return r.monthKey === monthKey; });
+  var source = monthMatching.length ? monthMatching : matching;
+  if (!source.length) return '—';
+
+  var latestDay = source.reduce(function(latest, r){
+    return r.day > latest ? r.day : latest;
+  }, '');
+  var seen = {};
+  source.forEach(function(r){
+    if (r.day === latestDay) seen[r.regional] = true;
+  });
+  return Object.keys(seen).sort().join(' / ') || '—';
+}
+
 function monthMarketTotals(monthKey, market) {
   var rows = RAW.filter(function(r){ return r.monthKey === monthKey && r.market === market; });
   var leads = 0, comp = 0;
@@ -2318,6 +2440,39 @@ function renderS() {
 /* =========================
    AREA MANAGER VIEW
 ========================= */
+function marketManagerSubtotal(rows, pace, isMTD) {
+  var storeNums = {};
+  var actual = 0;
+  var rawTarget = 0;
+
+  rows.forEach(function(r){
+    actual += r.a;
+    rawTarget += r.t;
+    (r.storeNums || []).forEach(function(sn){ storeNums[sn] = true; });
+  });
+
+  var roundedTarget = whole(rawTarget);
+  var effectiveTgt = isMTD && roundedTarget > 0
+    ? whole(roundedTarget * pace)
+    : roundedTarget;
+  var pctToTarget = effectiveTgt > 0
+    ? Math.round(actual / effectiveTgt * 100)
+    : 0;
+
+  return {
+    regional: rows.length ? rows[0].regional : '—',
+    market: rows.length ? rows[0].market : '—',
+    areaCount: rows.length,
+    cnt: Object.keys(storeNums).length,
+    a: actual,
+    t: rawTarget,
+    roundedTarget: roundedTarget,
+    effectiveTgt: effectiveTgt,
+    pctToTarget: pctToTarget,
+    ps: paceStatus(actual, roundedTarget, pace)
+  };
+}
+
 function renderAM(filterMarket) {
   var mk = selMonthKey;
   var pace = paceFraction(mk);
@@ -2334,7 +2489,7 @@ function renderAM(filterMarket) {
       areas[k] = {
         area: r.area,
         market: r.market,
-        regional: marketManagerLabel(r.market),
+        regional: areaMarketManagerLabel(r.area, r.market, mk),
         storeNums: {},
         a: 0,
         t: 0
@@ -2371,6 +2526,7 @@ function renderAM(filterMarket) {
       market: r.market,
       regional: r.regional,
       cnt: Object.keys(r.storeNums).length,
+      storeNums: Object.keys(r.storeNums),
       a: r.a,
       t: r.t,
       roundedTarget: roundedTarget,
@@ -2404,9 +2560,19 @@ function renderAM(filterMarket) {
     af.textContent = isMTD
       ? '% to target uses rounded paced target. Daily pace = actual minus expected referrals at current pace.'
       : 'Complete month — % to target is final attainment vs rounded monthly target.';
+    if (filterMarket === 'Nashville') {
+      af.textContent += ' Nashville is grouped by Market Manager; each subtotal aggregates that manager’s Area Managers.';
+    }
   }
 
-  document.getElementById('amtbl').innerHTML = data.map(function(r){
+  var detailTitle = document.getElementById('am-detail-title');
+  if (detailTitle) {
+    detailTitle.textContent = filterMarket === 'Nashville'
+      ? 'Nashville Area manager attainment — grouped by Market Manager'
+      : 'Area manager attainment — highest to lowest';
+  }
+
+  function areaManagerRowHTML(r) {
     var tgt = r.t;
     var hasT = hasValidTarget(r.roundedTarget);
 
@@ -2427,16 +2593,70 @@ function renderAM(filterMarket) {
       : '—';
 
     return '<tr class="dr '+r.ps.row+'">' +
-      '<td style="font-weight:500">'+r.name+'</td>' +
+      '<td><div class="am-role-pair"><span class="am-role-name">'+r.name+'</span><span class="am-role-reports">Reports to '+r.regional+'</span></div></td>' +
+      '<td><span class="market-manager-pill">'+r.regional+'</span></td>' +
       '<td style="font-size:12px;color:#888780">'+r.market+'</td>' +
-      '<td style="font-size:12px;color:#888780">'+r.regional+'</td>' +
       '<td class="tr">'+r.cnt+'</td>' +
       tgtCell +
       '<td class="tr">'+r.a+'</td>' +
       paceCell +
       '<td class="tr">'+badge+'</td>' +
     '</tr>';
-  }).join('');
+  }
+
+  function managerSubtotalRowHTML(r) {
+    var hasT = hasValidTarget(r.roundedTarget);
+    var targetCell = hasT
+      ? '<td class="tr">'+r.roundedTarget+'</td>'
+      : '<td class="tr" style="color:#818cf8">—</td>';
+    var paceCell = isMTD && hasT
+      ? '<td class="tr '+r.ps.cls+'">'+vsPaceStr(r.a, r.roundedTarget, pace)+'</td>'
+      : isMTD
+        ? '<td class="tr" style="color:#818cf8">—</td>'
+        : '<td class="tr">'+attainOrPaceCell(r.a, r.roundedTarget, pace, false)+'</td>';
+    var badge = hasT
+      ? '<span class="b '+(r.pctToTarget >= 100 ? 'bg' : r.pctToTarget >= 80 ? 'ba' : 'br')+'">'+displayPctBadge(r.pctToTarget, true)+'</span>'
+      : '—';
+
+    return '<tr class="mm-subtotal-row">' +
+      '<td><span class="mm-subtotal-label">Market Manager subtotal</span><span class="mm-subtotal-meta">'+r.areaCount+' Area Manager'+(r.areaCount!==1?'s':'')+'</span></td>' +
+      '<td><span class="market-manager-pill">'+r.regional+'</span></td>' +
+      '<td>'+r.market+'</td>' +
+      '<td class="tr">'+r.cnt+'</td>' +
+      targetCell +
+      '<td class="tr">'+r.a+'</td>' +
+      paceCell +
+      '<td class="tr">'+badge+'</td>' +
+    '</tr>';
+  }
+
+  var detailHTML = '';
+  if (filterMarket === 'Nashville') {
+    var managerGroups = {};
+    data.forEach(function(r){
+      if (!managerGroups[r.regional]) managerGroups[r.regional] = [];
+      managerGroups[r.regional].push(r);
+    });
+
+    var groups = Object.keys(managerGroups).map(function(regional){
+      var rows = managerGroups[regional].slice().sort(function(a,b){
+        return b.pctToTarget - a.pctToTarget;
+      });
+      return { regional: regional, rows: rows, subtotal: marketManagerSubtotal(rows, pace, isMTD) };
+    }).sort(function(a,b){
+      return b.subtotal.pctToTarget - a.subtotal.pctToTarget;
+    });
+
+    detailHTML = groups.map(function(group){
+      return '<tr class="mm-group-header"><td colspan="8"><span class="mm-group-label">Market Manager</span>'+group.regional+'<span class="mm-group-meta">'+group.rows.length+' Area Manager'+(group.rows.length!==1?'s':'')+'</span></td></tr>' +
+        group.rows.map(areaManagerRowHTML).join('') +
+        managerSubtotalRowHTML(group.subtotal);
+    }).join('');
+  } else {
+    detailHTML = data.map(areaManagerRowHTML).join('');
+  }
+
+  document.getElementById('amtbl').innerHTML = detailHTML;
 
   var ldrData = data.filter(function(r){ return hasValidTarget(r.roundedTarget); })
     .slice()
@@ -2467,6 +2687,7 @@ function renderAM(filterMarket) {
           (i===0?'<div class="rank-crown">&#127942;</div>':'') +
           '<div class="rank-num '+numCls+'">'+ordinal(i+1)+'</div>' +
           '<div class="mcard-mkt">'+r.name+'</div>' +
+          '<div class="mcard-reporting"><span class="mcard-reporting-label">Reports to</span><span class="mcard-reporting-name">'+r.regional+'</span></div>' +
           '<div class="mcard-mgr">'+r.market+' &middot; '+r.cnt+' store'+(r.cnt!==1?'s':'')+'</div>' +
           '<div class="mcard-nums"><span class="mcard-actual">'+r.a+'</span><span class="mcard-tgt">of '+r.roundedTarget+' target</span></div>' +
           '<div style="position:relative;margin-bottom:8px">' +
